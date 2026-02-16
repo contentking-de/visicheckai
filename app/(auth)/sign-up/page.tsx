@@ -20,7 +20,6 @@ export default function SignUpPage() {
 
   const handleGoogleSignUp = () => {
     setIsGoogleLoading(true);
-    document.cookie = "signup_intent=true; path=/; max-age=600; samesite=lax";
     signIn("google", { callbackUrl: "/dashboard" });
   };
 
