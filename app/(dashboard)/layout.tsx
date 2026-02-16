@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { UserMenu } from "@/components/user-menu";
 import {
@@ -37,7 +38,8 @@ export default async function DashboardLayout({
     <div className="flex min-h-screen">
       <aside className="flex w-56 flex-col border-r bg-muted/30">
         <div className="flex h-16 items-center border-b px-4">
-          <Link href="/dashboard" className="font-semibold">
+          <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
+            <Image src="/favicon.webp" alt="" width={20} height={20} className="h-5 w-5" />
             visicheck.ai
           </Link>
         </div>

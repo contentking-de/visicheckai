@@ -22,8 +22,9 @@ export async function generateMetadata(): Promise<Metadata> {
     title: t("title"),
     description: t("description"),
     icons: {
-      icon: "/favicon.webp",
-      apple: "/favicon.webp",
+      icon: [{ url: "/favicon.webp", type: "image/webp" }],
+      shortcut: [{ url: "/favicon.webp", type: "image/webp" }],
+      apple: [{ url: "/favicon.webp", type: "image/webp" }],
     },
   };
 }

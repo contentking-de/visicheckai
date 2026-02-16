@@ -15,6 +15,7 @@ import {
   Check,
   ArrowRight,
 } from "lucide-react";
+import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { LanguageSwitcher } from "@/components/language-switcher";
 
@@ -25,7 +26,8 @@ export default async function LandingPage() {
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-sm">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
-          <Link href="/" className="text-xl font-semibold tracking-tight">
+          <Link href="/" className="flex items-center gap-2 text-xl font-semibold tracking-tight">
+            <Image src="/favicon.webp" alt="" width={24} height={24} className="h-6 w-6" />
             visicheck.ai
           </Link>
           <div className="flex items-center gap-3">
@@ -45,13 +47,6 @@ export default async function LandingPage() {
         <section className="relative overflow-hidden py-24 sm:py-32 lg:py-40">
           <div className="absolute inset-0 -z-10 bg-gradient-to-b from-primary/[0.03] to-transparent" />
           <div className="mx-auto max-w-4xl px-4 text-center">
-            <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-sm font-medium">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary/60" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
-              </span>
-              {t("heroBadge")}
-            </div>
             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
               {t("heroTitle")}
             </h1>
@@ -326,8 +321,9 @@ export default async function LandingPage() {
             <div>
               <Link
                 href="/"
-                className="text-xl font-semibold tracking-tight"
+                className="flex items-center gap-2 text-xl font-semibold tracking-tight"
               >
+                <Image src="/favicon.webp" alt="" width={24} height={24} className="h-6 w-6" />
                 visicheck.ai
               </Link>
               <p className="mt-3 text-sm text-muted-foreground">
