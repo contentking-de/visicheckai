@@ -90,15 +90,15 @@ export function CookieBanner() {
       )}
 
       {/* Floating Cookie Icon */}
-      {!showBanner && consent !== "loading" && (
+      {!showBanner && (
         <button
           type="button"
           onClick={reopen}
-          className="fixed bottom-5 left-5 z-[99] flex h-11 w-11 items-center justify-center rounded-full border bg-card shadow-lg transition-all hover:scale-110 hover:shadow-xl"
+          className="fixed bottom-5 right-5 z-[99] flex h-12 w-12 items-center justify-center rounded-full border bg-card shadow-lg transition-transform duration-200 hover:scale-110 hover:shadow-xl"
           aria-label={t("manage")}
           title={t("manage")}
         >
-          <Cookie className="h-5 w-5 text-muted-foreground" />
+          <Cookie className="h-5 w-5" />
         </button>
       )}
     </>
