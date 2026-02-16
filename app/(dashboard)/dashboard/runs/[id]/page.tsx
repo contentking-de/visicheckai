@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/table";
 import { ArrowLeft } from "lucide-react";
 import { getTranslations, getLocale } from "next-intl/server";
+import { ExpandableResponse } from "@/components/expandable-response";
 
 export default async function RunDetailPage({
   params,
@@ -137,8 +138,8 @@ export default async function RunDetailPage({
                     </TableCell>
                     <TableCell>{item.mentions}</TableCell>
                     <TableCell>{item.score}</TableCell>
-                    <TableCell className="max-w-[300px] truncate text-muted-foreground">
-                      {item.response.slice(0, 150)}…
+                    <TableCell className="max-w-[400px]">
+                      <ExpandableResponse text={item.response} />
                     </TableCell>
                   </TableRow>
                 ))}

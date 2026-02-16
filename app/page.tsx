@@ -1,6 +1,20 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { BarChart3, Shield, Zap, Globe } from "lucide-react";
+import {
+  Search,
+  BarChart3,
+  Bot,
+  Brain,
+  Target,
+  TrendingUp,
+  RefreshCw,
+  EyeOff,
+  Activity,
+  Download,
+  Plug,
+  Check,
+  ArrowRight,
+} from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { LanguageSwitcher } from "@/components/language-switcher";
 
@@ -8,79 +22,393 @@ export default async function LandingPage() {
   const t = await getTranslations("Landing");
 
   return (
-    <div className="min-h-screen">
-      <header className="border-b">
+    <div className="min-h-screen bg-background">
+      <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-sm">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
-          <span className="text-xl font-semibold">visicheck.ai</span>
+          <Link href="/" className="text-xl font-semibold tracking-tight">
+            visicheck.ai
+          </Link>
           <div className="flex items-center gap-3">
             <LanguageSwitcher />
-            <Button asChild variant="ghost">
+            <Button asChild variant="ghost" size="sm">
               <Link href="/login">{t("login")}</Link>
             </Button>
-            <Button asChild>
+            <Button asChild size="sm">
               <Link href="/sign-up">{t("signUp")}</Link>
             </Button>
           </div>
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 py-24">
-        <section className="mx-auto max-w-3xl text-center">
-          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-            {t("title")}
-          </h1>
-          <p className="mt-6 text-lg text-muted-foreground">
-            {t("description")}
-          </p>
-          <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:justify-center">
-            <Button asChild size="lg" className="h-12 px-8">
-              <Link href="/sign-up">{t("cta")}</Link>
-            </Button>
-            <Button asChild variant="outline" size="lg" className="h-12 px-8">
-              <Link href="/login">{t("login")}</Link>
-            </Button>
+      <main>
+        {/* Section 1: Hero – Kategorie definieren */}
+        <section className="relative overflow-hidden py-24 sm:py-32 lg:py-40">
+          <div className="absolute inset-0 -z-10 bg-gradient-to-b from-primary/[0.03] to-transparent" />
+          <div className="mx-auto max-w-4xl px-4 text-center">
+            <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-sm font-medium">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary/60" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
+              </span>
+              {t("heroBadge")}
+            </div>
+            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
+              {t("heroTitle")}
+            </h1>
+            <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
+              {t("heroSubtitle")}
+            </p>
+            <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:justify-center">
+              <Button asChild size="lg" className="h-12 px-8 text-base">
+                <Link href="/sign-up">
+                  {t("heroCta")}
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+              <Button
+                asChild
+                variant="outline"
+                size="lg"
+                className="h-12 px-8 text-base"
+              >
+                <Link href="/login">{t("login")}</Link>
+              </Button>
+            </div>
           </div>
         </section>
 
-        <section className="mx-auto mt-32 grid max-w-5xl gap-12 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="flex flex-col items-center text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-              <Globe className="h-6 w-6 text-primary" />
+        {/* Section 2: Kernproblem benennen */}
+        <section className="border-y bg-muted/40 py-20 sm:py-24">
+          <div className="mx-auto max-w-5xl px-4">
+            <h2 className="mx-auto max-w-3xl text-center text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
+              {t("problemTitle")}
+            </h2>
+            <div className="mt-14 grid gap-10 sm:grid-cols-3">
+              <div className="flex flex-col items-center text-center">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
+                  <TrendingUp className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="mt-5 text-lg font-semibold">
+                  {t("problemPoint1Title")}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  {t("problemPoint1Desc")}
+                </p>
+              </div>
+              <div className="flex flex-col items-center text-center">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
+                  <RefreshCw className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="mt-5 text-lg font-semibold">
+                  {t("problemPoint2Title")}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  {t("problemPoint2Desc")}
+                </p>
+              </div>
+              <div className="flex flex-col items-center text-center">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
+                  <EyeOff className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="mt-5 text-lg font-semibold">
+                  {t("problemPoint3Title")}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  {t("problemPoint3Desc")}
+                </p>
+              </div>
             </div>
-            <h3 className="mt-4 font-semibold">{t("featureDomains")}</h3>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {t("featureDomainsDesc")}
-            </p>
           </div>
-          <div className="flex flex-col items-center text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-              <BarChart3 className="h-6 w-6 text-primary" />
+        </section>
+
+        {/* Section 3: Core-USP-Bereich */}
+        <section className="py-20 sm:py-24">
+          <div className="mx-auto max-w-6xl px-4">
+            <div className="flex flex-wrap justify-center gap-6">
+              <div className="w-full rounded-xl border bg-card p-8 shadow-sm transition-shadow hover:shadow-md sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]">
+                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10">
+                  <Search className="h-5 w-5 text-primary" />
+                </div>
+                <h3 className="mt-5 text-lg font-semibold">{t("usp1Title")}</h3>
+                <p className="mt-2 leading-relaxed text-muted-foreground">
+                  {t("usp1Desc")}
+                </p>
+              </div>
+              <div className="w-full rounded-xl border bg-card p-8 shadow-sm transition-shadow hover:shadow-md sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]">
+                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10">
+                  <BarChart3 className="h-5 w-5 text-primary" />
+                </div>
+                <h3 className="mt-5 text-lg font-semibold">{t("usp2Title")}</h3>
+                <p className="mt-2 leading-relaxed text-muted-foreground">
+                  {t("usp2Desc")}
+                </p>
+              </div>
+              <div className="w-full rounded-xl border bg-card p-8 shadow-sm transition-shadow hover:shadow-md sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]">
+                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10">
+                  <Bot className="h-5 w-5 text-primary" />
+                </div>
+                <h3 className="mt-5 text-lg font-semibold">{t("usp3Title")}</h3>
+                <p className="mt-2 leading-relaxed text-muted-foreground">
+                  {t("usp3Desc")}
+                </p>
+              </div>
+              <div className="w-full rounded-xl border bg-card p-8 shadow-sm transition-shadow hover:shadow-md sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]">
+                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10">
+                  <Brain className="h-5 w-5 text-primary" />
+                </div>
+                <h3 className="mt-5 text-lg font-semibold">{t("usp4Title")}</h3>
+                <p className="mt-2 leading-relaxed text-muted-foreground">
+                  {t("usp4Desc")}
+                </p>
+              </div>
+              <div className="w-full rounded-xl border bg-card p-8 shadow-sm transition-shadow hover:shadow-md sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]">
+                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10">
+                  <Target className="h-5 w-5 text-primary" />
+                </div>
+                <h3 className="mt-5 text-lg font-semibold">{t("usp5Title")}</h3>
+                <p className="mt-2 leading-relaxed text-muted-foreground">
+                  {t("usp5Desc")}
+                </p>
+              </div>
             </div>
-            <h3 className="mt-4 font-semibold">{t("featurePrompts")}</h3>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {t("featurePromptsDesc")}
-            </p>
           </div>
-          <div className="flex flex-col items-center text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-              <Zap className="h-6 w-6 text-primary" />
+        </section>
+
+        {/* Section 4: Technisch fundiert, aber praxisnah */}
+        <section className="border-y bg-muted/40 py-20 sm:py-24">
+          <div className="mx-auto max-w-5xl px-4">
+            <div className="grid items-center gap-12 lg:grid-cols-2">
+              <div>
+                <h2 className="text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
+                  {t("techTitle")}
+                </h2>
+                <div className="mt-8 space-y-5">
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                      <Activity className="h-5 w-5 text-primary" />
+                    </div>
+                    <span className="font-medium">{t("techPoint1")}</span>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                      <TrendingUp className="h-5 w-5 text-primary" />
+                    </div>
+                    <span className="font-medium">{t("techPoint2")}</span>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                      <Download className="h-5 w-5 text-primary" />
+                    </div>
+                    <span className="font-medium">{t("techPoint3")}</span>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                      <Plug className="h-5 w-5 text-primary" />
+                    </div>
+                    <span className="font-medium">{t("techPoint4")}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="rounded-2xl border bg-card p-8 sm:p-10">
+                <p className="text-lg leading-relaxed text-muted-foreground">
+                  {t("techMessage1")}
+                </p>
+                <p className="mt-4 text-xl font-semibold leading-relaxed">
+                  {t("techMessage2")}
+                </p>
+              </div>
             </div>
-            <h3 className="mt-4 font-semibold">{t("featureIntervals")}</h3>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {t("featureIntervalsDesc")}
-            </p>
           </div>
-          <div className="flex flex-col items-center text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-              <Shield className="h-6 w-6 text-primary" />
+        </section>
+
+        {/* Section 5: Einstiegshürde senken */}
+        <section className="py-20 sm:py-24">
+          <div className="mx-auto max-w-4xl px-4 text-center">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
+              {t("startTitle")}
+            </h2>
+            <div className="mt-14 grid gap-8 sm:grid-cols-3">
+              <div className="flex flex-col items-center text-center">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground">
+                  1
+                </div>
+                <h3 className="mt-4 font-semibold">{t("startStep1Title")}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {t("startStep1Desc")}
+                </p>
+              </div>
+              <div className="flex flex-col items-center text-center">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground">
+                  2
+                </div>
+                <h3 className="mt-4 font-semibold">{t("startStep2Title")}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {t("startStep2Desc")}
+                </p>
+              </div>
+              <div className="flex flex-col items-center text-center">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground">
+                  3
+                </div>
+                <h3 className="mt-4 font-semibold">{t("startStep3Title")}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {t("startStep3Desc")}
+                </p>
+              </div>
             </div>
-            <h3 className="mt-4 font-semibold">{t("featurePasswordless")}</h3>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {t("featurePasswordlessDesc")}
+            <div className="mt-12">
+              <Button asChild size="lg" className="h-12 px-8 text-base">
+                <Link href="/sign-up">
+                  {t("heroCta")}
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </section>
+
+        {/* Section 6: Warum visicheck.ai – Identitätsblock */}
+        <section className="border-y bg-muted/40 py-20 sm:py-24">
+          <div className="mx-auto max-w-3xl px-4 text-center">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
+              {t("whyTitle")}
+            </h2>
+            <div className="mt-10 space-y-4 text-left">
+              <div className="flex items-center gap-4 rounded-lg border bg-card px-6 py-4">
+                <Check className="h-5 w-5 shrink-0 text-primary" />
+                <span className="font-medium">{t("whyPoint1")}</span>
+              </div>
+              <div className="flex items-center gap-4 rounded-lg border bg-card px-6 py-4">
+                <Check className="h-5 w-5 shrink-0 text-primary" />
+                <span className="font-medium">{t("whyPoint2")}</span>
+              </div>
+              <div className="flex items-center gap-4 rounded-lg border bg-card px-6 py-4">
+                <Check className="h-5 w-5 shrink-0 text-primary" />
+                <span className="font-medium">{t("whyPoint3")}</span>
+              </div>
+              <div className="flex items-center gap-4 rounded-lg border bg-card px-6 py-4">
+                <Check className="h-5 w-5 shrink-0 text-primary" />
+                <span className="font-medium">{t("whyPoint4")}</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Final CTA */}
+        <section className="bg-primary py-20 sm:py-24">
+          <div className="mx-auto max-w-3xl px-4 text-center">
+            <h2 className="text-2xl font-bold tracking-tight text-primary-foreground sm:text-3xl lg:text-4xl">
+              {t("finalCtaTitle")}
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl text-primary-foreground/70">
+              {t("finalCtaDesc")}
             </p>
+            <div className="mt-8">
+              <Button
+                asChild
+                size="lg"
+                variant="secondary"
+                className="h-12 px-8 text-base"
+              >
+                <Link href="/sign-up">
+                  {t("finalCtaButton")}
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
           </div>
         </section>
       </main>
+
+      <footer className="mt-20 border-t bg-muted/30 pt-16 pb-8">
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+            <div>
+              <Link
+                href="/"
+                className="text-xl font-semibold tracking-tight"
+              >
+                visicheck.ai
+              </Link>
+              <p className="mt-3 text-sm text-muted-foreground">
+                {t("footerTagline")}
+              </p>
+            </div>
+
+            <div>
+              <h4 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                {t("footerLegal")}
+              </h4>
+              <ul className="mt-4 space-y-3">
+                <li>
+                  <Link
+                    href="/impressum"
+                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    {t("footerImprint")}
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/datenschutz"
+                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    {t("footerPrivacy")}
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/agb"
+                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    {t("footerTerms")}
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                {t("footerCompany")}
+              </h4>
+              <ul className="mt-4 space-y-3">
+                <li>
+                  <Link
+                    href="/ueber-uns"
+                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    {t("footerAbout")}
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/magazin"
+                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    {t("footerMagazine")}
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                {t("footerContact")}
+              </h4>
+              <address className="mt-4 space-y-1 text-sm not-italic text-muted-foreground">
+                <p>visicheck.ai</p>
+                <p>Eisenbahnstrasse 1</p>
+                <p>88677 Markdorf</p>
+                <p>Germany</p>
+              </address>
+            </div>
+          </div>
+
+          <div className="mt-12 border-t pt-8 text-center text-sm text-muted-foreground">
+            © {new Date().getFullYear()} visicheck.ai
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

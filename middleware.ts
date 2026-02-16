@@ -13,7 +13,12 @@ export default auth((req) => {
   const isPublic =
     path === "/" ||
     path.startsWith("/login") ||
-    path.startsWith("/sign-up");
+    path.startsWith("/sign-up") ||
+    path.startsWith("/impressum") ||
+    path.startsWith("/datenschutz") ||
+    path.startsWith("/agb") ||
+    path.startsWith("/ueber-uns") ||
+    path.startsWith("/magazin");
 
   if (!isPublic && !isLoggedIn && !path.startsWith("/api")) {
     return Response.redirect(new URL("/login", req.url));

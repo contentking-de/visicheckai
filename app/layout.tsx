@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import { Providers } from "@/components/providers";
+import { CookieBanner } from "@/components/cookie-banner";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -38,6 +39,7 @@ export default async function RootLayout({
       >
         <NextIntlClientProvider messages={messages}>
           <Providers>{children}</Providers>
+          <CookieBanner />
         </NextIntlClientProvider>
       </body>
     </html>
