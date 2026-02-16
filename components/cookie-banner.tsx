@@ -8,9 +8,9 @@ import Link from "next/link";
 
 const CONSENT_KEY = "visicheck_cookie_consent";
 
-type ConsentValue = "all" | "essential" | null;
+type ConsentState = "all" | "essential" | "loading" | null;
 
-function getStoredConsent(): ConsentValue {
+function getStoredConsent(): "all" | "essential" | null {
   if (typeof window === "undefined") return null;
   const val = localStorage.getItem(CONSENT_KEY);
   if (val === "all" || val === "essential") return val;
@@ -19,7 +19,7 @@ function getStoredConsent(): ConsentValue {
 
 export function CookieBanner() {
   const t = useTranslations("CookieBanner");
-  const [consent, setConsent] = useState<ConsentValue | "loading">("loading");
+  const [consent, setConsent] = useState<ConsentState>("loading");
   const [showBanner, setShowBanner] = useState(false);
 
   useEffect(() => {
