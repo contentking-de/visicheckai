@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,6 +18,8 @@ type PromptSet = {
 
 export function PromptSetForm({ promptSet }: { promptSet?: PromptSet }) {
   const router = useRouter();
+  const t = useTranslations("PromptSetForm");
+  const tc = useTranslations("Common");
   const [name, setName] = useState(promptSet?.name ?? "");
   const [prompts, setPrompts] = useState<string[]>(
     promptSet?.prompts?.length ? promptSet.prompts : [""]
@@ -34,7 +37,7 @@ export function PromptSetForm({ promptSet }: { promptSet?: PromptSet }) {
     e.preventDefault();
     const validPrompts = prompts.filter((p) => p.trim());
     if (validPrompts.length === 0) {
-      setError("Mindestens ein Prompt erforderlich");
+      setError(t("minOnePrompt"));
       return;
     }
     setIsLoading(true);
@@ -51,12 +54,12 @@ export function PromptSetForm({ promptSet }: { promptSet?: PromptSet }) {
       });
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error ?? "Fehler");
+        throw new Error(data.error ?? tc("error"));
       }
       router.push("/dashboard/prompt-sets");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Fehler");
+      setError(err instanceof Error ? err.message : tc("error"));
     } finally {
       setIsLoading(false);
     }
@@ -66,27 +69,27 @@ export function PromptSetForm({ promptSet }: { promptSet?: PromptSet }) {
     <Card>
       <CardHeader>
         <CardTitle>
-          {promptSet ? "Prompt-Set bearbeiten" : "Neues Prompt-Set"}
+          {promptSet ? t("editTitle") : t("newTitle")}
         </CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="name">Name</Label>
+            <Label htmlFor="name">{tc("name")}</Label>
             <Input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="z.B. Marken-Erkennung"
+              placeholder={t("namePlaceholder")}
               required
             />
           </div>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label>Prompts</Label>
+              <Label>{t("promptsLabel")}</Label>
               <Button type="button" variant="outline" size="sm" onClick={addPrompt}>
                 <Plus className="h-4 w-4 mr-1" />
-                Prompt hinzufügen
+                {t("addPrompt")}
               </Button>
             </div>
             <div className="space-y-2">
@@ -95,7 +98,7 @@ export function PromptSetForm({ promptSet }: { promptSet?: PromptSet }) {
                   <Textarea
                     value={p}
                     onChange={(e) => updatePrompt(i, e.target.value)}
-                    placeholder="z.B. Was sind die besten Tools für X?"
+                    placeholder={t("promptPlaceholder")}
                     rows={2}
                     className="flex-1"
                   />
@@ -116,7 +119,7 @@ export function PromptSetForm({ promptSet }: { promptSet?: PromptSet }) {
             <p className="text-sm text-destructive">{error}</p>
           )}
           <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Wird gespeichert…" : promptSet ? "Speichern" : "Erstellen"}
+            {isLoading ? tc("saving") : promptSet ? tc("save") : tc("create")}
           </Button>
         </form>
       </CardContent>

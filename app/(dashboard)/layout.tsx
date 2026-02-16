@@ -1,16 +1,16 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { SignOutButton } from "@/components/sign-out-button";
+import { LanguageSwitcher } from "@/components/language-switcher";
+import { UserMenu } from "@/components/user-menu";
 import {
   LayoutDashboard,
   Globe,
   FileText,
   BarChart3,
   Settings,
-  LogOut,
 } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 
 export default async function DashboardLayout({
   children,
@@ -23,12 +23,14 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
+  const t = await getTranslations("Nav");
+
   const navItems = [
-    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/dashboard/domains", label: "Domains", icon: Globe },
-    { href: "/dashboard/prompt-sets", label: "Prompt-Sets", icon: FileText },
-    { href: "/dashboard/configs", label: "Konfiguration", icon: Settings },
-    { href: "/dashboard/runs", label: "Runs", icon: BarChart3 },
+    { href: "/dashboard", label: t("dashboard"), icon: LayoutDashboard },
+    { href: "/dashboard/domains", label: t("domains"), icon: Globe },
+    { href: "/dashboard/prompt-sets", label: t("promptSets"), icon: FileText },
+    { href: "/dashboard/configs", label: t("configs"), icon: Settings },
+    { href: "/dashboard/runs", label: t("runs"), icon: BarChart3 },
   ];
 
   return (
@@ -36,7 +38,7 @@ export default async function DashboardLayout({
       <aside className="flex w-56 flex-col border-r bg-muted/30">
         <div className="flex h-16 items-center border-b px-4">
           <Link href="/dashboard" className="font-semibold">
-            Visicheck
+            visicheck.ai
           </Link>
         </div>
         <nav className="space-y-1 p-2">
@@ -51,13 +53,24 @@ export default async function DashboardLayout({
             </Link>
           ))}
         </nav>
-        <div className="mt-auto border-t p-2">
-          <SignOutButton />
+        <div className="mt-auto border-t p-2 px-3">
+          <LanguageSwitcher />
         </div>
       </aside>
-      <main className="flex-1 overflow-auto">
-        <div className="container mx-auto max-w-6xl px-4 py-8">{children}</div>
-      </main>
+      <div className="flex flex-1 flex-col">
+        <header className="flex h-16 items-center justify-end border-b px-6">
+          <UserMenu
+            name={session.user.name}
+            email={session.user.email}
+            image={session.user.image}
+          />
+        </header>
+        <main className="flex-1 overflow-auto">
+          <div className="container mx-auto max-w-6xl px-4 py-8">
+            {children}
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

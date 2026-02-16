@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +16,8 @@ type Domain = {
 
 export function DomainForm({ domain }: { domain?: Domain }) {
   const router = useRouter();
+  const t = useTranslations("DomainForm");
+  const tc = useTranslations("Common");
   const [name, setName] = useState(domain?.name ?? "");
   const [domainUrl, setDomainUrl] = useState(domain?.domainUrl ?? "");
   const [isLoading, setIsLoading] = useState(false);
@@ -36,12 +39,12 @@ export function DomainForm({ domain }: { domain?: Domain }) {
       });
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error ?? "Fehler");
+        throw new Error(data.error ?? tc("error"));
       }
       router.push("/dashboard/domains");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Fehler");
+      setError(err instanceof Error ? err.message : tc("error"));
     } finally {
       setIsLoading(false);
     }
@@ -51,28 +54,28 @@ export function DomainForm({ domain }: { domain?: Domain }) {
     <Card>
       <CardHeader>
         <CardTitle>
-          {domain ? "Domain bearbeiten" : "Neue Domain"}
+          {domain ? t("editTitle") : t("newTitle")}
         </CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Name</Label>
+            <Label htmlFor="name">{tc("name")}</Label>
             <Input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="z.B. Meine Marke"
+              placeholder={t("namePlaceholder")}
               required
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="domainUrl">Domain / URL</Label>
+            <Label htmlFor="domainUrl">{t("urlLabel")}</Label>
             <Input
               id="domainUrl"
               value={domainUrl}
               onChange={(e) => setDomainUrl(e.target.value)}
-              placeholder="z.B. example.com oder https://example.com"
+              placeholder={t("urlPlaceholder")}
               required
             />
           </div>
@@ -80,7 +83,7 @@ export function DomainForm({ domain }: { domain?: Domain }) {
             <p className="text-sm text-destructive">{error}</p>
           )}
           <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Wird gespeichert…" : domain ? "Speichern" : "Erstellen"}
+            {isLoading ? tc("saving") : domain ? tc("save") : tc("create")}
           </Button>
         </form>
       </CardContent>

@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Mail } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 
-export default function VerifyPage() {
+export default async function VerifyPage() {
+  const t = await getTranslations("Auth");
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-4">
       <div className="w-full max-w-sm space-y-6 text-center">
@@ -10,21 +13,20 @@ export default function VerifyPage() {
           <Mail className="h-7 w-7 text-primary" />
         </div>
         <div>
-          <h1 className="text-xl font-semibold">E-Mail prüfen</h1>
+          <h1 className="text-xl font-semibold">{t("verifyTitle")}</h1>
           <p className="mt-2 text-muted-foreground">
-            Wir haben Ihnen einen Magic Link gesendet. Klicken Sie auf den Link
-            in der E-Mail, um sich anzumelden.
+            {t("verifyDescription")}
           </p>
         </div>
         <p className="text-sm text-muted-foreground">
-          Den Link nicht erhalten? Prüfen Sie Ihren Spam-Ordner oder{" "}
+          {t("verifyNotReceived")}{" "}
           <Link href="/login" className="font-medium text-primary underline">
-            erneut versuchen
+            {t("verifyRetry")}
           </Link>
           .
         </p>
         <Button asChild variant="outline">
-          <Link href="/login">Andere E-Mail verwenden</Link>
+          <Link href="/login">{t("useOtherEmail")}</Link>
         </Button>
       </div>
     </div>

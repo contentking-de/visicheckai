@@ -2,21 +2,24 @@ import { PromptSetForm } from "@/components/prompt-set-form";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 
-export default function NewPromptSetPage() {
+export default async function NewPromptSetPage() {
+  const t = await getTranslations("PromptSets");
+  const tc = await getTranslations("Common");
+
   return (
     <div className="space-y-8">
       <div>
         <Button asChild variant="ghost" size="sm">
           <Link href="/dashboard/prompt-sets" className="flex items-center gap-2">
             <ArrowLeft className="h-4 w-4" />
-            Zurück
+            {tc("back")}
           </Link>
         </Button>
-        <h1 className="mt-4 text-2xl font-bold">Prompt-Set erstellen</h1>
+        <h1 className="mt-4 text-2xl font-bold">{t("newTitle")}</h1>
         <p className="text-muted-foreground">
-          Definieren Sie Prompts, die an ChatGPT, Claude, Gemini und Perplexity
-          gesendet werden
+          {t("newDescription")}
         </p>
       </div>
       <PromptSetForm />

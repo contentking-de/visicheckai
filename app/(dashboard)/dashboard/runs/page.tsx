@@ -18,10 +18,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Play } from "lucide-react";
+import { getTranslations, getLocale } from "next-intl/server";
 
 export default async function RunsPage() {
   const session = await auth();
   if (!session?.user?.id) return null;
+
+  const t = await getTranslations("Runs");
+  const tc = await getTranslations("Common");
+  const locale = await getLocale();
 
   const runsWithConfig = await db
     .select({
@@ -42,15 +47,15 @@ export default async function RunsPage() {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Tracking Runs</h1>
+          <h1 className="text-2xl font-bold">{t("title")}</h1>
           <p className="text-muted-foreground">
-            Verlauf und Ergebnisse Ihrer Sichtbarkeits-Checks
+            {t("description")}
           </p>
         </div>
         <Button asChild>
           <Link href="/dashboard/configs" className="flex items-center gap-2">
             <Play className="h-4 w-4" />
-            Neuen Run starten
+            {t("startRun")}
           </Link>
         </Button>
       </div>
@@ -61,8 +66,8 @@ export default async function RunsPage() {
             <TableRow>
               <TableHead>Domain</TableHead>
               <TableHead>Prompt-Set</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Gestartet</TableHead>
+              <TableHead>{t("status")}</TableHead>
+              <TableHead>{t("startedAt")}</TableHead>
               <TableHead></TableHead>
             </TableRow>
           </TableHeader>
@@ -70,14 +75,14 @@ export default async function RunsPage() {
             {runsWithConfig.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
-                  Noch keine Runs.{" "}
+                  {t("empty")}{" "}
                   <Link
                     href="/dashboard/configs"
                     className="text-primary underline"
                   >
-                    Tracking konfigurieren
+                    {t("configureTracking")}
                   </Link>{" "}
-                  und einen Run starten.
+                  {t("andStartRun")}
                 </TableCell>
               </TableRow>
             ) : (
@@ -100,12 +105,12 @@ export default async function RunsPage() {
                   </TableCell>
                   <TableCell>
                     {run.startedAt
-                      ? new Date(run.startedAt).toLocaleString("de-DE")
+                      ? new Date(run.startedAt).toLocaleString(locale)
                       : "-"}
                   </TableCell>
                   <TableCell>
                     <Button asChild variant="ghost" size="sm">
-                      <Link href={`/dashboard/runs/${run.id}`}>Details</Link>
+                      <Link href={`/dashboard/runs/${run.id}`}>{tc("details")}</Link>
                     </Button>
                   </TableCell>
                 </TableRow>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,6 +19,8 @@ type PromptSet = { id: string; name: string; prompts: string[] };
 
 export function ConfigForm() {
   const router = useRouter();
+  const t = useTranslations("ConfigForm");
+  const tc = useTranslations("Common");
   const [domains, setDomains] = useState<Domain[]>([]);
   const [promptSets, setPromptSets] = useState<PromptSet[]>([]);
   const [domainId, setDomainId] = useState<string>("");
@@ -41,7 +44,7 @@ export function ConfigForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!domainId || !promptSetId) {
-      setError("Bitte Domain und Prompt-Set wählen");
+      setError(t("needBoth"));
       return;
     }
     setIsLoading(true);
@@ -54,12 +57,12 @@ export function ConfigForm() {
       });
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error ?? "Fehler");
+        throw new Error(data.error ?? tc("error"));
       }
       router.push("/dashboard/configs");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Fehler");
+      setError(err instanceof Error ? err.message : tc("error"));
     } finally {
       setIsLoading(false);
     }
@@ -69,15 +72,15 @@ export function ConfigForm() {
     return (
       <Card>
         <CardContent className="py-8 text-center text-muted-foreground">
-          Bitte zuerst{" "}
+          {t("needDomainAndPromptSet")}{" "}
           <a href="/dashboard/domains/new" className="text-primary underline">
-            eine Domain
+            {t("aDomain")}
           </a>{" "}
-          und{" "}
+          {t("and")}{" "}
           <a href="/dashboard/prompt-sets/new" className="text-primary underline">
-            ein Prompt-Set
+            {t("aPromptSet")}
           </a>{" "}
-          anlegen.
+          {t("createThem")}
         </CardContent>
       </Card>
     );
@@ -86,15 +89,15 @@ export function ConfigForm() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Neue Konfiguration</CardTitle>
+        <CardTitle>{t("title")}</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label>Domain</Label>
+            <Label>{t("domainLabel")}</Label>
             <Select value={domainId} onValueChange={setDomainId}>
               <SelectTrigger>
-                <SelectValue placeholder="Domain wählen" />
+                <SelectValue placeholder={t("selectDomain")} />
               </SelectTrigger>
               <SelectContent>
                 {domains.map((d) => (
@@ -106,10 +109,10 @@ export function ConfigForm() {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label>Prompt-Set</Label>
+            <Label>{t("promptSetLabel")}</Label>
             <Select value={promptSetId} onValueChange={setPromptSetId}>
               <SelectTrigger>
-                <SelectValue placeholder="Prompt-Set wählen" />
+                <SelectValue placeholder={t("selectPromptSet")} />
               </SelectTrigger>
               <SelectContent>
                 {promptSets.map((p) => (
@@ -121,22 +124,22 @@ export function ConfigForm() {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label>Intervall</Label>
+            <Label>{t("intervalLabel")}</Label>
             <Select value={interval} onValueChange={setInterval}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="on_demand">On-demand (nur manuell)</SelectItem>
-                <SelectItem value="daily">Täglich</SelectItem>
-                <SelectItem value="weekly">Wöchentlich</SelectItem>
-                <SelectItem value="monthly">Monatlich</SelectItem>
+                <SelectItem value="on_demand">{t("onDemandLabel")}</SelectItem>
+                <SelectItem value="daily">{t("dailyLabel")}</SelectItem>
+                <SelectItem value="weekly">{t("weeklyLabel")}</SelectItem>
+                <SelectItem value="monthly">{t("monthlyLabel")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
           {error && <p className="text-sm text-destructive">{error}</p>}
           <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Wird erstellt…" : "Erstellen"}
+            {isLoading ? tc("creating") : tc("create")}
           </Button>
         </form>
       </CardContent>

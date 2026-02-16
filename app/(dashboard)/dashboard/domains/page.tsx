@@ -12,12 +12,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil } from "lucide-react";
 import { DeleteDomainButton } from "@/components/delete-domain-button";
+import { getTranslations } from "next-intl/server";
 
 export default async function DomainsPage() {
   const session = await auth();
   if (!session?.user?.id) return null;
+
+  const t = await getTranslations("Domains");
+  const tc = await getTranslations("Common");
 
   const userDomains = await db
     .select()
@@ -28,15 +32,15 @@ export default async function DomainsPage() {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Domains</h1>
+          <h1 className="text-2xl font-bold">{t("title")}</h1>
           <p className="text-muted-foreground">
-            Verwalten Sie Ihre Domains und Marken
+            {t("description")}
           </p>
         </div>
         <Button asChild>
           <Link href="/dashboard/domains/new" className="flex items-center gap-2">
             <Plus className="h-4 w-4" />
-            Domain hinzufügen
+            {t("addDomain")}
           </Link>
         </Button>
       </div>
@@ -45,18 +49,18 @@ export default async function DomainsPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Domain / URL</TableHead>
-              <TableHead className="w-[100px]">Aktionen</TableHead>
+              <TableHead>{tc("name")}</TableHead>
+              <TableHead>{t("domainUrl")}</TableHead>
+              <TableHead className="w-[100px]">{tc("actions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {userDomains.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={3} className="text-center text-muted-foreground py-8">
-                  Noch keine Domains.{" "}
+                  {t("empty")}{" "}
                   <Link href="/dashboard/domains/new" className="text-primary underline">
-                    Erste hinzufügen
+                    {t("addFirst")}
                   </Link>
                 </TableCell>
               </TableRow>

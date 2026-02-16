@@ -11,10 +11,14 @@ import { eq, desc } from "drizzle-orm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Globe, FileText, BarChart3 } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 
 export default async function DashboardPage() {
   const session = await auth();
   if (!session?.user?.id) return null;
+
+  const t = await getTranslations("Dashboard");
+  const tc = await getTranslations("Common");
 
   const domainList = await db
     .select()
@@ -42,46 +46,46 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold">Dashboard</h1>
+        <h1 className="text-2xl font-bold">{t("title")}</h1>
         <p className="text-muted-foreground">
-          Willkommen zurück! Hier ist Ihre Übersicht.
+          {t("welcome")}
         </p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Domains</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("domains")}</CardTitle>
             <Globe className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{domainCount}</div>
             <Button asChild variant="link" className="h-auto p-0">
-              <Link href="/dashboard/domains">Verwalten</Link>
+              <Link href="/dashboard/domains">{tc("manage")}</Link>
             </Button>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Prompt-Sets</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("promptSets")}</CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{promptSetCount}</div>
             <Button asChild variant="link" className="h-auto p-0">
-              <Link href="/dashboard/prompt-sets">Verwalten</Link>
+              <Link href="/dashboard/prompt-sets">{tc("manage")}</Link>
             </Button>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Letzte Runs</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("recentRuns")}</CardTitle>
             <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{recentRuns.length}</div>
             <Button asChild variant="link" className="h-auto p-0">
-              <Link href="/dashboard/runs">Alle anzeigen</Link>
+              <Link href="/dashboard/runs">{tc("showAll")}</Link>
             </Button>
           </CardContent>
         </Card>
@@ -91,7 +95,7 @@ export default async function DashboardPage() {
         <Button asChild>
           <Link href="/dashboard/domains/new" className="flex items-center gap-2">
             <Plus className="h-4 w-4" />
-            Domain hinzufügen
+            {t("addDomain")}
           </Link>
         </Button>
         <Button asChild variant="outline">
@@ -100,7 +104,7 @@ export default async function DashboardPage() {
             className="flex items-center gap-2"
           >
             <Plus className="h-4 w-4" />
-            Prompt-Set erstellen
+            {t("createPromptSet")}
           </Link>
         </Button>
       </div>

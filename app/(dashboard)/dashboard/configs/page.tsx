@@ -16,13 +16,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Play } from "lucide-react";
+import { Plus } from "lucide-react";
 import { RunConfigButton } from "@/components/run-config-button";
 import { DeleteConfigButton } from "@/components/delete-config-button";
+import { getTranslations } from "next-intl/server";
 
 export default async function ConfigsPage() {
   const session = await auth();
   if (!session?.user?.id) return null;
+
+  const t = await getTranslations("Configs");
+  const tc = await getTranslations("Common");
 
   const configs = await db
     .select({
@@ -35,19 +39,26 @@ export default async function ConfigsPage() {
     .innerJoin(promptSets, eq(trackingConfigs.promptSetId, promptSets.id))
     .where(eq(trackingConfigs.userId, session.user.id));
 
+  const intervalLabels: Record<string, string> = {
+    daily: t("daily"),
+    weekly: t("weekly"),
+    monthly: t("monthly"),
+    on_demand: t("onDemand"),
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Tracking-Konfiguration</h1>
+          <h1 className="text-2xl font-bold">{t("title")}</h1>
           <p className="text-muted-foreground">
-            Verbinden Sie Domains mit Prompt-Sets und legen Sie das Intervall fest
+            {t("description")}
           </p>
         </div>
         <Button asChild>
           <Link href="/dashboard/configs/new" className="flex items-center gap-2">
             <Plus className="h-4 w-4" />
-            Konfiguration erstellen
+            {t("createConfig")}
           </Link>
         </Button>
       </div>
@@ -58,20 +69,20 @@ export default async function ConfigsPage() {
             <TableRow>
               <TableHead>Domain</TableHead>
               <TableHead>Prompt-Set</TableHead>
-              <TableHead>Intervall</TableHead>
-              <TableHead className="w-[150px]">Aktionen</TableHead>
+              <TableHead>{t("interval")}</TableHead>
+              <TableHead className="w-[150px]">{tc("actions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {configs.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
-                  Noch keine Konfigurationen.{" "}
+                  {t("empty")}{" "}
                   <Link
                     href="/dashboard/configs/new"
                     className="text-primary underline"
                   >
-                    Erste erstellen
+                    {t("createFirst")}
                   </Link>
                 </TableCell>
               </TableRow>
@@ -81,13 +92,7 @@ export default async function ConfigsPage() {
                   <TableCell className="font-medium">{domain.name}</TableCell>
                   <TableCell>{promptSet.name}</TableCell>
                   <TableCell>
-                    {config.interval === "daily"
-                      ? "Täglich"
-                      : config.interval === "weekly"
-                        ? "Wöchentlich"
-                        : config.interval === "monthly"
-                          ? "Monatlich"
-                          : "On-demand"}
+                    {config.interval ? (intervalLabels[config.interval] ?? config.interval) : t("onDemand")}
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">

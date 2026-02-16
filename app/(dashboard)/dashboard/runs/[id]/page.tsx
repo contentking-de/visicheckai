@@ -21,6 +21,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ArrowLeft } from "lucide-react";
+import { getTranslations, getLocale } from "next-intl/server";
 
 export default async function RunDetailPage({
   params,
@@ -29,6 +30,9 @@ export default async function RunDetailPage({
 }) {
   const session = await auth();
   if (!session?.user?.id) return null;
+
+  const t = await getTranslations("RunDetail");
+  const locale = await getLocale();
 
   const { id } = await params;
   const [runWithConfig] = await db
@@ -87,14 +91,14 @@ export default async function RunDetailPage({
             className="flex items-center gap-2"
           >
             <ArrowLeft className="h-4 w-4" />
-            Zurück zu Runs
+            {t("backToRuns")}
           </Link>
         </Button>
-        <h1 className="mt-4 text-2xl font-bold">Run-Details</h1>
+        <h1 className="mt-4 text-2xl font-bold">{t("title")}</h1>
         <p className="text-muted-foreground">
           {domain.name} · {promptSet.name} ·{" "}
           {run.startedAt
-            ? new Date(run.startedAt).toLocaleString("de-DE")
+            ? new Date(run.startedAt).toLocaleString(locale)
             : "-"}
         </p>
         <span
@@ -119,10 +123,10 @@ export default async function RunDetailPage({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Prompt</TableHead>
-                  <TableHead>Erwähnungen</TableHead>
-                  <TableHead>Score</TableHead>
-                  <TableHead>Antwort (Auszug)</TableHead>
+                  <TableHead>{t("prompt")}</TableHead>
+                  <TableHead>{t("mentions")}</TableHead>
+                  <TableHead>{t("score")}</TableHead>
+                  <TableHead>{t("responseExcerpt")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -147,7 +151,7 @@ export default async function RunDetailPage({
       {results.length === 0 && (
         <Card>
           <CardContent className="py-8 text-center text-muted-foreground">
-            Noch keine Ergebnisse. Der Run läuft möglicherweise noch.
+            {t("noResults")}
           </CardContent>
         </Card>
       )}

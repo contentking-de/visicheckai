@@ -14,10 +14,14 @@ import {
 } from "@/components/ui/table";
 import { Plus, Pencil } from "lucide-react";
 import { DeletePromptSetButton } from "@/components/delete-prompt-set-button";
+import { getTranslations } from "next-intl/server";
 
 export default async function PromptSetsPage() {
   const session = await auth();
   if (!session?.user?.id) return null;
+
+  const t = await getTranslations("PromptSets");
+  const tc = await getTranslations("Common");
 
   const sets = await db
     .select()
@@ -28,9 +32,9 @@ export default async function PromptSetsPage() {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Prompt-Sets</h1>
+          <h1 className="text-2xl font-bold">{t("title")}</h1>
           <p className="text-muted-foreground">
-            Definieren Sie Prompts, mit denen Ihre Sichtbarkeit getrackt wird
+            {t("description")}
           </p>
         </div>
         <Button asChild>
@@ -39,7 +43,7 @@ export default async function PromptSetsPage() {
             className="flex items-center gap-2"
           >
             <Plus className="h-4 w-4" />
-            Prompt-Set erstellen
+            {t("createPromptSet")}
           </Link>
         </Button>
       </div>
@@ -48,21 +52,21 @@ export default async function PromptSetsPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Anzahl Prompts</TableHead>
-              <TableHead className="w-[100px]">Aktionen</TableHead>
+              <TableHead>{tc("name")}</TableHead>
+              <TableHead>{t("promptCount")}</TableHead>
+              <TableHead className="w-[100px]">{tc("actions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {sets.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={3} className="text-center text-muted-foreground py-8">
-                  Noch keine Prompt-Sets.{" "}
+                  {t("empty")}{" "}
                   <Link
                     href="/dashboard/prompt-sets/new"
                     className="text-primary underline"
                   >
-                    Erstes erstellen
+                    {t("createFirst")}
                   </Link>
                 </TableCell>
               </TableRow>
@@ -70,7 +74,7 @@ export default async function PromptSetsPage() {
               sets.map((set) => (
                 <TableRow key={set.id}>
                   <TableCell className="font-medium">{set.name}</TableCell>
-                  <TableCell>{set.prompts?.length ?? 0} Prompts</TableCell>
+                  <TableCell>{set.prompts?.length ?? 0} {t("prompts")}</TableCell>
                   <TableCell>
                     <div className="flex gap-2">
                       <Button asChild variant="ghost" size="icon">

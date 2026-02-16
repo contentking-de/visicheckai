@@ -1,14 +1,16 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 
 export function DeleteDomainButton({ domainId }: { domainId: string }) {
   const router = useRouter();
+  const t = useTranslations("Domains");
 
   const handleDelete = async () => {
-    if (!confirm("Domain wirklich löschen?")) return;
+    if (!confirm(t("confirmDelete"))) return;
     const res = await fetch(`/api/domains/${domainId}`, { method: "DELETE" });
     if (res.ok) router.refresh();
   };
