@@ -8,6 +8,13 @@
       "when": 1771329176343,
       "tag": "0000_ancient_newton_destine",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1771334097535,
+      "tag": "0001_daily_shape",
+      "breakpoints": true
     }
   ]
 }

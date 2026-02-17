@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { signOut } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { LogOut, User } from "lucide-react";
@@ -52,6 +53,13 @@ export function UserMenu({ name, email, image }: UserMenuProps) {
             )}
           </div>
         </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem asChild className="cursor-pointer">
+          <Link href="/dashboard/profile">
+            <User className="mr-2 h-4 w-4" />
+            {t("profile")}
+          </Link>
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="cursor-pointer text-destructive focus:text-destructive"

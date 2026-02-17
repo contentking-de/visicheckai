@@ -122,6 +122,8 @@
     "promptSets": "Conjuntos de prompts",
     "configs": "Configuración",
     "runs": "Ejecuciones",
+    "profile": "Perfil",
+    "welcome": "Bienvenido {name}",
     "signOut": "Cerrar sesión"
   },
   "Dashboard": {
@@ -250,6 +252,29 @@
     "showLess": "Mostrar menos",
     "noCitations": "No se encontraron fuentes o menciones en esta ejecución. Los datos se rastrearán a partir de la próxima ejecución.",
     "sources": "dominios únicos detectados"
+  },
+  "Profile": {
+    "title": "Perfil",
+    "description": "Gestione sus datos personales, dirección de empresa y dirección de facturación.",
+    "loading": "Cargando datos del perfil…",
+    "personalData": "Datos personales",
+    "email": "Dirección de e-mail",
+    "phone": "Número de teléfono",
+    "phonePlaceholder": "ej. +34 612 345 678",
+    "companyAddress": "Dirección de la empresa",
+    "companyName": "Nombre de la empresa",
+    "companyNamePlaceholder": "ej. Empresa S.L.",
+    "street": "Calle y número",
+    "streetPlaceholder": "ej. Calle Mayor 1",
+    "zip": "Código postal",
+    "zipPlaceholder": "ej. 28001",
+    "city": "Ciudad",
+    "cityPlaceholder": "ej. Madrid",
+    "country": "País",
+    "countryPlaceholder": "ej. España",
+    "billingAddress": "Dirección de facturación",
+    "billingDifferentLabel": "Usar una dirección de facturación diferente",
+    "saved": "Perfil guardado correctamente."
   },
   "LanguageSwitcher": {
     "de": "Deutsch",

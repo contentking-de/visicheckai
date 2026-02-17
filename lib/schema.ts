@@ -5,6 +5,7 @@ import {
   uuid,
   jsonb,
   integer,
+  boolean,
   index,
   primaryKey,
 } from "drizzle-orm/pg-core";
@@ -69,6 +70,29 @@ export const verificationTokens = pgTable(
     }),
   })
 );
+
+// User profile (company & billing address)
+export const userProfiles = pgTable("user_profiles", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .unique()
+    .references(() => users.id, { onDelete: "cascade" }),
+  phone: text("phone"),
+  companyName: text("company_name"),
+  companyStreet: text("company_street"),
+  companyZip: text("company_zip"),
+  companyCity: text("company_city"),
+  companyCountry: text("company_country"),
+  billingDifferent: boolean("billing_different").default(false),
+  billingCompanyName: text("billing_company_name"),
+  billingStreet: text("billing_street"),
+  billingZip: text("billing_zip"),
+  billingCity: text("billing_city"),
+  billingCountry: text("billing_country"),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+  updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow(),
+});
 
 // App tables
 export const domains = pgTable("domains", {

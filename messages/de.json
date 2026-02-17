@@ -122,6 +122,8 @@
     "promptSets": "Prompt-Sets",
     "configs": "Konfiguration",
     "runs": "Runs",
+    "profile": "Profil",
+    "welcome": "Willkommen {name}",
     "signOut": "Abmelden"
   },
   "Dashboard": {
@@ -250,6 +252,29 @@
     "showLess": "Weniger anzeigen",
     "noCitations": "Keine Quellen oder Erwähnungen in diesem Run gefunden. Daten werden ab dem nächsten Run erfasst.",
     "sources": "verschiedene Domains erkannt"
+  },
+  "Profile": {
+    "title": "Profil",
+    "description": "Verwalten Sie Ihre persönlichen Daten, Firmenanschrift und Rechnungsadresse.",
+    "loading": "Profildaten werden geladen…",
+    "personalData": "Persönliche Daten",
+    "email": "E-Mail-Adresse",
+    "phone": "Telefonnummer",
+    "phonePlaceholder": "z.B. +49 123 456789",
+    "companyAddress": "Firmenanschrift",
+    "companyName": "Firmenname",
+    "companyNamePlaceholder": "z.B. Musterfirma GmbH",
+    "street": "Straße und Hausnummer",
+    "streetPlaceholder": "z.B. Musterstraße 1",
+    "zip": "PLZ",
+    "zipPlaceholder": "z.B. 10115",
+    "city": "Ort",
+    "cityPlaceholder": "z.B. Berlin",
+    "country": "Land",
+    "countryPlaceholder": "z.B. Deutschland",
+    "billingAddress": "Rechnungsadresse",
+    "billingDifferentLabel": "Abweichende Rechnungsadresse verwenden",
+    "saved": "Profil erfolgreich gespeichert."
   },
   "LanguageSwitcher": {
     "de": "Deutsch",

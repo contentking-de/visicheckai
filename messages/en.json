@@ -122,6 +122,8 @@
     "promptSets": "Prompt Sets",
     "configs": "Configuration",
     "runs": "Runs",
+    "profile": "Profile",
+    "welcome": "Welcome {name}",
     "signOut": "Sign out"
   },
   "Dashboard": {
@@ -250,6 +252,29 @@
     "showLess": "Show less",
     "noCitations": "No sources or mentions found in this run. Data will be tracked starting with the next run.",
     "sources": "unique domains detected"
+  },
+  "Profile": {
+    "title": "Profile",
+    "description": "Manage your personal data, company address and billing address.",
+    "loading": "Loading profile data…",
+    "personalData": "Personal Data",
+    "email": "Email address",
+    "phone": "Phone number",
+    "phonePlaceholder": "e.g. +1 234 567890",
+    "companyAddress": "Company Address",
+    "companyName": "Company name",
+    "companyNamePlaceholder": "e.g. Acme Inc.",
+    "street": "Street and number",
+    "streetPlaceholder": "e.g. 123 Main Street",
+    "zip": "Zip code",
+    "zipPlaceholder": "e.g. 10001",
+    "city": "City",
+    "cityPlaceholder": "e.g. New York",
+    "country": "Country",
+    "countryPlaceholder": "e.g. United States",
+    "billingAddress": "Billing Address",
+    "billingDifferentLabel": "Use a different billing address",
+    "saved": "Profile saved successfully."
   },
   "LanguageSwitcher": {
     "de": "Deutsch",

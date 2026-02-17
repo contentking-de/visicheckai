@@ -122,6 +122,8 @@
     "promptSets": "Ensembles de prompts",
     "configs": "Configuration",
     "runs": "Exécutions",
+    "profile": "Profil",
+    "welcome": "Bienvenue {name}",
     "signOut": "Se déconnecter"
   },
   "Dashboard": {
@@ -250,6 +252,29 @@
     "showLess": "Afficher moins",
     "noCitations": "Aucune source ou mention trouvée dans cette exécution. Les données seront suivies à partir de la prochaine exécution.",
     "sources": "domaines uniques détectés"
+  },
+  "Profile": {
+    "title": "Profil",
+    "description": "Gérez vos données personnelles, l'adresse de votre entreprise et l'adresse de facturation.",
+    "loading": "Chargement des données du profil…",
+    "personalData": "Données personnelles",
+    "email": "Adresse e-mail",
+    "phone": "Numéro de téléphone",
+    "phonePlaceholder": "ex. +33 1 23 45 67 89",
+    "companyAddress": "Adresse de l'entreprise",
+    "companyName": "Nom de l'entreprise",
+    "companyNamePlaceholder": "ex. Dupont SARL",
+    "street": "Rue et numéro",
+    "streetPlaceholder": "ex. 1 Rue de la Paix",
+    "zip": "Code postal",
+    "zipPlaceholder": "ex. 75001",
+    "city": "Ville",
+    "cityPlaceholder": "ex. Paris",
+    "country": "Pays",
+    "countryPlaceholder": "ex. France",
+    "billingAddress": "Adresse de facturation",
+    "billingDifferentLabel": "Utiliser une adresse de facturation différente",
+    "saved": "Profil enregistré avec succès."
   },
   "LanguageSwitcher": {
     "de": "Deutsch",

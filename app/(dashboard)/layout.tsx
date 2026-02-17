@@ -60,7 +60,10 @@ export default async function DashboardLayout({
         </div>
       </aside>
       <div className="flex flex-1 flex-col">
-        <header className="flex h-16 items-center justify-end border-b px-6">
+        <header className="flex h-16 items-center justify-end gap-3 border-b px-6">
+          <span className="text-sm text-muted-foreground">
+            {t("welcome", { name: session.user.name ?? "" })}
+          </span>
           <UserMenu
             name={session.user.name}
             email={session.user.email}
