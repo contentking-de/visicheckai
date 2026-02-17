@@ -18,6 +18,7 @@ import {
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { MobileNav } from "@/components/mobile-nav";
 
 export default async function LandingPage() {
   const t = await getTranslations("Landing");
@@ -30,7 +31,7 @@ export default async function LandingPage() {
             <Image src="/favicon.webp" alt="" width={24} height={24} className="h-6 w-6" />
             visicheck.ai
           </Link>
-          <div className="flex items-center gap-3">
+          <div className="hidden items-center gap-3 md:flex">
             <LanguageSwitcher />
             <Button asChild variant="ghost" size="sm">
               <Link href="/login">{t("login")}</Link>
@@ -39,6 +40,7 @@ export default async function LandingPage() {
               <Link href="/sign-up">{t("signUp")}</Link>
             </Button>
           </div>
+          <MobileNav loginLabel={t("login")} signUpLabel={t("signUp")} />
         </div>
       </header>
 
