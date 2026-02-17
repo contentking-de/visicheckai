@@ -63,6 +63,19 @@ function extractBrandFromDomain(domain: string): string {
   return domain.split(".")[0];
 }
 
+/**
+ * For generic/exact-match domains, only count explicit full domain mentions
+ * (e.g. "bauzinsen.net"), not the generic keyword portion.
+ */
+function countFullDomainInText(text: string, domain: string): number {
+  // Search for the full domain (e.g. "bauzinsen.net", "www.bauzinsen.net")
+  const escaped = escapeRegex(domain);
+  const escapedWithWww = escapeRegex(`www.${domain}`);
+  const pattern = new RegExp(`\\b(?:${escapedWithWww}|${escaped})`, "gi");
+  const matches = text.match(pattern);
+  return matches ? matches.length : 0;
+}
+
 // Internal/infrastructure domains to exclude from competitor analysis
 const IGNORED_DOMAINS = new Set([
   "vertexaisearch.cloud.google.com",
@@ -161,29 +174,32 @@ export function CompetitorOverview({
     }
 
     // Step 2: For each known domain (from citations) + own domain, count text mentions
-    // Also scan for the own brand name in case it has no citations
     ensureDomain(ownDomain);
 
-    // Collect all brands to search for
-    const brandsToSearch = new Map<string, string>(); // brand → domain
-    for (const domain of domainMap.keys()) {
-      const brand = extractBrandFromDomain(domain);
-      if (brand.length >= 3) {
-        brandsToSearch.set(brand.toLowerCase(), domain);
+    // Step 2a: Count OWN BRAND mentions by name (user-provided, reliable brand name)
+    // This is the only brand where we trust name-based matching,
+    // because the user explicitly provides their brand name (e.g. "Interhyp").
+    if (ownBrandName && ownBrandName.length >= 2) {
+      for (const result of results) {
+        if (!result.response) continue;
+        const text = result.response.toLowerCase();
+        const count = countBrandInText(text, ownBrandName.toLowerCase());
+        if (count > 0) {
+          const entry = ensureDomain(ownDomain);
+          entry.mentionCount += count;
+          entry.mentionsByProvider[result.provider] += count;
+        }
       }
     }
-    // Add own brand name explicitly
-    if (ownBrandName && ownBrandName.length >= 2) {
-      brandsToSearch.set(ownBrandName.toLowerCase(), ownDomain);
-    }
 
-    // Step 2a: Scan all response texts for brand mentions
+    // Step 2b: For ALL competitors (including own domain), count explicit full-domain mentions
+    // e.g. "check24.de", "interhyp.de", "vergleich.de" written out in the AI response.
+    // This avoids false positives from generic words like "Vergleich", "Finanz", "Bauzinsen".
     for (const result of results) {
       if (!result.response) continue;
       const text = result.response.toLowerCase();
-
-      for (const [brand, domain] of brandsToSearch) {
-        const count = countBrandInText(text, brand);
+      for (const domain of domainMap.keys()) {
+        const count = countFullDomainInText(text, domain);
         if (count > 0) {
           const entry = ensureDomain(domain);
           entry.mentionCount += count;
@@ -192,24 +208,18 @@ export function CompetitorOverview({
       }
     }
 
-    // Step 3: Also find brand names mentioned in text that aren't in citations yet
-    // Scan for common patterns: domain-like strings in text (e.g. "dr-klein.de", "check24.de")
-    const domainPattern = /\b([a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.(?:de|com|net|org|io|at|ch|co\.uk|eu))\b/gi;
+    // Step 3: Discover new domains mentioned in text that aren't in citations yet
+    // Scan for domain-like strings (e.g. "dr-klein.de", "check24.de", "immobilien.vr.de")
+    const domainPattern = /\b((?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)*[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.(?:de|com|net|org|io|at|ch|co\.uk|eu))\b/gi;
     for (const result of results) {
       if (!result.response) continue;
       const matches = result.response.matchAll(domainPattern);
       for (const match of matches) {
         const foundDomain = match[1].toLowerCase().replace(/^www\./, "");
         if (!domainMap.has(foundDomain) && !isIgnoredDomain(foundDomain)) {
-          // New domain found only in text
           const entry = ensureDomain(foundDomain);
           entry.mentionCount++;
           entry.mentionsByProvider[result.provider]++;
-          // Also add brand search for next results
-          const brand = extractBrandFromDomain(foundDomain);
-          if (brand.length >= 3 && !brandsToSearch.has(brand.toLowerCase())) {
-            brandsToSearch.set(brand.toLowerCase(), foundDomain);
-          }
         }
       }
     }
