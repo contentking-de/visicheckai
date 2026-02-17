@@ -10,8 +10,11 @@ import {
   FileText,
   BarChart3,
   Settings,
+  ShieldCheck,
 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import { isSuperAdmin } from "@/lib/rbac";
+import type { UserRole } from "@/lib/schema";
 
 export default async function DashboardLayout({
   children,
@@ -33,6 +36,14 @@ export default async function DashboardLayout({
     { href: "/dashboard/configs", label: t("configs"), icon: Settings },
     { href: "/dashboard/runs", label: t("runs"), icon: BarChart3 },
   ];
+
+  if (session.user.role && isSuperAdmin(session.user.role as UserRole)) {
+    navItems.push({
+      href: "/dashboard/admin",
+      label: t("admin"),
+      icon: ShieldCheck,
+    });
+  }
 
   return (
     <div className="flex min-h-screen">
@@ -68,6 +79,7 @@ export default async function DashboardLayout({
             name={session.user.name}
             email={session.user.email}
             image={session.user.image}
+            role={session.user.role}
           />
         </header>
         <main className="flex-1 overflow-auto">

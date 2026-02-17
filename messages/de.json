@@ -125,7 +125,8 @@
     "profile": "Profil",
     "team": "Team",
     "welcome": "Willkommen {name}",
-    "signOut": "Abmelden"
+    "signOut": "Abmelden",
+    "admin": "Admin"
   },
   "Dashboard": {
     "title": "Dashboard",
@@ -325,6 +326,30 @@
     "removeError": "Mitglied konnte nicht entfernt werden.",
     "revokeError": "Einladung konnte nicht zurückgezogen werden.",
     "ownerOnly": "Nur Owner können das Team verwalten."
+  },
+  "Admin": {
+    "title": "Admin-Übersicht",
+    "description": "Plattform-weite Statistiken und Nutzungsmetriken.",
+    "totalUsers": "Nutzer gesamt",
+    "totalDomains": "Domains gesamt",
+    "totalPromptSets": "Prompt-Sets gesamt",
+    "totalApiCalls": "API-Aufrufe gesamt",
+    "userGrowth": "Nutzer-Entwicklung",
+    "apiConsumption": "API-Verbrauch pro Tag & Modell",
+    "domainGrowth": "Domains-Entwicklung",
+    "promptSetGrowth": "Prompt-Sets-Entwicklung",
+    "noData": "Noch keine Daten vorhanden.",
+    "loadError": "Statistiken konnten nicht geladen werden.",
+    "estimatedCost": "Gesch. Kosten",
+    "costBreakdown": "Kosten nach Modell",
+    "costDisclaimer": "Geschätzt auf Basis der Textlängen (~4 Zeichen/Token). Tatsächliche Kosten können abweichen.",
+    "dailyCosts": "Tägliche Kosten (letzte 90 Tage)",
+    "provider": "Anbieter",
+    "calls": "Aufrufe",
+    "inputTokens": "Input-Tokens",
+    "outputTokens": "Output-Tokens",
+    "cost": "Kosten",
+    "total": "Gesamt"
   },
   "LanguageSwitcher": {
     "de": "Deutsch",

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { signOut } from "next-auth/react";
 import { useTranslations } from "next-intl";
-import { LogOut, User, Users } from "lucide-react";
+import { LogOut, ShieldCheck, User, Users } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -18,9 +18,10 @@ type UserMenuProps = {
   name?: string | null;
   email?: string | null;
   image?: string | null;
+  role?: string | null;
 };
 
-export function UserMenu({ name, email, image }: UserMenuProps) {
+export function UserMenu({ name, email, image, role }: UserMenuProps) {
   const t = useTranslations("Nav");
 
   const initials = name
@@ -66,6 +67,14 @@ export function UserMenu({ name, email, image }: UserMenuProps) {
             {t("team")}
           </Link>
         </DropdownMenuItem>
+        {role === "super_admin" && (
+          <DropdownMenuItem asChild className="cursor-pointer">
+            <Link href="/dashboard/admin">
+              <ShieldCheck className="mr-2 h-4 w-4" />
+              {t("admin")}
+            </Link>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="cursor-pointer text-destructive focus:text-destructive"

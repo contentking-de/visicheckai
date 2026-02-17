@@ -125,7 +125,8 @@
     "profile": "Profile",
     "team": "Team",
     "welcome": "Welcome {name}",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "admin": "Admin"
   },
   "Dashboard": {
     "title": "Dashboard",
@@ -325,6 +326,30 @@
     "removeError": "Failed to remove member.",
     "revokeError": "Failed to revoke invitation.",
     "ownerOnly": "Only owners can manage the team."
+  },
+  "Admin": {
+    "title": "Admin Overview",
+    "description": "Platform-wide statistics and usage metrics.",
+    "totalUsers": "Total Users",
+    "totalDomains": "Total Domains",
+    "totalPromptSets": "Total Prompt Sets",
+    "totalApiCalls": "Total API Calls",
+    "userGrowth": "User Growth",
+    "apiConsumption": "API Consumption per Day & Model",
+    "domainGrowth": "Domain Growth",
+    "promptSetGrowth": "Prompt Set Growth",
+    "noData": "No data available yet.",
+    "loadError": "Failed to load statistics.",
+    "estimatedCost": "Est. Cost",
+    "costBreakdown": "Cost by Model",
+    "costDisclaimer": "Estimated based on text lengths (~4 chars/token). Actual costs may vary.",
+    "dailyCosts": "Daily Costs (last 90 days)",
+    "provider": "Provider",
+    "calls": "Calls",
+    "inputTokens": "Input Tokens",
+    "outputTokens": "Output Tokens",
+    "cost": "Cost",
+    "total": "Total"
   },
   "LanguageSwitcher": {
     "de": "Deutsch",

@@ -125,7 +125,8 @@
     "profile": "Profil",
     "team": "Équipe",
     "welcome": "Bienvenue {name}",
-    "signOut": "Se déconnecter"
+    "signOut": "Se déconnecter",
+    "admin": "Admin"
   },
   "Dashboard": {
     "title": "Tableau de bord",
@@ -325,6 +326,30 @@
     "removeError": "Échec de la suppression du membre.",
     "revokeError": "Échec de la révocation de l'invitation.",
     "ownerOnly": "Seuls les propriétaires peuvent gérer l'équipe."
+  },
+  "Admin": {
+    "title": "Aperçu Admin",
+    "description": "Statistiques et métriques d'utilisation de la plateforme.",
+    "totalUsers": "Utilisateurs",
+    "totalDomains": "Domaines",
+    "totalPromptSets": "Ensembles de prompts",
+    "totalApiCalls": "Appels API",
+    "userGrowth": "Évolution des utilisateurs",
+    "apiConsumption": "Consommation API par jour et modèle",
+    "domainGrowth": "Évolution des domaines",
+    "promptSetGrowth": "Évolution des ensembles de prompts",
+    "noData": "Aucune donnée disponible.",
+    "loadError": "Impossible de charger les statistiques.",
+    "estimatedCost": "Coût est.",
+    "costBreakdown": "Coûts par modèle",
+    "costDisclaimer": "Estimation basée sur la longueur des textes (~4 caractères/token). Les coûts réels peuvent varier.",
+    "dailyCosts": "Coûts journaliers (90 derniers jours)",
+    "provider": "Fournisseur",
+    "calls": "Appels",
+    "inputTokens": "Tokens d'entrée",
+    "outputTokens": "Tokens de sortie",
+    "cost": "Coût",
+    "total": "Total"
   },
   "LanguageSwitcher": {
     "de": "Deutsch",
