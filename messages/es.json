@@ -234,7 +234,7 @@
     "backToRuns": "Volver a ejecuciones",
     "prompt": "Prompt",
     "mentions": "Menciones",
-    "score": "Puntuación",
+    "citations": "Fuentes",
     "responseExcerpt": "Respuesta (extracto)",
     "noResults": "Aún no hay resultados. La ejecución puede estar todavía en curso."
   },

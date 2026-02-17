@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -15,7 +15,6 @@ import {
   ChevronDown,
   ChevronUp,
   Globe,
-  Crown,
   ExternalLink,
   Link2,
   MessageSquareQuote,
@@ -34,6 +33,7 @@ interface CompetitorOverviewProps {
   results: ResultItem[];
   ownDomainUrl: string;
   ownBrandName: string;
+  keyword?: string;
   favicons?: Record<string, string>;
   translations: {
     title: string;
@@ -109,10 +109,12 @@ export function CompetitorOverview({
   results,
   ownDomainUrl,
   ownBrandName,
-  favicons = {},
+  keyword,
+  favicons: initialFavicons = {},
   translations: t,
 }: CompetitorOverviewProps) {
   const [showAll, setShowAll] = useState(false);
+  const [favicons, setFavicons] = useState<Record<string, string>>(initialFavicons);
   const INITIAL_SHOW = 15;
 
   const ownDomain = extractDomain(
@@ -238,13 +240,43 @@ export function CompetitorOverview({
     return entries;
   }, [results, ownDomain, ownBrandName]);
 
+  // Fetch missing favicons once after competitors are computed
+  const fetchedRef = useRef(false);
+  const allDomains = useMemo(() => competitors.map((c) => c.domain), [competitors]);
+
+  useEffect(() => {
+    if (fetchedRef.current || allDomains.length === 0) return;
+
+    const missing = allDomains.filter((d) => !initialFavicons[d]);
+    if (missing.length === 0) return;
+
+    fetchedRef.current = true;
+
+    const controller = new AbortController();
+    fetch("/api/favicons", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ domains: missing }),
+      signal: controller.signal,
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: Record<string, string> | null) => {
+        if (data && Object.keys(data).length > 0) {
+          setFavicons((prev) => ({ ...prev, ...data }));
+        }
+      })
+      .catch(() => { /* ignore abort/network errors */ });
+
+    return () => controller.abort();
+  }, [allDomains, initialFavicons]);
+
   if (competitors.length === 0) {
     return (
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Globe className="h-5 w-5" />
-            {t.title}
+            {t.title}{keyword ? ` – ${keyword}` : ""}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -272,7 +304,7 @@ export function CompetitorOverview({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Globe className="h-5 w-5" />
-          {t.title}
+          {t.title}{keyword ? ` – ${keyword}` : ""}
         </CardTitle>
         <p className="text-muted-foreground text-sm">
           {competitors.length} {t.sources}
@@ -325,9 +357,6 @@ export function CompetitorOverview({
                 </TableCell>
                 <TableCell className="font-medium">
                   <div className="flex items-center gap-2">
-                    {entry.isOwnDomain && (
-                      <Crown className="h-4 w-4 text-amber-500 shrink-0" />
-                    )}
                     {favicons[entry.domain] ? (
                       <img
                         src={favicons[entry.domain]}

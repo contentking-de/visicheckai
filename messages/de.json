@@ -234,7 +234,7 @@
     "backToRuns": "Zurück zu Runs",
     "prompt": "Prompt",
     "mentions": "Erwähnungen",
-    "score": "Score",
+    "citations": "Quellen",
     "responseExcerpt": "Antwort (Auszug)",
     "noResults": "Noch keine Ergebnisse. Der Run läuft möglicherweise noch."
   },

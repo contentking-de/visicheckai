@@ -9,7 +9,7 @@ import {
   favicons,
 } from "@/lib/schema";
 import { eq, and, inArray } from "drizzle-orm";
-import { getFaviconMap } from "@/lib/favicon";
+import { getFaviconMap, fetchFaviconsForDomains } from "@/lib/favicon";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -22,7 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, CheckCircle, XCircle } from "lucide-react";
 import { getTranslations, getLocale } from "next-intl/server";
 import { ExpandableResponse } from "@/components/expandable-response";
 import { CompetitorOverview } from "@/components/competitor-overview";
@@ -66,15 +66,25 @@ export default async function RunDetailPage({
     .from(trackingResults)
     .where(eq(trackingResults.runId, id));
 
+  const ownHost = domain.domainUrl.replace(/^https?:\/\//, "").replace(/^www\./, "").split("/")[0].toLowerCase();
+
   const byProvider = results.reduce<
-    Record<string, { prompt: string; response: string; score: number; mentions: number }[]>
+    Record<string, { prompt: string; response: string; mentions: number; citationCount: number; ownDomainCited: boolean }[]>
   >((acc, r) => {
     if (!acc[r.provider]) acc[r.provider] = [];
+    const cits = (r.citations as string[] | null) ?? [];
+    const ownDomainCited = cits.some((url) => {
+      try {
+        const host = new URL(url).hostname.replace(/^www\./, "").toLowerCase();
+        return host === ownHost || host.endsWith(`.${ownHost}`);
+      } catch { return false; }
+    });
     acc[r.provider].push({
       prompt: r.prompt,
       response: r.response,
-      score: r.visibilityScore ?? 0,
       mentions: r.mentionCount ?? 0,
+      citationCount: cits.length,
+      ownDomainCited,
     });
     return acc;
   }, {});
@@ -88,6 +98,9 @@ export default async function RunDetailPage({
 
   // Collect all unique domains from citations for favicon lookup
   const allCitedDomains = new Set<string>();
+  // Always include own domain
+  const ownDomainHost = domain.domainUrl.replace(/^https?:\/\//, "").replace(/^www\./, "").split("/")[0];
+  allCitedDomains.add(ownDomainHost);
   for (const r of citationResults) {
     if (!r.citations) continue;
     for (const url of r.citations) {
@@ -96,6 +109,8 @@ export default async function RunDetailPage({
       } catch { /* skip */ }
     }
   }
+  // Fetch any missing favicons (including own domain), then read all
+  await fetchFaviconsForDomains([...allCitedDomains]);
   const faviconMap = await getFaviconMap([...allCitedDomains]);
   const faviconObj: Record<string, string> = {};
   for (const [d, url] of faviconMap) {
@@ -147,6 +162,7 @@ export default async function RunDetailPage({
         results={citationResults}
         ownDomainUrl={domain.domainUrl}
         ownBrandName={domain.name}
+        keyword={promptSet.name}
         favicons={faviconObj}
         translations={{
           title: tComp("title"),
@@ -174,7 +190,7 @@ export default async function RunDetailPage({
                 <TableRow>
                   <TableHead>{t("prompt")}</TableHead>
                   <TableHead>{t("mentions")}</TableHead>
-                  <TableHead>{t("score")}</TableHead>
+                  <TableHead>{t("citations")}</TableHead>
                   <TableHead>{t("responseExcerpt")}</TableHead>
                 </TableRow>
               </TableHeader>
@@ -185,7 +201,16 @@ export default async function RunDetailPage({
                       {item.prompt}
                     </TableCell>
                     <TableCell>{item.mentions}</TableCell>
-                    <TableCell>{item.score}</TableCell>
+                    <TableCell>
+                      <span className="inline-flex items-center gap-1">
+                        {item.ownDomainCited ? (
+                          <CheckCircle className="h-4 w-4 text-green-500 shrink-0" />
+                        ) : (
+                          <XCircle className="h-4 w-4 text-red-400 shrink-0" />
+                        )}
+                        {item.citationCount}
+                      </span>
+                    </TableCell>
                     <TableCell className="max-w-[400px]">
                       <ExpandableResponse text={item.response} />
                     </TableCell>

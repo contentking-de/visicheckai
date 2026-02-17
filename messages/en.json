@@ -234,7 +234,7 @@
     "backToRuns": "Back to runs",
     "prompt": "Prompt",
     "mentions": "Mentions",
-    "score": "Score",
+    "citations": "Sources",
     "responseExcerpt": "Response (excerpt)",
     "noResults": "No results yet. The run may still be in progress."
   },
