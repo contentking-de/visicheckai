@@ -4,44 +4,40 @@ import { favicons } from "@/lib/schema";
 import { inArray } from "drizzle-orm";
 
 const GOOGLE_FAVICON_URL = "https://www.google.com/s2/favicons?sz=32&domain=";
-const TIMEOUT_MS = 8_000;
+const TIMEOUT_MS = 3_000;
 
 /**
  * Try multiple strategies to fetch a favicon for a domain.
  * Returns the image blob or null if all fail.
  */
 async function fetchFaviconBlob(domain: string): Promise<{ blob: Blob; contentType: string } | null> {
-  // Strategy 1: Direct /favicon.ico from the domain
+  // Strategy 1: Try https first (most common), then http as fallback
   for (const protocol of ["https", "http"]) {
-    for (const prefix of ["www.", ""]) {
-      try {
-        const url = `${protocol}://${prefix}${domain}/favicon.ico`;
-        const res = await fetch(url, {
-          redirect: "follow",
-          signal: AbortSignal.timeout(TIMEOUT_MS),
-        });
-        if (res.ok) {
-          const ct = res.headers.get("content-type") ?? "";
-          if (ct.includes("image") || ct.includes("icon")) {
-            const blob = await res.blob();
-            if (blob.size >= 100) {
-              return { blob, contentType: ct.split(";")[0] || "image/x-icon" };
-            }
+    try {
+      const url = `${protocol}://${domain}/favicon.ico`;
+      const res = await fetch(url, {
+        redirect: "follow",
+        signal: AbortSignal.timeout(TIMEOUT_MS),
+      });
+      if (res.ok) {
+        const ct = res.headers.get("content-type") ?? "";
+        if (ct.includes("image") || ct.includes("icon")) {
+          const blob = await res.blob();
+          if (blob.size >= 100) {
+            return { blob, contentType: ct.split(";")[0] || "image/x-icon" };
           }
         }
-      } catch { /* try next */ }
-    }
+      }
+    } catch { /* try next */ }
   }
 
-  // Strategy 2: Google Favicon Service (accepts any status since it always returns an image)
+  // Strategy 2: Google Favicon Service as fallback
   try {
     const res = await fetch(`${GOOGLE_FAVICON_URL}${encodeURIComponent(domain)}`, {
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
     const blob = await res.blob();
     const ct = res.headers.get("content-type") ?? "image/png";
-    // Google returns a default ~726 byte globe for unknown domains;
-    // real favicons are typically >100 bytes and have 200 status
     if (res.ok && blob.size >= 100) {
       return { blob, contentType: ct.split(";")[0] || "image/png" };
     }
@@ -62,6 +58,7 @@ async function fetchAndStoreFavicon(domain: string): Promise<string | null> {
     const { url } = await put(`favicons/${domain}.${ext}`, result.blob, {
       access: "public",
       addRandomSuffix: false,
+      allowOverwrite: true,
       contentType: result.contentType,
     });
 
@@ -123,7 +120,7 @@ export async function fetchFaviconsForDomains(domainList: string[]): Promise<voi
 
   console.log(`[Favicon] Fetching ${toFetch.length} favicons...`);
 
-  const BATCH_SIZE = 10;
+  const BATCH_SIZE = 30;
   for (let i = 0; i < toFetch.length; i += BATCH_SIZE) {
     const batch = toFetch.slice(i, i + BATCH_SIZE);
     await Promise.allSettled(batch.map((d) => fetchAndStoreFavicon(d)));

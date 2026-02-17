@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import {
@@ -6,9 +7,8 @@ import {
   trackingResults,
   domains,
   promptSets,
-  favicons,
 } from "@/lib/schema";
-import { eq, and, inArray } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { getFaviconMap, fetchFaviconsForDomains } from "@/lib/favicon";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -32,39 +32,44 @@ export default async function RunDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const session = await auth();
+  const [session, { id }] = await Promise.all([auth(), params]);
   if (!session?.user?.id) return null;
 
-  const t = await getTranslations("RunDetail");
-  const locale = await getLocale();
+  const [t, tComp, locale] = await Promise.all([
+    getTranslations("RunDetail"),
+    getTranslations("CompetitorOverview"),
+    getLocale(),
+  ]);
 
-  const { id } = await params;
-  const [runWithConfig] = await db
-    .select({
-      run: trackingRuns,
-      config: trackingConfigs,
-      domain: domains,
-      promptSet: promptSets,
-    })
-    .from(trackingRuns)
-    .innerJoin(trackingConfigs, eq(trackingRuns.configId, trackingConfigs.id))
-    .innerJoin(domains, eq(trackingConfigs.domainId, domains.id))
-    .innerJoin(promptSets, eq(trackingConfigs.promptSetId, promptSets.id))
-    .where(
-      and(
-        eq(trackingRuns.id, id),
-        eq(trackingConfigs.userId, session.user.id)
-      )
-    );
+  // Parallel: run+config query and results query
+  const [runRows, results] = await Promise.all([
+    db
+      .select({
+        run: trackingRuns,
+        config: trackingConfigs,
+        domain: domains,
+        promptSet: promptSets,
+      })
+      .from(trackingRuns)
+      .innerJoin(trackingConfigs, eq(trackingRuns.configId, trackingConfigs.id))
+      .innerJoin(domains, eq(trackingConfigs.domainId, domains.id))
+      .innerJoin(promptSets, eq(trackingConfigs.promptSetId, promptSets.id))
+      .where(
+        and(
+          eq(trackingRuns.id, id),
+          eq(trackingConfigs.userId, session.user.id)
+        )
+      ),
+    db
+      .select()
+      .from(trackingResults)
+      .where(eq(trackingResults.runId, id)),
+  ]);
 
+  const runWithConfig = runRows[0];
   if (!runWithConfig) notFound();
 
   const { run, domain, promptSet } = runWithConfig;
-
-  const results = await db
-    .select()
-    .from(trackingResults)
-    .where(eq(trackingResults.runId, id));
 
   const ownHost = domain.domainUrl.replace(/^https?:\/\//, "").replace(/^www\./, "").split("/")[0].toLowerCase();
 
@@ -89,7 +94,6 @@ export default async function RunDetailPage({
     return acc;
   }, {});
 
-  // Prepare data for competitor overview (citations + response text for mention scanning)
   const citationResults = results.map((r) => ({
     provider: r.provider,
     response: r.response,
@@ -98,7 +102,6 @@ export default async function RunDetailPage({
 
   // Collect all unique domains from citations for favicon lookup
   const allCitedDomains = new Set<string>();
-  // Always include own domain
   const ownDomainHost = domain.domainUrl.replace(/^https?:\/\//, "").replace(/^www\./, "").split("/")[0];
   allCitedDomains.add(ownDomainHost);
   for (const r of citationResults) {
@@ -109,15 +112,20 @@ export default async function RunDetailPage({
       } catch { /* skip */ }
     }
   }
-  // Fetch any missing favicons (including own domain), then read all
-  await fetchFaviconsForDomains([...allCitedDomains]);
-  const faviconMap = await getFaviconMap([...allCitedDomains]);
+
+  const domainArray = [...allCitedDomains];
+
+  // Read existing favicons from DB (fast), render page immediately
+  const faviconMap = await getFaviconMap(domainArray);
   const faviconObj: Record<string, string> = {};
   for (const [d, url] of faviconMap) {
     faviconObj[d] = url;
   }
 
-  const tComp = await getTranslations("CompetitorOverview");
+  // Fetch missing favicons in the background AFTER the response is sent
+  after(async () => {
+    await fetchFaviconsForDomains(domainArray);
+  });
 
   const providerLabels: Record<string, string> = {
     chatgpt: "ChatGPT",
