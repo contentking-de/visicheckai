@@ -133,7 +133,15 @@
     "promptSets": "Conjuntos de prompts",
     "recentRuns": "Ejecuciones recientes",
     "addDomain": "Añadir dominio",
-    "createPromptSet": "Crear conjunto de prompts"
+    "createPromptSet": "Crear conjunto de prompts",
+    "domainStats": "Resumen de dominios",
+    "totalRuns": "Ejecuciones totales",
+    "totalMentions": "Menciones",
+    "totalCitations": "Fuentes",
+    "avgScore": "Puntuación media",
+    "noData": "Aún no hay datos",
+    "lastRun": "Última ejecución",
+    "viewRuns": "Ver ejecuciones"
   },
   "Domains": {
     "title": "Dominios",

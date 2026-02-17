@@ -133,7 +133,15 @@
     "promptSets": "Prompt-Sets",
     "recentRuns": "Letzte Runs",
     "addDomain": "Domain hinzufügen",
-    "createPromptSet": "Prompt-Set erstellen"
+    "createPromptSet": "Prompt-Set erstellen",
+    "domainStats": "Domain-Übersicht",
+    "totalRuns": "Runs gesamt",
+    "totalMentions": "Erwähnungen",
+    "totalCitations": "Quellen",
+    "avgScore": "Ø Score",
+    "noData": "Noch keine Daten",
+    "lastRun": "Letzter Run",
+    "viewRuns": "Runs anzeigen"
   },
   "Domains": {
     "title": "Domains",

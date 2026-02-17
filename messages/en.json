@@ -133,7 +133,15 @@
     "promptSets": "Prompt Sets",
     "recentRuns": "Recent Runs",
     "addDomain": "Add domain",
-    "createPromptSet": "Create prompt set"
+    "createPromptSet": "Create prompt set",
+    "domainStats": "Domain Overview",
+    "totalRuns": "Total runs",
+    "totalMentions": "Mentions",
+    "totalCitations": "Citations",
+    "avgScore": "Avg score",
+    "noData": "No data yet",
+    "lastRun": "Last run",
+    "viewRuns": "View runs"
   },
   "Domains": {
     "title": "Domains",
