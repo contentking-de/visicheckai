@@ -7,7 +7,8 @@ import {
   domains,
   promptSets,
 } from "@/lib/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and, type SQL } from "drizzle-orm";
+import { teamFilter } from "@/lib/rbac";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -17,16 +18,33 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Play } from "lucide-react";
+import { Play, Eye } from "lucide-react";
+import { RunsFilter } from "@/components/runs-filter";
 import { getTranslations, getLocale } from "next-intl/server";
 
-export default async function RunsPage() {
+export default async function RunsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ domain?: string; promptSet?: string }>;
+}) {
   const session = await auth();
   if (!session?.user?.id) return null;
 
   const t = await getTranslations("Runs");
   const tc = await getTranslations("Common");
   const locale = await getLocale();
+  const params = await searchParams;
+  const domainFilter = params.domain ?? "";
+  const promptSetFilter = params.promptSet ?? "";
+
+  // Build where conditions
+  const conditions: SQL[] = [teamFilter("trackingConfigs", session)];
+  if (domainFilter) {
+    conditions.push(eq(domains.id, domainFilter));
+  }
+  if (promptSetFilter) {
+    conditions.push(eq(promptSets.id, promptSetFilter));
+  }
 
   const runsWithConfig = await db
     .select({
@@ -39,9 +57,22 @@ export default async function RunsPage() {
     .innerJoin(trackingConfigs, eq(trackingRuns.configId, trackingConfigs.id))
     .innerJoin(domains, eq(trackingConfigs.domainId, domains.id))
     .innerJoin(promptSets, eq(trackingConfigs.promptSetId, promptSets.id))
-    .where(eq(trackingConfigs.userId, session.user.id))
+    .where(and(...conditions))
     .orderBy(desc(trackingRuns.startedAt))
     .limit(50);
+
+  // Fetch available filter options (only domains/promptSets the user actually has runs for)
+  const userDomains = await db
+    .selectDistinct({ id: domains.id, name: domains.name })
+    .from(domains)
+    .where(teamFilter("domains", session))
+    .orderBy(domains.name);
+
+  const userPromptSets = await db
+    .selectDistinct({ id: promptSets.id, name: promptSets.name })
+    .from(promptSets)
+    .where(teamFilter("promptSets", session))
+    .orderBy(promptSets.name);
 
   return (
     <div className="space-y-8">
@@ -60,6 +91,11 @@ export default async function RunsPage() {
         </Button>
       </div>
 
+      <RunsFilter
+        domains={userDomains}
+        promptSets={userPromptSets}
+      />
+
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -75,14 +111,20 @@ export default async function RunsPage() {
             {runsWithConfig.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
-                  {t("empty")}{" "}
-                  <Link
-                    href="/dashboard/configs"
-                    className="text-primary underline"
-                  >
-                    {t("configureTracking")}
-                  </Link>{" "}
-                  {t("andStartRun")}
+                  {domainFilter || promptSetFilter ? (
+                    t("noFilterResults")
+                  ) : (
+                    <>
+                      {t("empty")}{" "}
+                      <Link
+                        href="/dashboard/configs"
+                        className="text-primary underline"
+                      >
+                        {t("configureTracking")}
+                      </Link>{" "}
+                      {t("andStartRun")}
+                    </>
+                  )}
                 </TableCell>
               </TableRow>
             ) : (
@@ -110,7 +152,10 @@ export default async function RunsPage() {
                   </TableCell>
                   <TableCell>
                     <Button asChild variant="ghost" size="sm">
-                      <Link href={`/dashboard/runs/${run.id}`}>{tc("details")}</Link>
+                      <Link href={`/dashboard/runs/${run.id}`}>
+                        <Eye className="h-4 w-4 mr-1" />
+                        {tc("details")}
+                      </Link>
                     </Button>
                   </TableCell>
                 </TableRow>

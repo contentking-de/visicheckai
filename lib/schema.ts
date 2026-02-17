@@ -8,6 +8,7 @@ import {
   boolean,
   index,
   primaryKey,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 // NextAuth required tables (Drizzle adapter schema)
@@ -71,6 +72,52 @@ export const verificationTokens = pgTable(
   })
 );
 
+// ── RBAC: Teams ─────────────────────────────────────────────────────────────
+
+export type UserRole = "super_admin" | "owner" | "member";
+
+export const teams = pgTable("teams", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: text("name").notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+});
+
+export const teamMembers = pgTable(
+  "team_members",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    teamId: uuid("team_id")
+      .notNull()
+      .references(() => teams.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    role: text("role").$type<UserRole>().notNull().default("member"),
+    joinedAt: timestamp("joined_at", { mode: "date" }).defaultNow(),
+  },
+  (table) => [
+    index("team_members_user").on(table.userId),
+    index("team_members_team").on(table.teamId),
+    uniqueIndex("team_members_unique").on(table.teamId, table.userId),
+  ]
+);
+
+export const teamInvitations = pgTable("team_invitations", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  teamId: uuid("team_id")
+    .notNull()
+    .references(() => teams.id, { onDelete: "cascade" }),
+  email: text("email").notNull(),
+  role: text("role").$type<"owner" | "member">().notNull().default("member"),
+  invitedBy: text("invited_by")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  token: text("token").notNull().unique(),
+  expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
+  acceptedAt: timestamp("accepted_at", { mode: "date" }),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+});
+
 // User profile (company & billing address)
 export const userProfiles = pgTable("user_profiles", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -95,25 +142,41 @@ export const userProfiles = pgTable("user_profiles", {
 });
 
 // App tables
-export const domains = pgTable("domains", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  userId: text("user_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-  name: text("name").notNull(),
-  domainUrl: text("domain_url").notNull(),
-  createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
-});
+export const domains = pgTable(
+  "domains",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    teamId: uuid("team_id")
+      .references(() => teams.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    domainUrl: text("domain_url").notNull(),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+  },
+  (table) => [
+    index("domains_team").on(table.teamId),
+  ]
+);
 
-export const promptSets = pgTable("prompt_sets", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  userId: text("user_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-  name: text("name").notNull(),
-  prompts: jsonb("prompts").$type<string[]>().notNull(),
-  createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
-});
+export const promptSets = pgTable(
+  "prompt_sets",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    teamId: uuid("team_id")
+      .references(() => teams.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    prompts: jsonb("prompts").$type<string[]>().notNull(),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+  },
+  (table) => [
+    index("prompt_sets_team").on(table.teamId),
+  ]
+);
 
 
 export const trackingConfigs = pgTable(
@@ -123,6 +186,8 @@ export const trackingConfigs = pgTable(
     userId: text("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
+    teamId: uuid("team_id")
+      .references(() => teams.id, { onDelete: "cascade" }),
     domainId: uuid("domain_id")
       .notNull()
       .references(() => domains.id, { onDelete: "cascade" }),
@@ -136,6 +201,7 @@ export const trackingConfigs = pgTable(
   (table) => [
     index("tracking_configs_next_run").on(table.nextRunAt),
     index("tracking_configs_user").on(table.userId),
+    index("tracking_configs_team").on(table.teamId),
   ]
 );
 

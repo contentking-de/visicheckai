@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { users } from "@/lib/schema";
 import { eq } from "drizzle-orm";
+import { createTeamForUser, getTeamForUser } from "@/lib/rbac";
 
 export async function POST(request: NextRequest) {
   try {
@@ -29,19 +30,32 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    let userId: string;
+
     if (existingUser) {
       // User exists but not registered (e.g. from failed Google login attempt)
       await db
         .update(users)
         .set({ name, registeredAt: new Date() })
         .where(eq(users.id, existingUser.id));
+      userId = existingUser.id;
     } else {
       // Create new user
-      await db.insert(users).values({
-        name,
-        email: normalizedEmail,
-        registeredAt: new Date(),
-      });
+      const [newUser] = await db
+        .insert(users)
+        .values({
+          name,
+          email: normalizedEmail,
+          registeredAt: new Date(),
+        })
+        .returning();
+      userId = newUser.id;
+    }
+
+    // Create team if user doesn't already have one
+    const existingTeam = await getTeamForUser(userId);
+    if (!existingTeam) {
+      await createTeamForUser(userId, `${name}s Team`);
     }
 
     return NextResponse.json({ success: true });

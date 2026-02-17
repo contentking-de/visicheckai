@@ -10,10 +10,12 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const sets = await db
-    .select()
-    .from(promptSets)
-    .where(eq(promptSets.userId, session.user.id));
+  const teamId = session.user.teamId;
+
+  const sets = teamId
+    ? await db.select().from(promptSets).where(eq(promptSets.teamId, teamId))
+    : await db.select().from(promptSets).where(eq(promptSets.userId, session.user.id));
+
   return NextResponse.json(sets);
 }
 
@@ -45,6 +47,7 @@ export async function POST(request: Request) {
     .insert(promptSets)
     .values({
       userId: session.user.id,
+      teamId: session.user.teamId ?? null,
       name: String(name),
       prompts: validPrompts,
     })

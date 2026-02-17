@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { domains } from "@/lib/schema";
-import { eq, and } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 
 export async function GET() {
@@ -10,10 +10,12 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const userDomains = await db
-    .select()
-    .from(domains)
-    .where(eq(domains.userId, session.user.id));
+  const teamId = session.user.teamId;
+
+  const userDomains = teamId
+    ? await db.select().from(domains).where(eq(domains.teamId, teamId))
+    : await db.select().from(domains).where(eq(domains.userId, session.user.id));
+
   return NextResponse.json(userDomains);
 }
 
@@ -37,6 +39,7 @@ export async function POST(request: Request) {
     .insert(domains)
     .values({
       userId: session.user.id,
+      teamId: session.user.teamId ?? null,
       name: String(name),
       domainUrl: String(domainUrl),
     })

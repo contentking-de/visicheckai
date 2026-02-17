@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { signOut } from "next-auth/react";
 import { useTranslations } from "next-intl";
-import { LogOut, User } from "lucide-react";
+import { LogOut, User, Users } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -58,6 +58,12 @@ export function UserMenu({ name, email, image }: UserMenuProps) {
           <Link href="/dashboard/profile">
             <User className="mr-2 h-4 w-4" />
             {t("profile")}
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild className="cursor-pointer">
+          <Link href="/dashboard/team">
+            <Users className="mr-2 h-4 w-4" />
+            {t("team")}
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />

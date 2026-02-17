@@ -4,6 +4,14 @@ import { domains } from "@/lib/schema";
 import { eq, and } from "drizzle-orm";
 import { NextResponse } from "next/server";
 
+function teamOrUserFilter(id: string, session: { user: { id: string; teamId?: string | null } }) {
+  const teamId = session.user.teamId;
+  if (teamId) {
+    return and(eq(domains.id, id), eq(domains.teamId, teamId));
+  }
+  return and(eq(domains.id, id), eq(domains.userId, session.user.id));
+}
+
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -17,7 +25,7 @@ export async function GET(
   const [domain] = await db
     .select()
     .from(domains)
-    .where(and(eq(domains.id, id), eq(domains.userId, session.user.id!)));
+    .where(teamOrUserFilter(id, session));
 
   if (!domain) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -45,7 +53,7 @@ export async function PATCH(
       ...(name !== undefined && { name: String(name) }),
       ...(domainUrl !== undefined && { domainUrl: String(domainUrl) }),
     })
-    .where(and(eq(domains.id, id), eq(domains.userId, session.user.id!)))
+    .where(teamOrUserFilter(id, session))
     .returning();
 
   if (!domain) {
@@ -67,7 +75,7 @@ export async function DELETE(
   const { id } = await params;
   const [domain] = await db
     .delete(domains)
-    .where(and(eq(domains.id, id), eq(domains.userId, session.user.id!)))
+    .where(teamOrUserFilter(id, session))
     .returning();
 
   if (!domain) {

@@ -4,6 +4,14 @@ import { trackingConfigs } from "@/lib/schema";
 import { eq, and } from "drizzle-orm";
 import { NextResponse } from "next/server";
 
+function teamOrUserFilter(id: string, session: { user: { id: string; teamId?: string | null } }) {
+  const teamId = session.user.teamId;
+  if (teamId) {
+    return and(eq(trackingConfigs.id, id), eq(trackingConfigs.teamId, teamId));
+  }
+  return and(eq(trackingConfigs.id, id), eq(trackingConfigs.userId, session.user.id));
+}
+
 export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -16,7 +24,7 @@ export async function DELETE(
   const { id } = await params;
   const [config] = await db
     .delete(trackingConfigs)
-    .where(and(eq(trackingConfigs.id, id), eq(trackingConfigs.userId, session.user.id!)))
+    .where(teamOrUserFilter(id, session))
     .returning();
 
   if (!config) {
@@ -49,7 +57,7 @@ export async function PATCH(
     .set({
       ...(validInterval && { interval: validInterval }),
     })
-    .where(and(eq(trackingConfigs.id, id), eq(trackingConfigs.userId, session.user.id!)))
+    .where(teamOrUserFilter(id, session))
     .returning();
 
   if (!config) {

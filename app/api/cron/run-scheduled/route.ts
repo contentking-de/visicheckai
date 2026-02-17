@@ -1,11 +1,13 @@
 import { db } from "@/lib/db";
-import { trackingConfigs, trackingRuns, trackingResults, domains, promptSets } from "@/lib/schema";
+import { trackingConfigs, trackingRuns, trackingResults, domains, promptSets, users } from "@/lib/schema";
 import { eq, lte } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { runProvider, type Provider } from "@/lib/ai-providers";
+import { fetchFaviconsForDomains } from "@/lib/favicon";
+import { sendRunCompletedEmail } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
-export const maxDuration = 300; // 5 minutes (raised from 60s for larger prompt sets)
+export const maxDuration = 300;
 
 const PROVIDERS: Provider[] = ["chatgpt", "claude", "gemini", "perplexity"];
 const PROMPT_BATCH_SIZE = 5;
@@ -76,6 +78,12 @@ export async function GET(request: Request) {
 
     if (!domain || !promptSet) continue;
 
+    // Get user email for notification
+    const [user] = await db
+      .select({ email: users.email })
+      .from(users)
+      .where(eq(users.id, config.userId));
+
     const [run] = await db
       .insert(trackingRuns)
       .values({ configId: config.id, status: "running" })
@@ -88,6 +96,8 @@ export async function GET(request: Request) {
 
     console.log(`[Cron Run ${run.id}] Starte: ${prompts.length} Prompts × ${PROVIDERS.length} Provider = ${totalCalls} Calls`);
     const startTime = Date.now();
+
+    let runStatus: "completed" | "failed" = "completed";
 
     try {
       for (let i = 0; i < prompts.length; i += PROMPT_BATCH_SIZE) {
@@ -110,8 +120,28 @@ export async function GET(request: Request) {
         .update(trackingRuns)
         .set({ status: "completed", completedAt: new Date() })
         .where(eq(trackingRuns.id, run.id));
+
+      // Fetch favicons for all cited domains
+      const runResults = await db
+        .select({ citations: trackingResults.citations })
+        .from(trackingResults)
+        .where(eq(trackingResults.runId, run.id));
+      const allDomains = new Set<string>();
+      for (const r of runResults) {
+        const cits = r.citations as string[] | null;
+        if (!cits) continue;
+        for (const url of cits) {
+          try {
+            allDomains.add(new URL(url).hostname.replace(/^www\./, ""));
+          } catch { /* skip invalid URLs */ }
+        }
+      }
+      fetchFaviconsForDomains([...allDomains]).catch((err) =>
+        console.error(`[Cron Run ${run.id}] Favicon fetch failed:`, err)
+      );
     } catch (err) {
       console.error(`[Cron Run ${run.id}] Fehlgeschlagen:`, err);
+      runStatus = "failed";
       await db
         .update(trackingRuns)
         .set({ status: "failed", completedAt: new Date() })
@@ -127,6 +157,17 @@ export async function GET(request: Request) {
         .update(trackingConfigs)
         .set({ nextRunAt: next })
         .where(eq(trackingConfigs.id, config.id));
+    }
+
+    // Send email notification
+    if (user?.email) {
+      await sendRunCompletedEmail({
+        to: user.email,
+        runId: run.id,
+        domainName: domain.name,
+        promptCount: prompts.length,
+        status: runStatus,
+      });
     }
   }
 

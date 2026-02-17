@@ -5,6 +5,7 @@ import Google from "next-auth/providers/google";
 import { db } from "@/lib/db";
 import { users, accounts, sessions, verificationTokens } from "@/lib/schema";
 import { eq } from "drizzle-orm";
+import { getTeamForUser, createTeamForUser } from "@/lib/rbac";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: DrizzleAdapter(db, {
@@ -58,16 +59,35 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
       return true;
     },
+
+    async session({ session, user }) {
+      if (user?.id) {
+        session.user.id = user.id;
+
+        const teamCtx = await getTeamForUser(user.id);
+        if (teamCtx) {
+          session.user.teamId = teamCtx.teamId;
+          session.user.role = teamCtx.role;
+        }
+      }
+      return session;
+    },
   },
   events: {
     async createUser({ user }) {
+      if (!user.id) return;
+
       // Mark newly created users as registered (covers Google OAuth sign-up)
-      if (user.id) {
-        await db
-          .update(users)
-          .set({ registeredAt: new Date() })
-          .where(eq(users.id, user.id));
-      }
+      await db
+        .update(users)
+        .set({ registeredAt: new Date() })
+        .where(eq(users.id, user.id));
+
+      // Auto-create a team for the new user (they become "owner")
+      const teamName = user.name
+        ? `${user.name}s Team`
+        : `Team`;
+      await createTeamForUser(user.id, teamName);
     },
   },
   trustHost: true,

@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { promptSets } from "@/lib/schema";
 import { eq, and } from "drizzle-orm";
+import { teamFilter } from "@/lib/rbac";
 import { notFound } from "next/navigation";
 import { PromptSetForm } from "@/components/prompt-set-form";
 import Link from "next/link";
@@ -20,7 +21,7 @@ export default async function EditPromptSetPage({
   const [promptSet] = await db
     .select()
     .from(promptSets)
-    .where(and(eq(promptSets.id, id), eq(promptSets.userId, session.user.id)));
+    .where(and(eq(promptSets.id, id), teamFilter("promptSets", session)));
 
   if (!promptSet) notFound();
 

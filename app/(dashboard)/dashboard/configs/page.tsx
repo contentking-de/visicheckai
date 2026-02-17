@@ -3,10 +3,12 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import {
   trackingConfigs,
+  trackingRuns,
   domains,
   promptSets,
 } from "@/lib/schema";
-import { eq } from "drizzle-orm";
+import { eq, and, inArray } from "drizzle-orm";
+import { teamFilter } from "@/lib/rbac";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -37,7 +39,22 @@ export default async function ConfigsPage() {
     .from(trackingConfigs)
     .innerJoin(domains, eq(trackingConfigs.domainId, domains.id))
     .innerJoin(promptSets, eq(trackingConfigs.promptSetId, promptSets.id))
-    .where(eq(trackingConfigs.userId, session.user.id));
+    .where(teamFilter("trackingConfigs", session));
+
+  // Check which configs have a currently running run
+  const configIds = configs.map((c) => c.config.id);
+  const runningRuns = configIds.length > 0
+    ? await db
+        .select({ configId: trackingRuns.configId })
+        .from(trackingRuns)
+        .where(
+          and(
+            inArray(trackingRuns.configId, configIds),
+            eq(trackingRuns.status, "running")
+          )
+        )
+    : [];
+  const runningConfigIds = new Set(runningRuns.map((r) => r.configId));
 
   const intervalLabels: Record<string, string> = {
     daily: t("daily"),
@@ -96,7 +113,7 @@ export default async function ConfigsPage() {
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
-                      <RunConfigButton configId={config.id} />
+                      <RunConfigButton configId={config.id} isRunning={runningConfigIds.has(config.id)} />
                       <DeleteConfigButton configId={config.id} />
                     </div>
                   </TableCell>

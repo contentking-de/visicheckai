@@ -23,9 +23,11 @@ export default function LoginPage() {
     return null;
   });
 
+  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+
   const handleGoogleLogin = () => {
     setIsGoogleLoading(true);
-    signIn("google", { callbackUrl: "/dashboard" });
+    signIn("google", { callbackUrl });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -50,7 +52,7 @@ export default function LoginPage() {
 
       await signIn("resend", {
         email,
-        callbackUrl: "/dashboard",
+        callbackUrl,
         redirect: false,
       });
       window.location.href = "/login/verify";

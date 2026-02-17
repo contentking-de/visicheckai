@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { domains } from "@/lib/schema";
 import { eq, and } from "drizzle-orm";
+import { teamFilter } from "@/lib/rbac";
 import { notFound } from "next/navigation";
 import { DomainForm } from "@/components/domain-form";
 import Link from "next/link";
@@ -20,7 +21,7 @@ export default async function EditDomainPage({
   const [domain] = await db
     .select()
     .from(domains)
-    .where(and(eq(domains.id, id), eq(domains.userId, session.user.id)));
+    .where(and(eq(domains.id, id), teamFilter("domains", session)));
 
   if (!domain) notFound();
 

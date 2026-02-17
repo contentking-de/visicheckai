@@ -4,6 +4,14 @@ import { promptSets } from "@/lib/schema";
 import { eq, and } from "drizzle-orm";
 import { NextResponse } from "next/server";
 
+function teamOrUserFilter(id: string, session: { user: { id: string; teamId?: string | null } }) {
+  const teamId = session.user.teamId;
+  if (teamId) {
+    return and(eq(promptSets.id, id), eq(promptSets.teamId, teamId));
+  }
+  return and(eq(promptSets.id, id), eq(promptSets.userId, session.user.id));
+}
+
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -17,7 +25,7 @@ export async function GET(
   const [promptSet] = await db
     .select()
     .from(promptSets)
-    .where(and(eq(promptSets.id, id), eq(promptSets.userId, session.user.id!)));
+    .where(teamOrUserFilter(id, session));
 
   if (!promptSet) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -54,7 +62,7 @@ export async function PATCH(
   const [promptSet] = await db
     .update(promptSets)
     .set(updates)
-    .where(and(eq(promptSets.id, id), eq(promptSets.userId, session.user.id!)))
+    .where(teamOrUserFilter(id, session))
     .returning();
 
   if (!promptSet) {
@@ -76,7 +84,7 @@ export async function DELETE(
   const { id } = await params;
   const [promptSet] = await db
     .delete(promptSets)
-    .where(and(eq(promptSets.id, id), eq(promptSets.userId, session.user.id!)))
+    .where(teamOrUserFilter(id, session))
     .returning();
 
   if (!promptSet) {

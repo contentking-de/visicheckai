@@ -10,10 +10,12 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const configs = await db
-    .select()
-    .from(trackingConfigs)
-    .where(eq(trackingConfigs.userId, session.user.id));
+  const teamId = session.user.teamId;
+
+  const configs = teamId
+    ? await db.select().from(trackingConfigs).where(eq(trackingConfigs.teamId, teamId))
+    : await db.select().from(trackingConfigs).where(eq(trackingConfigs.userId, session.user.id));
+
   return NextResponse.json(configs);
 }
 
@@ -50,6 +52,7 @@ export async function POST(request: Request) {
     .insert(trackingConfigs)
     .values({
       userId: session.user.id,
+      teamId: session.user.teamId ?? null,
       domainId,
       promptSetId,
       interval: validInterval,

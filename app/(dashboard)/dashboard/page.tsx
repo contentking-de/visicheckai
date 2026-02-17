@@ -9,6 +9,7 @@ import {
   trackingResults,
 } from "@/lib/schema";
 import { eq, desc } from "drizzle-orm";
+import { teamFilter } from "@/lib/rbac";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -35,13 +36,13 @@ export default async function DashboardPage() {
   const domainList = await db
     .select()
     .from(domains)
-    .where(eq(domains.userId, session.user.id));
+    .where(teamFilter("domains", session));
   const domainCount = domainList.length;
 
   const promptSetList = await db
     .select()
     .from(promptSets)
-    .where(eq(promptSets.userId, session.user.id));
+    .where(teamFilter("promptSets", session));
   const promptSetCount = promptSetList.length;
 
   const recentRuns = await db
@@ -54,7 +55,7 @@ export default async function DashboardPage() {
     .innerJoin(trackingConfigs, eq(trackingRuns.configId, trackingConfigs.id))
     .innerJoin(domains, eq(trackingConfigs.domainId, domains.id))
     .innerJoin(promptSets, eq(trackingConfigs.promptSetId, promptSets.id))
-    .where(eq(trackingConfigs.userId, session.user.id))
+    .where(teamFilter("trackingConfigs", session))
     .orderBy(desc(trackingRuns.startedAt))
     .limit(5);
 
@@ -75,7 +76,7 @@ export default async function DashboardPage() {
     .innerJoin(trackingRuns, eq(trackingResults.runId, trackingRuns.id))
     .innerJoin(trackingConfigs, eq(trackingRuns.configId, trackingConfigs.id))
     .innerJoin(domains, eq(trackingConfigs.domainId, domains.id))
-    .where(eq(trackingConfigs.userId, session.user.id));
+    .where(teamFilter("trackingConfigs", session));
 
   type DomainStat = {
     domainId: string;

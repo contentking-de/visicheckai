@@ -7,13 +7,17 @@ export default auth((req) => {
     path.startsWith("/login") || path.startsWith("/sign-up");
 
   if (isAuthPage && isLoggedIn) {
-    return Response.redirect(new URL("/dashboard", req.url));
+    // Respect callbackUrl if present (e.g. from invite flow)
+    const callbackUrl = req.nextUrl.searchParams.get("callbackUrl");
+    const target = callbackUrl || "/dashboard";
+    return Response.redirect(new URL(target, req.url));
   }
 
   const isPublic =
     path === "/" ||
     path.startsWith("/login") ||
     path.startsWith("/sign-up") ||
+    path.startsWith("/invite/") ||
     path.startsWith("/impressum") ||
     path.startsWith("/datenschutz") ||
     path.startsWith("/agb") ||

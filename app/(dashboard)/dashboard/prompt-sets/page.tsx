@@ -2,7 +2,7 @@ import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { promptSets } from "@/lib/schema";
-import { eq } from "drizzle-orm";
+import { teamFilter } from "@/lib/rbac";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -26,7 +26,7 @@ export default async function PromptSetsPage() {
   const sets = await db
     .select()
     .from(promptSets)
-    .where(eq(promptSets.userId, session.user.id));
+    .where(teamFilter("promptSets", session));
 
   return (
     <div className="space-y-8">

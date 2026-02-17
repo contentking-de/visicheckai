@@ -15,6 +15,13 @@
       "when": 1771334097535,
       "tag": "0001_daily_shape",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1771344607456,
+      "tag": "0002_concerned_giant_girl",
+      "breakpoints": true
     }
   ]
 }

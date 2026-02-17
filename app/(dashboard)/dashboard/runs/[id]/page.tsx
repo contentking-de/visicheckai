@@ -9,6 +9,7 @@ import {
   promptSets,
 } from "@/lib/schema";
 import { eq, and } from "drizzle-orm";
+import { teamFilter } from "@/lib/rbac";
 import { getFaviconMap, fetchFaviconsForDomains } from "@/lib/favicon";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -57,7 +58,7 @@ export default async function RunDetailPage({
       .where(
         and(
           eq(trackingRuns.id, id),
-          eq(trackingConfigs.userId, session.user.id)
+          teamFilter("trackingConfigs", session)
         )
       ),
     db
