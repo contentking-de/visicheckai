@@ -170,7 +170,19 @@
     "addPrompt": "Add prompt",
     "promptPlaceholder": "e.g. What are the best tools for X?",
     "minOnePrompt": "At least one prompt is required",
-    "promptsLabel": "Prompts"
+    "promptsLabel": "Prompts",
+    "autoGenerate": "Auto-Generate"
+  },
+  "GeneratePrompts": {
+    "title": "Auto-generate prompts",
+    "description": "Enter a keyword to automatically generate frequently asked questions and their query fanout.",
+    "keywordLabel": "Keyword",
+    "keywordPlaceholder": "e.g. SEO tools, cloud hosting, CRM software",
+    "generate": "Generate",
+    "generating": "Generating FAQs and query fanout…",
+    "selectHint": "Select the prompts you want to import",
+    "selected": "selected",
+    "importButton": "Import {count} prompts"
   },
   "Configs": {
     "title": "Tracking Configuration",
@@ -225,6 +237,19 @@
     "score": "Score",
     "responseExcerpt": "Response (excerpt)",
     "noResults": "No results yet. The run may still be in progress."
+  },
+  "CompetitorOverview": {
+    "title": "Competitor Overview",
+    "domain": "Domain / Brand",
+    "total": "Total",
+    "citations": "Sources",
+    "mentions": "Mentions",
+    "ownDomain": "Your domain",
+    "competitor": "Competitor",
+    "showAll": "Show all",
+    "showLess": "Show less",
+    "noCitations": "No sources or mentions found in this run. Data will be tracked starting with the next run.",
+    "sources": "unique domains detected"
   },
   "LanguageSwitcher": {
     "de": "Deutsch",

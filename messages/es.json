@@ -170,7 +170,19 @@
     "addPrompt": "Añadir prompt",
     "promptPlaceholder": "ej. ¿Cuáles son las mejores herramientas para X?",
     "minOnePrompt": "Se requiere al menos un prompt",
-    "promptsLabel": "Prompts"
+    "promptsLabel": "Prompts",
+    "autoGenerate": "Auto-generar"
+  },
+  "GeneratePrompts": {
+    "title": "Generar prompts automáticamente",
+    "description": "Ingrese una palabra clave para generar automáticamente preguntas frecuentes y su fanout de consultas.",
+    "keywordLabel": "Palabra clave",
+    "keywordPlaceholder": "ej. herramientas SEO, hosting en la nube, software CRM",
+    "generate": "Generar",
+    "generating": "Generando preguntas frecuentes y fanout de consultas…",
+    "selectHint": "Seleccione los prompts que desea importar",
+    "selected": "seleccionados",
+    "importButton": "Importar {count} prompts"
   },
   "Configs": {
     "title": "Configuración de seguimiento",
@@ -225,6 +237,19 @@
     "score": "Puntuación",
     "responseExcerpt": "Respuesta (extracto)",
     "noResults": "Aún no hay resultados. La ejecución puede estar todavía en curso."
+  },
+  "CompetitorOverview": {
+    "title": "Visión competitiva",
+    "domain": "Dominio / Marca",
+    "total": "Total",
+    "citations": "Fuentes",
+    "mentions": "Menciones",
+    "ownDomain": "Tu dominio",
+    "competitor": "Competidor",
+    "showAll": "Mostrar todo",
+    "showLess": "Mostrar menos",
+    "noCitations": "No se encontraron fuentes o menciones en esta ejecución. Los datos se rastrearán a partir de la próxima ejecución.",
+    "sources": "dominios únicos detectados"
   },
   "LanguageSwitcher": {
     "de": "Deutsch",

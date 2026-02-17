@@ -125,6 +125,12 @@ export const trackingRuns = pgTable("tracking_runs", {
   status: text("status").$type<"pending" | "running" | "completed" | "failed">().default("pending"),
 });
 
+export const favicons = pgTable("favicons", {
+  domain: text("domain").primaryKey(),
+  blobUrl: text("blob_url").notNull(),
+  fetchedAt: timestamp("fetched_at", { mode: "date" }).defaultNow(),
+});
+
 export const trackingResults = pgTable("tracking_results", {
   id: uuid("id").defaultRandom().primaryKey(),
   runId: uuid("run_id")
@@ -135,5 +141,6 @@ export const trackingResults = pgTable("tracking_results", {
   response: text("response").notNull(),
   visibilityScore: integer("visibility_score"),
   mentionCount: integer("mention_count").default(0),
+  citations: jsonb("citations").$type<string[]>(),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
 });

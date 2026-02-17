@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, X } from "lucide-react";
+import { Plus, X, Sparkles } from "lucide-react";
+import { GeneratePromptsSheet } from "@/components/generate-prompts-sheet";
 
 type PromptSet = {
   id: string;
@@ -26,12 +27,18 @@ export function PromptSetForm({ promptSet }: { promptSet?: PromptSet }) {
   );
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [generateOpen, setGenerateOpen] = useState(false);
 
   const addPrompt = () => setPrompts((p) => [...p, ""]);
   const removePrompt = (i: number) =>
     setPrompts((p) => p.filter((_, j) => j !== i));
   const updatePrompt = (i: number, v: string) =>
     setPrompts((p) => p.map((x, j) => (j === i ? v : x)));
+
+  const handleImportGenerated = (generated: string[]) => {
+    const existing = prompts.filter((p) => p.trim());
+    setPrompts([...existing, ...generated]);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,10 +94,21 @@ export function PromptSetForm({ promptSet }: { promptSet?: PromptSet }) {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label>{t("promptsLabel")}</Label>
-              <Button type="button" variant="outline" size="sm" onClick={addPrompt}>
-                <Plus className="h-4 w-4 mr-1" />
-                {t("addPrompt")}
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setGenerateOpen(true)}
+                >
+                  <Sparkles className="h-4 w-4 mr-1" />
+                  {t("autoGenerate")}
+                </Button>
+                <Button type="button" variant="outline" size="sm" onClick={addPrompt}>
+                  <Plus className="h-4 w-4 mr-1" />
+                  {t("addPrompt")}
+                </Button>
+              </div>
             </div>
             <div className="space-y-2">
               {prompts.map((p, i) => (
@@ -122,6 +140,11 @@ export function PromptSetForm({ promptSet }: { promptSet?: PromptSet }) {
             {isLoading ? tc("saving") : promptSet ? tc("save") : tc("create")}
           </Button>
         </form>
+        <GeneratePromptsSheet
+          open={generateOpen}
+          onOpenChange={setGenerateOpen}
+          onImport={handleImportGenerated}
+        />
       </CardContent>
     </Card>
   );

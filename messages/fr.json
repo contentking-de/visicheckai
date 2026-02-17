@@ -170,7 +170,19 @@
     "addPrompt": "Ajouter un prompt",
     "promptPlaceholder": "ex. Quels sont les meilleurs outils pour X ?",
     "minOnePrompt": "Au moins un prompt est requis",
-    "promptsLabel": "Prompts"
+    "promptsLabel": "Prompts",
+    "autoGenerate": "Auto-générer"
+  },
+  "GeneratePrompts": {
+    "title": "Générer automatiquement des prompts",
+    "description": "Entrez un mot-clé pour générer automatiquement les questions fréquentes et leur fanout de requêtes.",
+    "keywordLabel": "Mot-clé",
+    "keywordPlaceholder": "ex. outils SEO, hébergement cloud, logiciel CRM",
+    "generate": "Générer",
+    "generating": "Génération des FAQ et du fanout de requêtes…",
+    "selectHint": "Sélectionnez les prompts à importer",
+    "selected": "sélectionnés",
+    "importButton": "Importer {count} prompts"
   },
   "Configs": {
     "title": "Configuration de suivi",
@@ -225,6 +237,19 @@
     "score": "Score",
     "responseExcerpt": "Réponse (extrait)",
     "noResults": "Pas encore de résultats. L'exécution est peut-être encore en cours."
+  },
+  "CompetitorOverview": {
+    "title": "Aperçu concurrentiel",
+    "domain": "Domaine / Marque",
+    "total": "Total",
+    "citations": "Sources",
+    "mentions": "Mentions",
+    "ownDomain": "Votre domaine",
+    "competitor": "Concurrent",
+    "showAll": "Tout afficher",
+    "showLess": "Afficher moins",
+    "noCitations": "Aucune source ou mention trouvée dans cette exécution. Les données seront suivies à partir de la prochaine exécution.",
+    "sources": "domaines uniques détectés"
   },
   "LanguageSwitcher": {
     "de": "Deutsch",

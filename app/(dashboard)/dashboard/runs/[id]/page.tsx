@@ -6,8 +6,10 @@ import {
   trackingResults,
   domains,
   promptSets,
+  favicons,
 } from "@/lib/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, inArray } from "drizzle-orm";
+import { getFaviconMap } from "@/lib/favicon";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -23,6 +25,7 @@ import {
 import { ArrowLeft } from "lucide-react";
 import { getTranslations, getLocale } from "next-intl/server";
 import { ExpandableResponse } from "@/components/expandable-response";
+import { CompetitorOverview } from "@/components/competitor-overview";
 
 export default async function RunDetailPage({
   params,
@@ -76,6 +79,31 @@ export default async function RunDetailPage({
     return acc;
   }, {});
 
+  // Prepare data for competitor overview (citations + response text for mention scanning)
+  const citationResults = results.map((r) => ({
+    provider: r.provider,
+    response: r.response,
+    citations: (r.citations as string[] | null) ?? null,
+  }));
+
+  // Collect all unique domains from citations for favicon lookup
+  const allCitedDomains = new Set<string>();
+  for (const r of citationResults) {
+    if (!r.citations) continue;
+    for (const url of r.citations) {
+      try {
+        allCitedDomains.add(new URL(url).hostname.replace(/^www\./, ""));
+      } catch { /* skip */ }
+    }
+  }
+  const faviconMap = await getFaviconMap([...allCitedDomains]);
+  const faviconObj: Record<string, string> = {};
+  for (const [d, url] of faviconMap) {
+    faviconObj[d] = url;
+  }
+
+  const tComp = await getTranslations("CompetitorOverview");
+
   const providerLabels: Record<string, string> = {
     chatgpt: "ChatGPT",
     claude: "Claude",
@@ -114,6 +142,26 @@ export default async function RunDetailPage({
           {run.status}
         </span>
       </div>
+
+      <CompetitorOverview
+        results={citationResults}
+        ownDomainUrl={domain.domainUrl}
+        ownBrandName={domain.name}
+        favicons={faviconObj}
+        translations={{
+          title: tComp("title"),
+          domain: tComp("domain"),
+          total: tComp("total"),
+          citations: tComp("citations"),
+          mentions: tComp("mentions"),
+          ownDomain: tComp("ownDomain"),
+          competitor: tComp("competitor"),
+          showAll: tComp("showAll"),
+          showLess: tComp("showLess"),
+          noCitations: tComp("noCitations"),
+          sources: tComp("sources"),
+        }}
+      />
 
       {Object.entries(byProvider).map(([provider, items]) => (
         <Card key={provider}>

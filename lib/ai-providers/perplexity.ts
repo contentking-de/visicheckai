@@ -3,7 +3,7 @@ export type Provider = "perplexity";
 export async function chat(
   prompt: string,
   _domainUrl: string
-): Promise<{ response: string; provider: Provider }> {
+): Promise<{ response: string; provider: Provider; citations?: string[] }> {
   const res = await fetch("https://api.perplexity.ai/chat/completions", {
     method: "POST",
     headers: {
@@ -24,7 +24,9 @@ export async function chat(
 
   const data = (await res.json()) as {
     choices?: Array<{ message?: { content?: string } }>;
+    citations?: string[];
   };
   const content = data.choices?.[0]?.message?.content?.trim() ?? "";
-  return { response: content, provider: "perplexity" };
+  const citations = data.citations ?? [];
+  return { response: content, provider: "perplexity", citations };
 }

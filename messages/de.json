@@ -170,7 +170,19 @@
     "addPrompt": "Prompt hinzufügen",
     "promptPlaceholder": "z.B. Was sind die besten Tools für X?",
     "minOnePrompt": "Mindestens ein Prompt erforderlich",
-    "promptsLabel": "Prompts"
+    "promptsLabel": "Prompts",
+    "autoGenerate": "Auto-Generieren"
+  },
+  "GeneratePrompts": {
+    "title": "Prompts auto-generieren",
+    "description": "Geben Sie ein Keyword ein, um automatisch häufig gestellte Fragen und deren Query-Fanout zu generieren.",
+    "keywordLabel": "Keyword",
+    "keywordPlaceholder": "z.B. SEO-Tools, Cloud-Hosting, CRM-Software",
+    "generate": "Generieren",
+    "generating": "Generiere FAQs und Query-Fanout…",
+    "selectHint": "Wählen Sie die Prompts aus, die importiert werden sollen",
+    "selected": "ausgewählt",
+    "importButton": "{count} Prompts importieren"
   },
   "Configs": {
     "title": "Tracking-Konfiguration",
@@ -225,6 +237,19 @@
     "score": "Score",
     "responseExcerpt": "Antwort (Auszug)",
     "noResults": "Noch keine Ergebnisse. Der Run läuft möglicherweise noch."
+  },
+  "CompetitorOverview": {
+    "title": "Wettbewerbsübersicht",
+    "domain": "Domain / Marke",
+    "total": "Gesamt",
+    "citations": "Quellen",
+    "mentions": "Erwähnungen",
+    "ownDomain": "Eigene Domain",
+    "competitor": "Wettbewerber",
+    "showAll": "Alle anzeigen",
+    "showLess": "Weniger anzeigen",
+    "noCitations": "Keine Quellen oder Erwähnungen in diesem Run gefunden. Daten werden ab dem nächsten Run erfasst.",
+    "sources": "verschiedene Domains erkannt"
   },
   "LanguageSwitcher": {
     "de": "Deutsch",
