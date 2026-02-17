@@ -5,6 +5,7 @@ import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -64,7 +65,8 @@ export default function LoginPage() {
     <div className="flex min-h-screen flex-col items-center justify-center px-4">
       <div className="w-full max-w-sm space-y-8">
         <div className="text-center">
-          <Link href="/" className="text-2xl font-semibold text-foreground">
+          <Link href="/" className="flex items-center justify-center gap-2 text-2xl font-semibold text-foreground">
+            <Image src="/favicon.webp" alt="" width={24} height={24} className="h-6 w-6" />
             visicheck.ai
           </Link>
           <h1 className="mt-4 text-xl font-medium">{t("loginTitle")}</h1>

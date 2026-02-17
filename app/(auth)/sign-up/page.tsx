@@ -4,6 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -70,7 +71,8 @@ export default function SignUpPage() {
       {/* Left side – Marketing panel */}
       <div className="hidden lg:flex lg:w-1/2 flex-col justify-between bg-primary p-12 text-primary-foreground">
         <div>
-          <Link href="/" className="text-2xl font-semibold">
+          <Link href="/" className="flex items-center gap-2 text-2xl font-semibold">
+            <Image src="/favicon.webp" alt="" width={24} height={24} className="h-6 w-6" />
             visicheck.ai
           </Link>
         </div>
@@ -103,7 +105,8 @@ export default function SignUpPage() {
       <div className="flex flex-1 flex-col items-center justify-center px-4 py-12 sm:px-8">
         <div className="w-full max-w-md space-y-8">
           <div className="lg:hidden text-center">
-            <Link href="/" className="text-2xl font-semibold text-foreground">
+            <Link href="/" className="flex items-center justify-center gap-2 text-2xl font-semibold text-foreground">
+              <Image src="/favicon.webp" alt="" width={24} height={24} className="h-6 w-6" />
               visicheck.ai
             </Link>
           </div>
