@@ -10,7 +10,6 @@ import {
   FileText,
   BarChart3,
   Settings,
-  Users,
 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
@@ -33,7 +32,6 @@ export default async function DashboardLayout({
     { href: "/dashboard/prompt-sets", label: t("promptSets"), icon: FileText },
     { href: "/dashboard/configs", label: t("configs"), icon: Settings },
     { href: "/dashboard/runs", label: t("runs"), icon: BarChart3 },
-    { href: "/dashboard/team", label: t("team"), icon: Users },
   ];
 
   return (
