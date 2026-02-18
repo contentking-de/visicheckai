@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { teams } from "@/lib/schema";
+import { teams, userProfiles } from "@/lib/schema";
 import { eq } from "drizzle-orm";
 import { stripe } from "@/lib/stripe";
 import { PLANS } from "@/lib/plans";
@@ -30,6 +30,27 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Team not found" }, { status: 404 });
   }
 
+  const [profile] = await db
+    .select()
+    .from(userProfiles)
+    .where(eq(userProfiles.userId, session.user.id));
+
+  const billingAddress = profile?.billingDifferent
+    ? {
+        line1: profile.billingStreet || undefined,
+        city: profile.billingCity || undefined,
+        postal_code: profile.billingZip || undefined,
+        country: profile.billingCountry || undefined,
+      }
+    : {
+        line1: profile?.companyStreet || undefined,
+        city: profile?.companyCity || undefined,
+        postal_code: profile?.companyZip || undefined,
+        country: profile?.companyCountry || undefined,
+      };
+
+  const hasAddress = billingAddress.line1 && billingAddress.country;
+
   let stripeCustomerId = team.stripeCustomerId;
 
   if (!stripeCustomerId) {
@@ -37,6 +58,7 @@ export async function POST(req: Request) {
       email: session.user.email!,
       name: session.user.name ?? undefined,
       metadata: { teamId, userId: session.user.id },
+      ...(hasAddress && { address: billingAddress }),
     });
     stripeCustomerId = customer.id;
 
@@ -48,15 +70,20 @@ export async function POST(req: Request) {
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
+  const taxEnabled = process.env.STRIPE_TAX_ENABLED === "true";
+
   const checkoutSession = await stripe.checkout.sessions.create({
     customer: stripeCustomerId,
     mode: "subscription",
     line_items: [{ price: plan.stripePriceId, quantity: 1 }],
     success_url: `${baseUrl}/dashboard/billing?success=true`,
     cancel_url: `${baseUrl}/dashboard/billing?canceled=true`,
-    ...(process.env.STRIPE_TAX_ENABLED === "true" && {
+    ...(taxEnabled && {
       automatic_tax: { enabled: true },
       tax_id_collection: { enabled: true },
+      customer_update: {
+        address: "auto",
+      },
     }),
     allow_promotion_codes: true,
     subscription_data: {
