@@ -15,9 +15,11 @@ import {
 type MobileNavProps = {
   loginLabel: string;
   signUpLabel: string;
+  pricingLabel?: string;
+  faqLabel?: string;
 };
 
-export function MobileNav({ loginLabel, signUpLabel }: MobileNavProps) {
+export function MobileNav({ loginLabel, signUpLabel, pricingLabel, faqLabel }: MobileNavProps) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -36,6 +38,16 @@ export function MobileNav({ loginLabel, signUpLabel }: MobileNavProps) {
           <SheetTitle className="text-left">Menu</SheetTitle>
         </SheetHeader>
         <nav className="flex flex-col gap-4 px-4">
+          {pricingLabel && (
+            <Button asChild variant="ghost" className="justify-start" onClick={() => setOpen(false)}>
+              <Link href="#pricing">{pricingLabel}</Link>
+            </Button>
+          )}
+          {faqLabel && (
+            <Button asChild variant="ghost" className="justify-start" onClick={() => setOpen(false)}>
+              <Link href="#faq">{faqLabel}</Link>
+            </Button>
+          )}
           <LanguageSwitcher />
           <Button asChild variant="ghost" className="justify-start" onClick={() => setOpen(false)}>
             <Link href="/login">{loginLabel}</Link>
