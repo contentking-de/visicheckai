@@ -1,7 +1,11 @@
 import { Metadata } from "next";
+import { buildHreflangAlternates } from "@/lib/locale-href";
 
 export const metadata: Metadata = {
   title: "Impressum – visicheck.ai",
+  alternates: {
+    languages: buildHreflangAlternates("/impressum"),
+  },
 };
 
 export default function ImpressumPage() {

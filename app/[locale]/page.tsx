@@ -22,9 +22,21 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
+import { buildHreflangAlternates } from "@/lib/locale-href";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { MobileNav } from "@/components/mobile-nav";
 import { FaqSection } from "@/components/faq-section";
+
+export async function generateMetadata() {
+  const t = await getTranslations("Metadata");
+  return {
+    title: t("title"),
+    description: t("description"),
+    alternates: {
+      languages: buildHreflangAlternates("/"),
+    },
+  };
+}
 
 export default async function LandingPage() {
   const t = await getTranslations("Landing");

@@ -6,7 +6,8 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { db } from "@/lib/db";
 import { magazineArticles, magazineArticleTranslations, users } from "@/lib/schema";
 import { eq, and } from "drizzle-orm";
-import { defaultLocale } from "@/i18n/config";
+import { defaultLocale, type Locale } from "@/i18n/config";
+import { buildHreflangAlternates } from "@/lib/locale-href";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { MobileNav } from "@/components/mobile-nav";
 import { ArrowLeft, Calendar, User } from "lucide-react";
@@ -137,9 +138,33 @@ export async function generateMetadata({ params }: Props) {
 
   if (!article) return { title: t("articleNotFound") };
 
+  const allTranslations = await db
+    .select({
+      locale: magazineArticleTranslations.locale,
+      slug: magazineArticleTranslations.slug,
+    })
+    .from(magazineArticleTranslations)
+    .where(eq(magazineArticleTranslations.articleId, article.id));
+
+  const [baseArticle] = await db
+    .select({ slug: magazineArticles.slug })
+    .from(magazineArticles)
+    .where(eq(magazineArticles.id, article.id))
+    .limit(1);
+
+  const slugsByLocale: Partial<Record<Locale, string>> = {
+    [defaultLocale]: baseArticle?.slug ?? slug,
+  };
+  for (const tr of allTranslations) {
+    slugsByLocale[tr.locale as Locale] = tr.slug;
+  }
+
   return {
     title: `${article.title} – ${t("articleTitleSuffix")}`,
     description: article.excerpt ?? undefined,
+    alternates: {
+      languages: buildHreflangAlternates(`/magazin/${slug}`, slugsByLocale),
+    },
   };
 }
 

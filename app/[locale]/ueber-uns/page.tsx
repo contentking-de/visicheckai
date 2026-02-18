@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
+import { buildHreflangAlternates } from "@/lib/locale-href";
 import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { MobileNav } from "@/components/mobile-nav";
@@ -16,7 +17,12 @@ import {
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("About");
-  return { title: t("metaTitle") };
+  return {
+    title: t("metaTitle"),
+    alternates: {
+      languages: buildHreflangAlternates("/ueber-uns"),
+    },
+  };
 }
 
 export default async function AboutPage() {

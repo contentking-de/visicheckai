@@ -1,7 +1,11 @@
 import { Metadata } from "next";
+import { buildHreflangAlternates } from "@/lib/locale-href";
 
 export const metadata: Metadata = {
   title: "Datenschutzerklärung – visicheck.ai",
+  alternates: {
+    languages: buildHreflangAlternates("/datenschutz"),
+  },
 };
 
 export default function DatenschutzPage() {

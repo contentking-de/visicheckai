@@ -1,7 +1,11 @@
 import { Metadata } from "next";
+import { buildHreflangAlternates } from "@/lib/locale-href";
 
 export const metadata: Metadata = {
   title: "Allgemeine Geschäftsbedingungen – visicheck.ai",
+  alternates: {
+    languages: buildHreflangAlternates("/agb"),
+  },
 };
 
 export default function AGBPage() {

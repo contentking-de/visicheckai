@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { magazineArticles, magazineArticleTranslations, users } from "@/lib/schema";
 import { desc, eq, and } from "drizzle-orm";
 import { defaultLocale } from "@/i18n/config";
+import { buildHreflangAlternates } from "@/lib/locale-href";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { MobileNav } from "@/components/mobile-nav";
 import { ArrowRight, Calendar, User } from "lucide-react";
@@ -14,6 +15,9 @@ export async function generateMetadata() {
   return {
     title: t("pageTitle"),
     description: t("pageDescription"),
+    alternates: {
+      languages: buildHreflangAlternates("/magazin"),
+    },
   };
 }
 
