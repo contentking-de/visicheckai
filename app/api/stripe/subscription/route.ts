@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { getAccessStatus } from "@/lib/access";
+import { getPromptUsage } from "@/lib/usage";
 import { db } from "@/lib/db";
 import { subscriptions } from "@/lib/schema";
 import { eq, desc } from "drizzle-orm";
@@ -24,6 +25,12 @@ export async function GET() {
     .orderBy(desc(subscriptions.createdAt))
     .limit(1);
 
+  const usage = await getPromptUsage(
+    session.user.id,
+    session.user.teamId,
+    access.isTrial
+  );
+
   return NextResponse.json({
     subscription: sub
       ? {
@@ -38,6 +45,13 @@ export async function GET() {
       daysLeft: access.trialDaysLeft,
       endsAt: access.trialEndsAt,
       hasAccess: access.hasAccess,
+    },
+    usage: {
+      used: usage.used,
+      limit: usage.limit,
+      remaining: usage.remaining,
+      periodStart: usage.periodStart,
+      periodEnd: usage.periodEnd,
     },
   });
 }

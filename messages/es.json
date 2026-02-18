@@ -192,7 +192,7 @@
     "domains": "Dominios & Marcas",
     "promptSets": "Conjuntos de prompts",
     "configs": "Configuración",
-    "runs": "Ejecuciones",
+    "runs": "Tracking Runs",
     "profile": "Perfil",
     "team": "Equipo",
     "welcome": "Bienvenido {name}",

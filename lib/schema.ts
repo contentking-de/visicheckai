@@ -306,6 +306,8 @@ export const subscriptions = pgTable(
   ]
 );
 
+export type Sentiment = "positive" | "neutral" | "negative";
+
 export const trackingResults = pgTable("tracking_results", {
   id: uuid("id").defaultRandom().primaryKey(),
   runId: uuid("run_id")
@@ -317,5 +319,7 @@ export const trackingResults = pgTable("tracking_results", {
   visibilityScore: integer("visibility_score"),
   mentionCount: integer("mention_count").default(0),
   citations: jsonb("citations").$type<string[]>(),
+  sentiment: text("sentiment").$type<Sentiment>(),
+  sentimentScore: integer("sentiment_score"),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
 });

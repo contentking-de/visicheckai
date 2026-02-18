@@ -8,10 +8,12 @@ import {
   promptSets,
   users,
 } from "@/lib/schema";
-import { requireAccess } from "@/lib/access";
+import { requireAccess, getAccessStatus } from "@/lib/access";
+import { checkPromptQuota } from "@/lib/usage";
 import { eq, and } from "drizzle-orm";
 import { NextResponse, after } from "next/server";
 import { runProvider, type Provider } from "@/lib/ai-providers";
+import { analyzeSentiment } from "@/lib/sentiment";
 import { fetchFaviconsForDomains } from "@/lib/favicon";
 import { sendRunCompletedEmail } from "@/lib/email";
 
@@ -36,6 +38,7 @@ async function executePromptForAllProviders(
           domainUrl,
           brandName
         );
+        const { sentiment, sentimentScore } = await analyzeSentiment(response, brandName ?? domainUrl);
         await db.insert(trackingResults).values({
           runId,
           provider,
@@ -44,6 +47,8 @@ async function executePromptForAllProviders(
           mentionCount,
           visibilityScore,
           citations,
+          sentiment,
+          sentimentScore,
         });
         return { provider, status: "ok" as const };
       } catch (err) {
@@ -211,6 +216,31 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Domain oder Prompt-Set nicht gefunden" }, { status: 400 });
   }
 
+  const prompts = (promptSet.prompts as string[]) ?? [];
+
+  // Quota check: ensure the team/user has enough prompts remaining
+  const access = await getAccessStatus(
+    session.user.id,
+    teamId,
+    (session as { user: { role?: string | null } }).user.role
+  );
+  const quota = await checkPromptQuota(
+    session.user.id,
+    teamId,
+    access.isTrial,
+    prompts.length
+  );
+  if (!quota.allowed) {
+    return NextResponse.json(
+      {
+        error: quota.reason,
+        code: "PROMPT_LIMIT_EXCEEDED",
+        usage: quota.usage,
+      },
+      { status: 429 }
+    );
+  }
+
   // Get user email for notification
   const [user] = await db
     .select({ email: users.email })
@@ -229,8 +259,6 @@ export async function POST(request: Request) {
   if (!run) {
     return NextResponse.json({ error: "Run konnte nicht erstellt werden" }, { status: 500 });
   }
-
-  const prompts = (promptSet.prompts as string[]) ?? [];
 
   // Schedule background processing — response is sent immediately
   after(() =>

@@ -1,5 +1,7 @@
 import type { PlanId } from "@/lib/schema";
 
+export const TRIAL_PROMPTS_PER_MONTH = 25;
+
 export type Plan = {
   id: PlanId;
   stripePriceId: string;

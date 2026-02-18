@@ -3,8 +3,11 @@ import { trackingConfigs, trackingRuns, trackingResults, domains, promptSets, us
 import { eq, lte } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { runProvider, type Provider } from "@/lib/ai-providers";
+import { analyzeSentiment } from "@/lib/sentiment";
 import { fetchFaviconsForDomains } from "@/lib/favicon";
 import { sendRunCompletedEmail } from "@/lib/email";
+import { getAccessStatus } from "@/lib/access";
+import { checkPromptQuota } from "@/lib/usage";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
@@ -28,6 +31,7 @@ async function executePromptForAllProviders(
           domainUrl,
           brandName
         );
+        const { sentiment, sentimentScore } = await analyzeSentiment(response, brandName ?? domainUrl);
         await db.insert(trackingResults).values({
           runId,
           provider,
@@ -36,6 +40,8 @@ async function executePromptForAllProviders(
           mentionCount,
           visibilityScore,
           citations,
+          sentiment,
+          sentimentScore,
         });
       } catch (err) {
         console.error(`[Cron] Provider ${provider} failed:`, err);
@@ -78,6 +84,23 @@ export async function GET(request: Request) {
 
     if (!domain || !promptSet) continue;
 
+    const prompts = (promptSet.prompts as string[]) ?? [];
+
+    // Quota check: skip this config if the team/user has exceeded their limit
+    const access = await getAccessStatus(config.userId, config.teamId);
+    const quota = await checkPromptQuota(
+      config.userId,
+      config.teamId,
+      access.isTrial,
+      prompts.length
+    );
+    if (!quota.allowed) {
+      console.log(
+        `[Cron] Skipping config ${config.id}: ${quota.reason}`
+      );
+      continue;
+    }
+
     // Get user email for notification
     const [user] = await db
       .select({ email: users.email })
@@ -90,8 +113,6 @@ export async function GET(request: Request) {
       .returning();
 
     if (!run) continue;
-
-    const prompts = (promptSet.prompts as string[]) ?? [];
     const totalCalls = prompts.length * PROVIDERS.length;
 
     console.log(`[Cron Run ${run.id}] Starte: ${prompts.length} Prompts × ${PROVIDERS.length} Provider = ${totalCalls} Calls`);
