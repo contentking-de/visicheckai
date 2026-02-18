@@ -83,6 +83,7 @@ export async function POST(req: Request) {
       tax_id_collection: { enabled: true },
       customer_update: {
         address: "auto",
+        name: "auto",
       },
     }),
     allow_promotion_codes: true,
