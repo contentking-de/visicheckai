@@ -196,7 +196,8 @@
     "team": "Équipe",
     "welcome": "Bienvenue {name}",
     "signOut": "Se déconnecter",
-    "admin": "Admin"
+    "admin": "Admin",
+    "magazine": "Magazine"
   },
   "Dashboard": {
     "title": "Tableau de bord",

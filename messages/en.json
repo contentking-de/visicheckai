@@ -196,7 +196,8 @@
     "team": "Team",
     "welcome": "Welcome {name}",
     "signOut": "Sign out",
-    "admin": "Admin"
+    "admin": "Admin",
+    "magazine": "Magazine"
   },
   "Dashboard": {
     "title": "Dashboard",

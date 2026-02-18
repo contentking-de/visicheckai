@@ -196,7 +196,8 @@
     "team": "Equipo",
     "welcome": "Bienvenido {name}",
     "signOut": "Cerrar sesión",
-    "admin": "Admin"
+    "admin": "Admin",
+    "magazine": "Revista"
   },
   "Dashboard": {
     "title": "Panel de control",

@@ -221,6 +221,31 @@ export const favicons = pgTable("favicons", {
   fetchedAt: timestamp("fetched_at", { mode: "date" }).defaultNow(),
 });
 
+// ── Magazine / CMS ──────────────────────────────────────────────────────────
+
+export const magazineArticles = pgTable(
+  "magazine_articles",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    slug: text("slug").notNull().unique(),
+    title: text("title").notNull(),
+    excerpt: text("excerpt"),
+    content: text("content").notNull(),
+    coverImage: text("cover_image"),
+    authorId: text("author_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    published: boolean("published").default(false),
+    publishedAt: timestamp("published_at", { mode: "date" }),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+    updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow(),
+  },
+  (table) => [
+    index("magazine_articles_slug").on(table.slug),
+    index("magazine_articles_published").on(table.published, table.publishedAt),
+  ]
+);
+
 export const trackingResults = pgTable("tracking_results", {
   id: uuid("id").defaultRandom().primaryKey(),
   runId: uuid("run_id")

@@ -11,6 +11,7 @@ import {
   BarChart3,
   Settings,
   ShieldCheck,
+  Newspaper,
 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { isSuperAdmin } from "@/lib/rbac";
@@ -42,6 +43,11 @@ export default async function DashboardLayout({
       href: "/dashboard/admin",
       label: t("admin"),
       icon: ShieldCheck,
+    });
+    navItems.push({
+      href: "/dashboard/admin/magazin",
+      label: t("magazine"),
+      icon: Newspaper,
     });
   }
 
@@ -83,7 +89,7 @@ export default async function DashboardLayout({
           />
         </header>
         <main className="flex-1 overflow-auto">
-          <div className="container mx-auto max-w-6xl px-4 py-8">
+          <div className="container mx-auto max-w-6xl px-4 py-8 has-[.full-bleed]:max-w-none">
             {children}
           </div>
         </main>
