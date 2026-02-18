@@ -54,6 +54,9 @@ export async function POST(req: Request) {
     line_items: [{ price: plan.stripePriceId, quantity: 1 }],
     success_url: `${baseUrl}/dashboard/billing?success=true`,
     cancel_url: `${baseUrl}/dashboard/billing?canceled=true`,
+    automatic_tax: { enabled: true },
+    tax_id_collection: { enabled: true },
+    allow_promotion_codes: true,
     subscription_data: {
       metadata: { teamId, planId },
     },
