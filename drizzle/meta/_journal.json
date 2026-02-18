@@ -29,6 +29,13 @@
       "when": 1771409212353,
       "tag": "0003_gigantic_skin",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1771412284260,
+      "tag": "0004_robust_miracleman",
+      "breakpoints": true
     }
   ]
 }

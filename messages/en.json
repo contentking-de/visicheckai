@@ -436,6 +436,18 @@
     "fr": "Français",
     "es": "Español"
   },
+  "Magazine": {
+    "pageTitle": "Magazine – visicheck.ai",
+    "pageDescription": "Expert articles and insights on AI visibility, AI Search Optimization and brand presence in ChatGPT, Claude & more.",
+    "heroTitle": "Magazine",
+    "heroSubtitle": "Expert articles and insights on AI visibility, AI Search Optimization and brand presence in ChatGPT, Claude & more.",
+    "emptyTitle": "Exciting articles coming soon.",
+    "emptySubtitle": "Check back soon!",
+    "readMore": "Read more",
+    "backToMagazine": "Back to magazine",
+    "articleNotFound": "Article not found",
+    "articleTitleSuffix": "Magazine – visicheck.ai"
+  },
   "CookieBanner": {
     "title": "Cookie Settings",
     "description": "We use cookies to ensure our website functions properly and to improve your experience. For more information, please see our",

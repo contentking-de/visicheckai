@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Cookie, X } from "lucide-react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 
 const CONSENT_KEY = "visicheck_cookie_consent";
 

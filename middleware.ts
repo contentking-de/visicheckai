@@ -1,36 +1,79 @@
+import createIntlMiddleware from "next-intl/middleware";
 import { auth } from "@/lib/auth";
+import { routing } from "@/i18n/routing";
+
+const intlMiddleware = createIntlMiddleware(routing);
+
+function stripLocalePrefix(pathname: string): {
+  locale: string | null;
+  pathWithoutLocale: string;
+} {
+  for (const locale of routing.locales) {
+    if (pathname === `/${locale}` || pathname.startsWith(`/${locale}/`)) {
+      return {
+        locale,
+        pathWithoutLocale: pathname.slice(`/${locale}`.length) || "/",
+      };
+    }
+  }
+  return { locale: null, pathWithoutLocale: pathname };
+}
+
+const PUBLIC_PATHS = [
+  "/",
+  "/login",
+  "/sign-up",
+  "/invite/",
+  "/impressum",
+  "/datenschutz",
+  "/agb",
+  "/ueber-uns",
+  "/magazin",
+];
+
+function isPublicPath(path: string): boolean {
+  return PUBLIC_PATHS.some(
+    (p) => path === p || (p.endsWith("/") ? path.startsWith(p) : path.startsWith(p + "/")),
+  );
+}
+
+function buildLocalePath(path: string, locale: string): string {
+  if (locale === routing.defaultLocale) return path;
+  return `/${locale}${path}`;
+}
 
 export default auth((req) => {
+  const { pathname } = req.nextUrl;
+
+  if (pathname.startsWith("/api")) {
+    return;
+  }
+
+  const { locale: pathLocale, pathWithoutLocale } = stripLocalePrefix(pathname);
+
+  const effectiveLocale = pathLocale || routing.defaultLocale;
+  const effectivePath = pathLocale ? pathWithoutLocale : pathname;
+
   const isLoggedIn = !!req.auth;
-  const path = req.nextUrl.pathname;
   const isAuthPage =
-    path.startsWith("/login") || path.startsWith("/sign-up");
+    effectivePath.startsWith("/login") ||
+    effectivePath.startsWith("/sign-up");
 
   if (isAuthPage && isLoggedIn) {
-    // Respect callbackUrl if present (e.g. from invite flow)
     const callbackUrl = req.nextUrl.searchParams.get("callbackUrl");
-    const target = callbackUrl || "/dashboard";
+    const target = callbackUrl || buildLocalePath("/dashboard", effectiveLocale);
     return Response.redirect(new URL(target, req.url));
   }
 
-  const isPublic =
-    path === "/" ||
-    path.startsWith("/login") ||
-    path.startsWith("/sign-up") ||
-    path.startsWith("/invite/") ||
-    path.startsWith("/impressum") ||
-    path.startsWith("/datenschutz") ||
-    path.startsWith("/agb") ||
-    path.startsWith("/ueber-uns") ||
-    path.startsWith("/magazin");
-
-  if (!isPublic && !isLoggedIn && !path.startsWith("/api")) {
-    return Response.redirect(new URL("/login", req.url));
+  if (!isPublicPath(effectivePath) && !isLoggedIn) {
+    return Response.redirect(new URL(buildLocalePath("/login", effectiveLocale), req.url));
   }
 
-  return;
+  return intlMiddleware(req);
 });
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon\\..*|.*\\.svg|.*\\.webp).*)"],
+  matcher: [
+    "/((?!_next/static|_next/image|favicon\\..*|.*\\.svg|.*\\.webp).*)",
+  ],
 };

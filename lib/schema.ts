@@ -246,6 +246,28 @@ export const magazineArticles = pgTable(
   ]
 );
 
+export const magazineArticleTranslations = pgTable(
+  "magazine_article_translations",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    articleId: uuid("article_id")
+      .notNull()
+      .references(() => magazineArticles.id, { onDelete: "cascade" }),
+    locale: text("locale").notNull(),
+    slug: text("slug").notNull(),
+    title: text("title").notNull(),
+    excerpt: text("excerpt"),
+    content: text("content").notNull(),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+    updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("article_translations_unique").on(table.articleId, table.locale),
+    index("article_translations_locale").on(table.locale),
+    index("article_translations_slug").on(table.slug),
+  ]
+);
+
 export const trackingResults = pgTable("tracking_results", {
   id: uuid("id").defaultRandom().primaryKey(),
   runId: uuid("run_id")

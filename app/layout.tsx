@@ -1,52 +1,9 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import { NextIntlClientProvider } from "next-intl";
-import { getLocale, getMessages, getTranslations } from "next-intl/server";
-import { Providers } from "@/components/providers";
-import { CookieBanner } from "@/components/cookie-banner";
-import "./globals.css";
+import type { ReactNode } from "react";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+type Props = {
+  children: ReactNode;
+};
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("Metadata");
-  return {
-    title: t("title"),
-    description: t("description"),
-    icons: {
-      icon: [{ url: "/favicon.webp", type: "image/webp" }],
-      shortcut: [{ url: "/favicon.webp", type: "image/webp" }],
-      apple: [{ url: "/favicon.webp", type: "image/webp" }],
-    },
-  };
-}
-
-export default async function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  const locale = await getLocale();
-  const messages = await getMessages();
-
-  return (
-    <html lang={locale}>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <NextIntlClientProvider messages={messages}>
-          <Providers>{children}</Providers>
-          <CookieBanner />
-        </NextIntlClientProvider>
-      </body>
-    </html>
-  );
+export default function RootLayout({ children }: Props) {
+  return children;
 }

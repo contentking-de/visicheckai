@@ -436,6 +436,18 @@
     "fr": "Français",
     "es": "Español"
   },
+  "Magazine": {
+    "pageTitle": "Magazine – visicheck.ai",
+    "pageDescription": "Articles et analyses sur la visibilité IA, l'optimisation pour la recherche IA et la présence de marque dans ChatGPT, Claude et plus.",
+    "heroTitle": "Magazine",
+    "heroSubtitle": "Articles et analyses sur la visibilité IA, l'optimisation pour la recherche IA et la présence de marque dans ChatGPT, Claude et plus.",
+    "emptyTitle": "Des articles passionnants arrivent bientôt.",
+    "emptySubtitle": "Revenez bientôt !",
+    "readMore": "Lire la suite",
+    "backToMagazine": "Retour au magazine",
+    "articleNotFound": "Article introuvable",
+    "articleTitleSuffix": "Magazine – visicheck.ai"
+  },
   "CookieBanner": {
     "title": "Paramètres des cookies",
     "description": "Nous utilisons des cookies pour assurer le bon fonctionnement de notre site et améliorer votre expérience. Pour plus d'informations, consultez notre",

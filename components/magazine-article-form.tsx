@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useRef, useCallback, useEffect } from "react";
+import { useRouter } from "@/i18n/navigation";
 import { TiptapEditor } from "@/components/tiptap-editor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +9,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ImageIcon, Loader2, Trash2, ArrowLeft, Eye } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import {
+  ImageIcon,
+  Loader2,
+  Trash2,
+  ArrowLeft,
+  Eye,
+  Languages,
+  Check,
+  RefreshCw,
+} from "lucide-react";
 
 type Article = {
   id: string;
@@ -20,6 +30,18 @@ type Article = {
   coverImage: string | null;
   published: boolean | null;
   publishedAt: string | null;
+};
+
+type TranslationStatus = {
+  locale: string;
+  translated: boolean;
+  updatedAt: string | null;
+};
+
+const LOCALE_LABELS: Record<string, string> = {
+  en: "English",
+  fr: "Français",
+  es: "Español",
 };
 
 type Props = {
@@ -35,7 +57,67 @@ export function MagazineArticleForm({ article }: Props) {
   const [published, setPublished] = useState(article?.published ?? false);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [translationStatus, setTranslationStatus] = useState<TranslationStatus[]>([]);
+  const [translating, setTranslating] = useState<string | null>(null);
+  const [translatingAll, setTranslatingAll] = useState(false);
   const coverInputRef = useRef<HTMLInputElement>(null);
+
+  const fetchTranslationStatus = useCallback(async () => {
+    if (!article?.id) return;
+    try {
+      const res = await fetch(`/api/admin/magazine/${article.id}/translate`);
+      if (res.ok) {
+        const data = await res.json();
+        setTranslationStatus(data);
+      }
+    } catch { /* ignore */ }
+  }, [article?.id]);
+
+  useEffect(() => {
+    fetchTranslationStatus();
+  }, [fetchTranslationStatus]);
+
+  const translateLocale = async (locale: string) => {
+    if (!article?.id) return;
+    setTranslating(locale);
+    try {
+      const res = await fetch(`/api/admin/magazine/${article.id}/translate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ locales: [locale] }),
+      });
+      if (!res.ok) throw new Error("Translation failed");
+      await fetchTranslationStatus();
+    } catch {
+      alert(`Übersetzung nach ${LOCALE_LABELS[locale] ?? locale} fehlgeschlagen`);
+    } finally {
+      setTranslating(null);
+    }
+  };
+
+  const translateAll = async () => {
+    if (!article?.id) return;
+    const untranslated = translationStatus
+      .filter((s) => !s.translated)
+      .map((s) => s.locale);
+    const allLocales = untranslated.length > 0 ? untranslated : translationStatus.map((s) => s.locale);
+    if (allLocales.length === 0) return;
+
+    setTranslatingAll(true);
+    try {
+      const res = await fetch(`/api/admin/magazine/${article.id}/translate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ locales: allLocales }),
+      });
+      if (!res.ok) throw new Error("Translation failed");
+      await fetchTranslationStatus();
+    } catch {
+      alert("Übersetzung fehlgeschlagen");
+    } finally {
+      setTranslatingAll(false);
+    }
+  };
 
   const uploadCover = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -229,6 +311,105 @@ export function MagazineArticleForm({ article }: Props) {
               )}
             </CardContent>
           </Card>
+
+          {article?.id && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Languages className="h-4 w-4" />
+                  Übersetzungen
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {translationStatus.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">Lade Status…</p>
+                ) : (
+                  <>
+                    {translationStatus.map((ts) => (
+                      <div
+                        key={ts.locale}
+                        className="flex items-center justify-between"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium">
+                            {LOCALE_LABELS[ts.locale] ?? ts.locale}
+                          </span>
+                          {ts.translated ? (
+                            <Badge
+                              variant="default"
+                              className="gap-1 text-xs"
+                            >
+                              <Check className="h-3 w-3" />
+                              Übersetzt
+                            </Badge>
+                          ) : (
+                            <Badge variant="secondary" className="text-xs">
+                              Ausstehend
+                            </Badge>
+                          )}
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          disabled={translating === ts.locale || translatingAll}
+                          onClick={() => translateLocale(ts.locale)}
+                          title={
+                            ts.translated
+                              ? "Übersetzung aktualisieren"
+                              : "Jetzt übersetzen"
+                          }
+                        >
+                          {translating === ts.locale ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : ts.translated ? (
+                            <RefreshCw className="h-3.5 w-3.5" />
+                          ) : (
+                            <Languages className="h-3.5 w-3.5" />
+                          )}
+                        </Button>
+                      </div>
+                    ))}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="mt-2 w-full"
+                      disabled={translatingAll || !!translating}
+                      onClick={translateAll}
+                    >
+                      {translatingAll ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Languages className="mr-2 h-4 w-4" />
+                      )}
+                      Alle übersetzen
+                    </Button>
+                  </>
+                )}
+                {translationStatus.some((ts) => ts.updatedAt) && (
+                  <p className="text-xs text-muted-foreground">
+                    Letzte Übersetzung:{" "}
+                    {new Date(
+                      translationStatus
+                        .filter((ts) => ts.updatedAt)
+                        .sort(
+                          (a, b) =>
+                            new Date(b.updatedAt!).getTime() -
+                            new Date(a.updatedAt!).getTime()
+                        )[0]?.updatedAt ?? ""
+                    ).toLocaleDateString("de-DE", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </form>

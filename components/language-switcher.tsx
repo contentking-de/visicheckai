@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import {
   Select,
@@ -9,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { locales, type Locale } from "@/i18n/config";
 import { Globe } from "lucide-react";
 
@@ -16,14 +16,10 @@ export function LanguageSwitcher() {
   const locale = useLocale();
   const t = useTranslations("LanguageSwitcher");
   const router = useRouter();
+  const pathname = usePathname();
 
-  const handleChange = async (newLocale: string) => {
-    await fetch("/api/locale", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ locale: newLocale }),
-    });
-    router.refresh();
+  const handleChange = (newLocale: string) => {
+    router.replace(pathname, { locale: newLocale as Locale });
   };
 
   return (
