@@ -16,16 +16,22 @@ import {
 
 type Domain = { id: string; name: string; domainUrl: string };
 type PromptSet = { id: string; name: string; prompts: string[] };
+type Config = {
+  id: string;
+  domainId: string;
+  promptSetId: string;
+  interval: string | null;
+};
 
-export function ConfigForm() {
+export function ConfigForm({ config }: { config?: Config }) {
   const router = useRouter();
   const t = useTranslations("ConfigForm");
   const tc = useTranslations("Common");
   const [domains, setDomains] = useState<Domain[]>([]);
   const [promptSets, setPromptSets] = useState<PromptSet[]>([]);
-  const [domainId, setDomainId] = useState<string>("");
-  const [promptSetId, setPromptSetId] = useState<string>("");
-  const [interval, setInterval] = useState<string>("on_demand");
+  const [domainId, setDomainId] = useState<string>(config?.domainId ?? "");
+  const [promptSetId, setPromptSetId] = useState<string>(config?.promptSetId ?? "");
+  const [interval, setInterval] = useState<string>(config?.interval ?? "on_demand");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,10 +42,12 @@ export function ConfigForm() {
     ]).then(([d, p]) => {
       setDomains(d);
       setPromptSets(p);
-      if (d.length) setDomainId(d[0].id);
-      if (p.length) setPromptSetId(p[0].id);
+      if (!config) {
+        if (d.length) setDomainId(d[0].id);
+        if (p.length) setPromptSetId(p[0].id);
+      }
     });
-  }, []);
+  }, [config]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,8 +58,12 @@ export function ConfigForm() {
     setIsLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/tracking-configs", {
-        method: "POST",
+      const url = config
+        ? `/api/tracking-configs/${config.id}`
+        : "/api/tracking-configs";
+      const method = config ? "PATCH" : "POST";
+      const res = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ domainId, promptSetId, interval }),
       });
@@ -89,7 +101,7 @@ export function ConfigForm() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{t("title")}</CardTitle>
+        <CardTitle>{config ? t("editTitle") : t("title")}</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -139,7 +151,9 @@ export function ConfigForm() {
           </div>
           {error && <p className="text-sm text-destructive">{error}</p>}
           <Button type="submit" disabled={isLoading}>
-            {isLoading ? tc("creating") : tc("create")}
+            {isLoading
+              ? config ? tc("saving") : tc("creating")
+              : config ? tc("save") : tc("create")}
           </Button>
         </form>
       </CardContent>

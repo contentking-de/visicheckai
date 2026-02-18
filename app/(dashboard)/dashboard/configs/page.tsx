@@ -18,7 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus } from "lucide-react";
+import { Plus, Pencil } from "lucide-react";
 import { RunConfigButton } from "@/components/run-config-button";
 import { DeleteConfigButton } from "@/components/delete-config-button";
 import { getTranslations } from "next-intl/server";
@@ -113,6 +113,11 @@ export default async function ConfigsPage() {
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
+                      <Button asChild variant="outline" size="icon">
+                        <Link href={`/dashboard/configs/${config.id}/edit`}>
+                          <Pencil className="h-4 w-4" />
+                        </Link>
+                      </Button>
                       <RunConfigButton configId={config.id} isRunning={runningConfigIds.has(config.id)} />
                       <DeleteConfigButton configId={config.id} />
                     </div>

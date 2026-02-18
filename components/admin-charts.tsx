@@ -102,10 +102,12 @@ function formatTokens(n: number) {
 
 function GrowthChart({
   title,
+  description,
   data,
   color,
 }: {
   title: string;
+  description?: string;
   data: TimeSeriesPoint[];
   color: string;
 }) {
@@ -113,6 +115,7 @@ function GrowthChart({
     <Card>
       <CardHeader>
         <CardTitle className="text-base">{title}</CardTitle>
+        {description && <CardDescription>{description}</CardDescription>}
       </CardHeader>
       <CardContent>
         {data.length === 0 ? (
@@ -244,6 +247,7 @@ export function AdminCharts() {
       {/* User growth */}
       <GrowthChart
         title={t("userGrowth")}
+        description={t("userGrowthDesc")}
         data={stats.usersOverTime}
         color="hsl(221, 83%, 53%)"
       />
@@ -252,6 +256,7 @@ export function AdminCharts() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base">{t("apiConsumption")}</CardTitle>
+          <CardDescription>{t("apiConsumptionDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           {stats.apiCallsPerDay.length === 0 ? (
@@ -371,6 +376,7 @@ export function AdminCharts() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base">{t("dailyCosts")}</CardTitle>
+          <CardDescription>{t("dailyCostsDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           {stats.dailyCosts.length === 0 ? (
@@ -430,11 +436,13 @@ export function AdminCharts() {
       <div className="grid gap-6 lg:grid-cols-2">
         <GrowthChart
           title={t("domainGrowth")}
+          description={t("domainGrowthDesc")}
           data={stats.domainsOverTime}
           color="hsl(142, 71%, 45%)"
         />
         <GrowthChart
           title={t("promptSetGrowth")}
+          description={t("promptSetGrowthDesc")}
           data={stats.promptSetsOverTime}
           color="hsl(280, 67%, 54%)"
         />

@@ -12,7 +12,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Play, CheckCircle2, AlertCircle, Mail, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+
+const POLL_INTERVAL_MS = 5_000;
 
 export function RunConfigButton({
   configId,
@@ -28,6 +30,28 @@ export function RunConfigButton({
   const [dialogState, setDialogState] = useState<
     "closed" | "started" | "error"
   >("closed");
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    setRunActive(initialIsRunning);
+  }, [initialIsRunning]);
+
+  useEffect(() => {
+    if (pollRef.current) {
+      clearInterval(pollRef.current);
+      pollRef.current = null;
+    }
+
+    if (runActive) {
+      pollRef.current = setInterval(() => {
+        router.refresh();
+      }, POLL_INTERVAL_MS);
+    }
+
+    return () => {
+      if (pollRef.current) clearInterval(pollRef.current);
+    };
+  }, [runActive, router]);
 
   const busy = isSubmitting || runActive;
 

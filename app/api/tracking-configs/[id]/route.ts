@@ -45,18 +45,25 @@ export async function PATCH(
 
   const { id } = await params;
   const body = await request.json();
-  const { interval } = body;
+  const { interval, domainId, promptSetId } = body;
 
   const validInterval =
     interval && ["daily", "weekly", "monthly", "on_demand"].includes(interval)
       ? interval
       : undefined;
 
+  const updates: Record<string, unknown> = {};
+  if (validInterval) updates.interval = validInterval;
+  if (domainId) updates.domainId = domainId;
+  if (promptSetId) updates.promptSetId = promptSetId;
+
+  if (Object.keys(updates).length === 0) {
+    return NextResponse.json({ error: "No valid fields to update" }, { status: 400 });
+  }
+
   const [config] = await db
     .update(trackingConfigs)
-    .set({
-      ...(validInterval && { interval: validInterval }),
-    })
+    .set(updates)
     .where(teamOrUserFilter(id, session))
     .returning();
 

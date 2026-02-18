@@ -138,16 +138,18 @@ export default async function RunDetailPage({
   return (
     <div className="space-y-8">
       <div>
-        <Button asChild variant="ghost" size="sm">
-          <Link
-            href="/dashboard/runs"
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            {t("backToRuns")}
-          </Link>
-        </Button>
-        <h1 className="mt-4 text-2xl font-bold">{t("title")}</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold">{t("title")}</h1>
+          <Button asChild variant="ghost" size="sm">
+            <Link
+              href="/dashboard/runs"
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              {t("backToRuns")}
+            </Link>
+          </Button>
+        </div>
         <p className="text-muted-foreground">
           {domain.name} · {promptSet.name} ·{" "}
           {run.startedAt
