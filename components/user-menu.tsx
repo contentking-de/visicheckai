@@ -3,7 +3,7 @@
 import { Link } from "@/i18n/navigation";
 import { signOut } from "next-auth/react";
 import { useTranslations } from "next-intl";
-import { LogOut, ShieldCheck, User, Users } from "lucide-react";
+import { CreditCard, LogOut, ShieldCheck, User, Users } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -65,6 +65,12 @@ export function UserMenu({ name, email, image, role }: UserMenuProps) {
           <Link href="/dashboard/team">
             <Users className="mr-2 h-4 w-4" />
             {t("team")}
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild className="cursor-pointer">
+          <Link href="/dashboard/billing">
+            <CreditCard className="mr-2 h-4 w-4" />
+            {t("billing")}
           </Link>
         </DropdownMenuItem>
         {role === "super_admin" && (

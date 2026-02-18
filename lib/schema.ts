@@ -79,6 +79,7 @@ export type UserRole = "super_admin" | "owner" | "member";
 export const teams = pgTable("teams", {
   id: uuid("id").defaultRandom().primaryKey(),
   name: text("name").notNull(),
+  stripeCustomerId: text("stripe_customer_id").unique(),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
 });
 
@@ -265,6 +266,43 @@ export const magazineArticleTranslations = pgTable(
     uniqueIndex("article_translations_unique").on(table.articleId, table.locale),
     index("article_translations_locale").on(table.locale),
     index("article_translations_slug").on(table.slug),
+  ]
+);
+
+// ── Stripe Subscriptions ────────────────────────────────────────────────────
+
+export type SubscriptionStatus =
+  | "active"
+  | "canceled"
+  | "incomplete"
+  | "incomplete_expired"
+  | "past_due"
+  | "trialing"
+  | "unpaid"
+  | "paused";
+
+export type PlanId = "starter" | "team" | "professional";
+
+export const subscriptions = pgTable(
+  "subscriptions",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    teamId: uuid("team_id")
+      .notNull()
+      .references(() => teams.id, { onDelete: "cascade" }),
+    stripeSubscriptionId: text("stripe_subscription_id").notNull().unique(),
+    stripePriceId: text("stripe_price_id").notNull(),
+    plan: text("plan").$type<PlanId>().notNull(),
+    status: text("status").$type<SubscriptionStatus>().notNull(),
+    currentPeriodStart: timestamp("current_period_start", { mode: "date" }),
+    currentPeriodEnd: timestamp("current_period_end", { mode: "date" }),
+    cancelAtPeriodEnd: boolean("cancel_at_period_end").default(false),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+    updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow(),
+  },
+  (table) => [
+    index("subscriptions_team").on(table.teamId),
+    index("subscriptions_stripe_sub").on(table.stripeSubscriptionId),
   ]
 );
 

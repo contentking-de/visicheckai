@@ -36,6 +36,13 @@
       "when": 1771412284260,
       "tag": "0004_robust_miracleman",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1771415757321,
+      "tag": "0005_hard_moon_knight",
+      "breakpoints": true
     }
   ]
 }

@@ -11,6 +11,7 @@ import {
   Settings,
   ShieldCheck,
   Newspaper,
+  CreditCard,
 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { isSuperAdmin } from "@/lib/rbac";
@@ -38,6 +39,7 @@ export default async function DashboardLayout({
     { href: "/dashboard/prompt-sets", label: t("promptSets"), icon: FileText },
     { href: "/dashboard/configs", label: t("configs"), icon: Settings },
     { href: "/dashboard/runs", label: t("runs"), icon: BarChart3 },
+    { href: "/dashboard/billing", label: t("billing"), icon: CreditCard },
   ];
 
   if (session.user.role && isSuperAdmin(session.user.role as UserRole)) {
