@@ -46,19 +46,19 @@ export function SidebarPlanInfo() {
   return (
     <Link
       href="/dashboard/billing"
-      className="block rounded-lg border bg-card p-3 transition-colors hover:bg-muted/60"
+      className="block rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-white transition-colors hover:bg-zinc-900"
     >
       <div className="flex items-center gap-2">
         {data.isTrial ? (
-          <Zap className="h-3.5 w-3.5 text-amber-500" />
+          <Zap className="h-3.5 w-3.5 text-amber-400" />
         ) : (
-          <CreditCard className="h-3.5 w-3.5 text-primary" />
+          <CreditCard className="h-3.5 w-3.5 text-white/70" />
         )}
-        <span className="text-xs font-semibold">{planLabel}</span>
+        <span className="text-xs font-semibold text-white">{planLabel}</span>
       </div>
 
       {data.isTrial && data.trialDaysLeft > 0 && (
-        <p className="mt-1 text-[11px] text-muted-foreground">
+        <p className="mt-1 text-[11px] text-zinc-400">
           {t("trialDays", { days: data.trialDaysLeft })}
         </p>
       )}
@@ -66,15 +66,15 @@ export function SidebarPlanInfo() {
       {limit > 0 && (
         <div className="mt-2">
           <div className="flex items-center justify-between text-[11px]">
-            <span className="text-muted-foreground">{t("prompts")}</span>
-            <span className={`font-medium ${isLow ? "text-red-500" : "text-foreground"}`}>
+            <span className="text-zinc-400">{t("prompts")}</span>
+            <span className={`font-medium ${isLow ? "text-red-400" : "text-white"}`}>
               {used}/{limit}
             </span>
           </div>
-          <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+          <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-zinc-700">
             <div
               className={`h-full rounded-full transition-all ${
-                isLow ? "bg-red-500" : "bg-primary"
+                isLow ? "bg-red-500" : "bg-white"
               }`}
               style={{ width: `${pct}%` }}
             />
