@@ -514,6 +514,15 @@
     "invoiceStatus_uncollectible": "Uneinbringlich",
     "invoiceStatus_unknown": "Unbekannt"
   },
+  "PlanInfo": {
+    "trial": "Testphase",
+    "noPlan": "Kein Plan",
+    "plan_starter": "Starter",
+    "plan_team": "Team",
+    "plan_professional": "Professional",
+    "trialDays": "Noch {days, plural, one {# Tag} other {# Tage}}",
+    "prompts": "Prompts"
+  },
   "Sentiment": {
     "title": "Sentiment-Analyse",
     "description": "Wie sprechen KI-Modelle über Ihre Marke? Analysieren Sie Stimmung und Reputation.",

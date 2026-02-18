@@ -513,6 +513,15 @@
     "invoiceStatus_uncollectible": "Incobrable",
     "invoiceStatus_unknown": "Desconocido"
   },
+  "PlanInfo": {
+    "trial": "Prueba gratuita",
+    "noPlan": "Sin plan",
+    "plan_starter": "Starter",
+    "plan_team": "Team",
+    "plan_professional": "Professional",
+    "trialDays": "{days, plural, one {# día} other {# días}} restantes",
+    "prompts": "Prompts"
+  },
   "CookieBanner": {
     "title": "Configuración de cookies",
     "description": "Utilizamos cookies para garantizar el correcto funcionamiento de nuestro sitio web y mejorar su experiencia. Para más información, consulte nuestra",

@@ -4,6 +4,7 @@ import Image from "next/image";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { UserMenu } from "@/components/user-menu";
 import { AccessGate } from "@/components/access-gate";
+import { SidebarPlanInfo } from "@/components/sidebar-plan-info";
 import { getAccessStatus } from "@/lib/access";
 import {
   LayoutDashboard,
@@ -84,7 +85,8 @@ export default async function DashboardLayout({
             </Link>
           ))}
         </nav>
-        <div className="mt-auto border-t p-2 px-3">
+        <div className="mt-auto space-y-2 border-t p-2 px-3 pt-3">
+          <SidebarPlanInfo />
           <LanguageSwitcher />
         </div>
       </aside>

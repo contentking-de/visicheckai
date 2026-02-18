@@ -514,6 +514,15 @@
     "invoiceStatus_uncollectible": "Uncollectible",
     "invoiceStatus_unknown": "Unknown"
   },
+  "PlanInfo": {
+    "trial": "Free Trial",
+    "noPlan": "No Plan",
+    "plan_starter": "Starter",
+    "plan_team": "Team",
+    "plan_professional": "Professional",
+    "trialDays": "{days, plural, one {# day} other {# days}} remaining",
+    "prompts": "Prompts"
+  },
   "Sentiment": {
     "title": "Sentiment Analysis",
     "description": "How do AI models talk about your brand? Analyze tone and reputation.",
