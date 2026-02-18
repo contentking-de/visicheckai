@@ -85,6 +85,7 @@ export async function POST(req: Request) {
         address: "auto",
         name: "auto",
       },
+      billing_address_collection: "required",
     }),
     allow_promotion_codes: true,
     subscription_data: {
