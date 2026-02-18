@@ -16,6 +16,7 @@ import { runProvider, type Provider } from "@/lib/ai-providers";
 import { analyzeSentiment } from "@/lib/sentiment";
 import { fetchFaviconsForDomains } from "@/lib/favicon";
 import { sendRunCompletedEmail } from "@/lib/email";
+import type { Country } from "@/lib/countries";
 
 export const maxDuration = 300; // 5 minutes max
 
@@ -27,7 +28,8 @@ async function executePromptForAllProviders(
   providers: Provider[],
   domainUrl: string,
   runId: string,
-  brandName?: string
+  brandName?: string,
+  country?: Country
 ) {
   const results = await Promise.allSettled(
     providers.map(async (provider) => {
@@ -36,7 +38,8 @@ async function executePromptForAllProviders(
           provider,
           prompt,
           domainUrl,
-          brandName
+          brandName,
+          country
         );
         const { sentiment, sentimentScore } = await analyzeSentiment(response, brandName ?? domainUrl);
         await db.insert(trackingResults).values({
@@ -76,7 +79,8 @@ async function processRunInBackground(
   domainName: string,
   prompts: string[],
   interval: string | null,
-  userEmail: string
+  userEmail: string,
+  country?: Country
 ) {
   const totalCalls = prompts.length * PROVIDERS.length;
   console.log(`[Run ${runId}] Starte im Hintergrund: ${prompts.length} Prompts × ${PROVIDERS.length} Provider = ${totalCalls} Calls`);
@@ -92,7 +96,7 @@ async function processRunInBackground(
 
       await Promise.allSettled(
         batch.map((prompt) =>
-          executePromptForAllProviders(prompt, PROVIDERS, domainUrl, runId, domainName)
+          executePromptForAllProviders(prompt, PROVIDERS, domainUrl, runId, domainName, country)
         )
       );
 
@@ -269,7 +273,8 @@ export async function POST(request: Request) {
       domain.name,
       prompts,
       config.interval,
-      user.email!
+      user.email!,
+      config.country ?? undefined
     )
   );
 

@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { COUNTRIES, DEFAULT_COUNTRY } from "@/lib/countries";
 
 type Domain = { id: string; name: string; domainUrl: string };
 type PromptSet = { id: string; name: string; prompts: string[] };
@@ -21,6 +22,7 @@ type Config = {
   domainId: string;
   promptSetId: string;
   interval: string | null;
+  country: string | null;
 };
 
 export function ConfigForm({ config }: { config?: Config }) {
@@ -32,6 +34,7 @@ export function ConfigForm({ config }: { config?: Config }) {
   const [domainId, setDomainId] = useState<string>(config?.domainId ?? "");
   const [promptSetId, setPromptSetId] = useState<string>(config?.promptSetId ?? "");
   const [interval, setInterval] = useState<string>(config?.interval ?? "on_demand");
+  const [country, setCountry] = useState<string>(config?.country ?? DEFAULT_COUNTRY);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -65,7 +68,7 @@ export function ConfigForm({ config }: { config?: Config }) {
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ domainId, promptSetId, interval }),
+        body: JSON.stringify({ domainId, promptSetId, interval, country }),
       });
       if (!res.ok) {
         const data = await res.json();
@@ -130,6 +133,21 @@ export function ConfigForm({ config }: { config?: Config }) {
                 {promptSets.map((p) => (
                   <SelectItem key={p.id} value={p.id}>
                     {p.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label>{t("countryLabel")}</Label>
+            <Select value={country} onValueChange={setCountry}>
+              <SelectTrigger>
+                <SelectValue placeholder={t("selectCountry")} />
+              </SelectTrigger>
+              <SelectContent>
+                {COUNTRIES.map((code) => (
+                  <SelectItem key={code} value={code}>
+                    {t(`country_${code}`)}
                   </SelectItem>
                 ))}
               </SelectContent>

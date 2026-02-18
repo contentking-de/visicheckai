@@ -1,0 +1,1 @@
+ALTER TABLE "tracking_configs" ADD COLUMN "country" text DEFAULT 'DE';

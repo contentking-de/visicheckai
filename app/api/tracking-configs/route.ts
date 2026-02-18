@@ -4,6 +4,7 @@ import { trackingConfigs } from "@/lib/schema";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireAccess } from "@/lib/access";
+import { isValidCountry, DEFAULT_COUNTRY } from "@/lib/countries";
 
 export async function GET() {
   const session = await auth();
@@ -29,7 +30,7 @@ export async function POST(request: Request) {
   if (denied) return denied;
 
   const body = await request.json();
-  const { domainId, promptSetId, interval } = body;
+  const { domainId, promptSetId, interval, country } = body;
 
   if (!domainId || !promptSetId) {
     return NextResponse.json(
@@ -42,6 +43,8 @@ export async function POST(request: Request) {
     interval && ["daily", "weekly", "monthly", "on_demand"].includes(interval)
       ? interval
       : "on_demand";
+
+  const validCountry = isValidCountry(country) ? country : DEFAULT_COUNTRY;
 
   let nextRunAt: Date | null = null;
   if (validInterval !== "on_demand") {
@@ -59,6 +62,7 @@ export async function POST(request: Request) {
       domainId,
       promptSetId,
       interval: validInterval,
+      country: validCountry,
       nextRunAt,
     })
     .returning();

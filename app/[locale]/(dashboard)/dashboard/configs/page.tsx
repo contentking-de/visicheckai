@@ -63,6 +63,17 @@ export default async function ConfigsPage() {
     on_demand: t("onDemand"),
   };
 
+  const countryLabels: Record<string, string> = {
+    DE: t("countryDE"),
+    CH: t("countryCH"),
+    AT: t("countryAT"),
+    UK: t("countryUK"),
+    US: t("countryUS"),
+    ES: t("countryES"),
+    FR: t("countryFR"),
+    NL: t("countryNL"),
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
@@ -86,6 +97,7 @@ export default async function ConfigsPage() {
             <TableRow>
               <TableHead>Domain</TableHead>
               <TableHead>Prompt-Set</TableHead>
+              <TableHead>{t("country")}</TableHead>
               <TableHead>{t("interval")}</TableHead>
               <TableHead className="w-[150px]">{tc("actions")}</TableHead>
             </TableRow>
@@ -93,7 +105,7 @@ export default async function ConfigsPage() {
           <TableBody>
             {configs.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
                   {t("empty")}{" "}
                   <Link
                     href="/dashboard/configs/new"
@@ -108,6 +120,9 @@ export default async function ConfigsPage() {
                 <TableRow key={config.id}>
                   <TableCell className="font-medium">{domain.name}</TableCell>
                   <TableCell>{promptSet.name}</TableCell>
+                  <TableCell>
+                    {config.country ? (countryLabels[config.country] ?? config.country) : countryLabels["DE"]}
+                  </TableCell>
                   <TableCell>
                     {config.interval ? (intervalLabels[config.interval] ?? config.interval) : t("onDemand")}
                   </TableCell>

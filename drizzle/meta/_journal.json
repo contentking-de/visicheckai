@@ -50,6 +50,13 @@
       "when": 1771422475205,
       "tag": "0006_lucky_titanium_man",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1771431158975,
+      "tag": "0007_jittery_alice",
+      "breakpoints": true
     }
   ]
 }

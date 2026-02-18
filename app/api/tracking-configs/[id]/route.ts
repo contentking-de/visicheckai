@@ -4,6 +4,7 @@ import { trackingConfigs } from "@/lib/schema";
 import { eq, and } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireAccess } from "@/lib/access";
+import { isValidCountry } from "@/lib/countries";
 
 function teamOrUserFilter(id: string, session: { user: { id: string; teamId?: string | null } }) {
   const teamId = session.user.teamId;
@@ -50,7 +51,7 @@ export async function PATCH(
 
   const { id } = await params;
   const body = await request.json();
-  const { interval, domainId, promptSetId } = body;
+  const { interval, domainId, promptSetId, country } = body;
 
   const validInterval =
     interval && ["daily", "weekly", "monthly", "on_demand"].includes(interval)
@@ -61,6 +62,7 @@ export async function PATCH(
   if (validInterval) updates.interval = validInterval;
   if (domainId) updates.domainId = domainId;
   if (promptSetId) updates.promptSetId = promptSetId;
+  if (isValidCountry(country)) updates.country = country;
 
   if (Object.keys(updates).length === 0) {
     return NextResponse.json({ error: "No valid fields to update" }, { status: 400 });

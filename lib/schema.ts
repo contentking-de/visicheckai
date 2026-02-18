@@ -10,6 +10,7 @@ import {
   primaryKey,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
+import type { Country } from "./countries";
 
 // NextAuth required tables (Drizzle adapter schema)
 export const users = pgTable("user", {
@@ -196,6 +197,7 @@ export const trackingConfigs = pgTable(
       .notNull()
       .references(() => promptSets.id, { onDelete: "cascade" }),
     interval: text("interval").$type<"daily" | "weekly" | "monthly" | "on_demand">(),
+    country: text("country").$type<Country>().default("DE"),
     nextRunAt: timestamp("next_run_at", { mode: "date" }),
     createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
   },

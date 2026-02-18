@@ -51,6 +51,7 @@ export default async function EditConfigPage({
           domainId: config.domainId,
           promptSetId: config.promptSetId,
           interval: config.interval,
+          country: config.country,
         }}
       />
     </div>

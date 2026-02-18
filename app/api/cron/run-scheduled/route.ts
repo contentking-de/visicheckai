@@ -8,6 +8,7 @@ import { fetchFaviconsForDomains } from "@/lib/favicon";
 import { sendRunCompletedEmail } from "@/lib/email";
 import { getAccessStatus } from "@/lib/access";
 import { checkPromptQuota } from "@/lib/usage";
+import type { Country } from "@/lib/countries";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
@@ -20,7 +21,8 @@ async function executePromptForAllProviders(
   providers: Provider[],
   domainUrl: string,
   runId: string,
-  brandName?: string
+  brandName?: string,
+  country?: Country
 ) {
   await Promise.allSettled(
     providers.map(async (provider) => {
@@ -29,7 +31,8 @@ async function executePromptForAllProviders(
           provider,
           prompt,
           domainUrl,
-          brandName
+          brandName,
+          country
         );
         const { sentiment, sentimentScore } = await analyzeSentiment(response, brandName ?? domainUrl);
         await db.insert(trackingResults).values({
@@ -126,7 +129,7 @@ export async function GET(request: Request) {
 
         await Promise.allSettled(
           batch.map((prompt) =>
-            executePromptForAllProviders(prompt, PROVIDERS, domain.domainUrl, run.id, domain.name)
+            executePromptForAllProviders(prompt, PROVIDERS, domain.domainUrl, run.id, domain.name, config.country as Country | undefined)
           )
         );
 

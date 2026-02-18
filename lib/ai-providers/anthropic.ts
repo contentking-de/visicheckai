@@ -1,18 +1,21 @@
 import Anthropic from "@anthropic-ai/sdk";
 
-function getClient() {
-  return new Anthropic({
+function getClient(customFetch?: typeof globalThis.fetch) {
+  const opts: ConstructorParameters<typeof Anthropic>[0] = {
     apiKey: process.env.ANTHROPIC_API_KEY ?? "sk-ant-placeholder",
-  });
+  };
+  if (customFetch) opts.fetch = customFetch;
+  return new Anthropic(opts);
 }
 
 export type Provider = "claude";
 
 export async function chat(
   prompt: string,
-  _domainUrl: string
+  _domainUrl: string,
+  customFetch?: typeof globalThis.fetch
 ): Promise<{ response: string; provider: Provider; citations?: string[] }> {
-  const client = getClient();
+  const client = getClient(customFetch);
   const response = await client.messages.create({
     model: "claude-haiku-4-5-20251001",
     max_tokens: 1024,
@@ -26,14 +29,12 @@ export async function chat(
     ],
   });
 
-  // Extract text content and citations from response blocks
   const textParts: string[] = [];
   const citations: string[] = [];
 
   for (const block of response.content) {
     if (block.type === "text") {
       textParts.push(block.text);
-      // Extract citations from text blocks if present
       if ("citations" in block && Array.isArray(block.citations)) {
         for (const citation of block.citations) {
           if (
@@ -50,8 +51,6 @@ export async function chat(
   }
 
   const content = textParts.join("").trim();
-
-  // Deduplicate citations while preserving order
   const uniqueCitations = [...new Set(citations)];
 
   return { response: content, provider: "claude", citations: uniqueCitations };

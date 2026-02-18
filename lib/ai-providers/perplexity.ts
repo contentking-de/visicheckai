@@ -2,9 +2,12 @@ export type Provider = "perplexity";
 
 export async function chat(
   prompt: string,
-  _domainUrl: string
+  _domainUrl: string,
+  customFetch?: typeof globalThis.fetch
 ): Promise<{ response: string; provider: Provider; citations?: string[] }> {
-  const res = await fetch("https://api.perplexity.ai/chat/completions", {
+  const fetchFn = customFetch ?? globalThis.fetch;
+
+  const res = await fetchFn("https://api.perplexity.ai/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

@@ -1,18 +1,21 @@
 import OpenAI from "openai";
 
-function getClient() {
-  return new OpenAI({
+function getClient(customFetch?: typeof globalThis.fetch) {
+  const opts: ConstructorParameters<typeof OpenAI>[0] = {
     apiKey: process.env.OPENAI_API_KEY ?? "sk-placeholder",
-  });
+  };
+  if (customFetch) opts.fetch = customFetch;
+  return new OpenAI(opts);
 }
 
 export type Provider = "chatgpt";
 
 export async function chat(
   prompt: string,
-  _domainUrl: string
+  _domainUrl: string,
+  customFetch?: typeof globalThis.fetch
 ): Promise<{ response: string; provider: Provider; citations?: string[] }> {
-  const client = getClient();
+  const client = getClient(customFetch);
   const response = await client.chat.completions.create({
     model: "gpt-4o-mini-search-preview",
     web_search_options: {
@@ -30,7 +33,6 @@ export async function chat(
   const message = response.choices[0]?.message;
   const content = message?.content?.trim() ?? "";
 
-  // Extract citation URLs from annotations
   const citations: string[] = [];
   const annotations = message?.annotations;
   if (Array.isArray(annotations)) {

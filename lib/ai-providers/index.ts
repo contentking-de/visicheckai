@@ -2,6 +2,9 @@ import * as openai from "./openai";
 import * as anthropic from "./anthropic";
 import * as google from "./google";
 import * as perplexity from "./perplexity";
+import type { Country } from "../countries";
+import { getProxyUrl } from "../countries";
+import { createProxyFetch } from "../proxy-fetch";
 
 export type Provider = "chatgpt" | "claude" | "gemini" | "perplexity";
 
@@ -23,13 +26,9 @@ export function countMentions(text: string, domainUrl: string, brandName?: strin
 
   // Collect unique search terms, deduplicated and lowercased
   const terms = new Set<string>();
-  // Brand name (user-provided, most important)
   if (brandName) terms.add(brandName.toLowerCase().trim());
-  // Brand extracted from domain URL
   if (brandFromDomain.length >= 2) terms.add(brandFromDomain);
-  // Domain without www (e.g. "interhyp.de")
   terms.add(withoutWww);
-  // Full host (e.g. "www.interhyp.de")
   if (host !== withoutWww) terms.add(host);
 
   // Use broadest match: count with shortest term first (brand name),
@@ -55,21 +54,21 @@ export function computeVisibilityScore(mentionCount: number): number {
 
 function stripMarkdown(text: string): string {
   return text
-    .replace(/#{1,6}\s*/g, "")           // Headers (# ## ### etc.)
-    .replace(/\*\*(.+?)\*\*/g, "$1")     // Bold **text**
-    .replace(/__(.+?)__/g, "$1")         // Bold __text__
-    .replace(/\*(.+?)\*/g, "$1")         // Italic *text*
-    .replace(/_(.+?)_/g, "$1")           // Italic _text_ (ohne word boundaries)
-    .replace(/`([^`]+)`/g, "$1")         // Inline code
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1 ($2)") // Links [text](url) → text (url)
-    .replace(/^\s*[-*+]\s+/gm, "")      // List items
-    .replace(/^\s*\d+\.\s+/gm, "")      // Numbered lists
-    .replace(/^>{1,}\s*/gm, "")          // Blockquotes
-    .replace(/\n{3,}/g, "\n\n")         // Mehrfache Zeilenumbrüche reduzieren
+    .replace(/#{1,6}\s*/g, "")
+    .replace(/\*\*(.+?)\*\*/g, "$1")
+    .replace(/__(.+?)__/g, "$1")
+    .replace(/\*(.+?)\*/g, "$1")
+    .replace(/_(.+?)_/g, "$1")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1 ($2)")
+    .replace(/^\s*[-*+]\s+/gm, "")
+    .replace(/^\s*\d+\.\s+/gm, "")
+    .replace(/^>{1,}\s*/gm, "")
+    .replace(/\n{3,}/g, "\n\n")
     .trim();
 }
 
-const PROVIDER_TIMEOUT_MS = 30_000; // 30 seconds per provider call
+const PROVIDER_TIMEOUT_MS = 30_000;
 
 function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
   return new Promise<T>((resolve, reject) => {
@@ -83,12 +82,10 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
 
 /**
  * Resolve [N] citation references in text to actual URLs.
- * e.g. "[1][3]" with citations ["https://a.com", "https://b.com", "https://c.com"]
- * becomes "[1: https://a.com][3: https://c.com]"
  */
 function resolveCitations(text: string, citations: string[]): string {
   return text.replace(/\[(\d+)\]/g, (match, num) => {
-    const idx = parseInt(num, 10) - 1; // citations are 1-indexed in text
+    const idx = parseInt(num, 10) - 1;
     if (idx >= 0 && idx < citations.length) {
       return `[${num}: ${citations[idx]}]`;
     }
@@ -100,11 +97,17 @@ export async function runProvider(
   provider: Provider,
   prompt: string,
   domainUrl: string,
-  brandName?: string
+  brandName?: string,
+  country?: Country
 ): Promise<{ response: string; mentionCount: number; visibilityScore: number; citations: string[] }> {
   const mod = providers[provider];
+
+  // Resolve proxy for the target country
+  const proxyUrl = country ? getProxyUrl(country) : undefined;
+  const customFetch = proxyUrl ? createProxyFetch(proxyUrl) : undefined;
+
   const result = await withTimeout(
-    mod.chat(prompt, domainUrl) as Promise<{ response: string; provider: string; citations?: string[] }>,
+    mod.chat(prompt, domainUrl, customFetch) as Promise<{ response: string; provider: string; citations?: string[] }>,
     PROVIDER_TIMEOUT_MS,
     `${provider} call`
   );
@@ -112,14 +115,12 @@ export async function runProvider(
   let processedResponse = result.response;
   const citations = result.citations ?? [];
 
-  // If citations exist, resolve [N] references in text
   if (citations.length > 0) {
     processedResponse = resolveCitations(processedResponse, citations);
   }
 
   const cleanResponse = stripMarkdown(processedResponse);
 
-  // Count mentions in both the response text and cited source URLs
   const citationsText = citations.join(" ");
   const fullTextForCounting = cleanResponse + " " + citationsText;
   const mentionCount = countMentions(fullTextForCounting, domainUrl, brandName);
