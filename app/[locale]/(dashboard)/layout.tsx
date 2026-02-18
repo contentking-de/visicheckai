@@ -66,14 +66,14 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex min-h-screen">
-      <aside className="flex w-56 flex-col border-r bg-muted/30">
-        <div className="flex h-16 items-center border-b px-4">
+      <aside className="sticky top-0 flex h-screen w-56 flex-col border-r bg-muted/30">
+        <div className="flex h-16 shrink-0 items-center border-b px-4">
           <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
             <Image src="/favicon.webp" alt="" width={20} height={20} className="h-5 w-5" />
             visicheck.ai
           </Link>
         </div>
-        <nav className="space-y-1 p-2">
+        <nav className="flex-1 space-y-1 overflow-y-auto p-2">
           {navItems.map((item) => (
             <Link
               key={item.href}
@@ -85,7 +85,7 @@ export default async function DashboardLayout({
             </Link>
           ))}
         </nav>
-        <div className="mt-auto space-y-2 border-t p-2 px-3 pt-3">
+        <div className="shrink-0 space-y-2 border-t p-2 px-3 pt-3">
           <SidebarPlanInfo />
           <LanguageSwitcher />
         </div>
