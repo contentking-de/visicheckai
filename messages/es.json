@@ -189,7 +189,7 @@
   },
   "Nav": {
     "dashboard": "Panel de control",
-    "domains": "Dominios",
+    "domains": "Dominios & Marcas",
     "promptSets": "Conjuntos de prompts",
     "configs": "Configuración",
     "runs": "Ejecuciones",
