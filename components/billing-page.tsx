@@ -13,7 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check, ExternalLink, Loader2, AlertCircle, CheckCircle2, Clock } from "lucide-react";
+import { Check, ExternalLink, Loader2, AlertCircle, CheckCircle2, Clock, Download, FileText } from "lucide-react";
 import type { PlanId } from "@/lib/schema";
 
 type Subscription = {
@@ -30,6 +30,19 @@ type TrialInfo = {
   hasAccess: boolean;
 } | null;
 
+type Invoice = {
+  id: string;
+  number: string | null;
+  status: string | null;
+  amount: number;
+  currency: string;
+  created: number;
+  periodStart: number;
+  periodEnd: number;
+  pdfUrl: string | null;
+  hostedUrl: string | null;
+};
+
 const PLAN_ORDER: PlanId[] = ["starter", "team", "professional"];
 
 export function BillingPage() {
@@ -38,6 +51,7 @@ export function BillingPage() {
   const searchParams = useSearchParams();
   const [subscription, setSubscription] = useState<Subscription>(null);
   const [trial, setTrial] = useState<TrialInfo>(null);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [checkoutLoading, setCheckoutLoading] = useState<PlanId | null>(null);
   const [portalLoading, setPortalLoading] = useState(false);
@@ -47,6 +61,7 @@ export function BillingPage() {
 
   useEffect(() => {
     fetchSubscription();
+    fetchInvoices();
   }, []);
 
   async function fetchSubscription() {
@@ -59,6 +74,16 @@ export function BillingPage() {
       console.error("Failed to fetch subscription");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function fetchInvoices() {
+    try {
+      const res = await fetch("/api/stripe/invoices");
+      const data = await res.json();
+      setInvoices(data.invoices ?? []);
+    } catch {
+      console.error("Failed to fetch invoices");
     }
   }
 
@@ -293,6 +318,101 @@ export function BillingPage() {
           })}
         </div>
       </div>
+
+      {invoices.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              {t("invoicesTitle")}
+            </CardTitle>
+            <CardDescription>{t("invoicesDescription")}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b text-left text-muted-foreground">
+                    <th className="pb-2 pr-4 font-medium">{t("invoiceNumber")}</th>
+                    <th className="pb-2 pr-4 font-medium">{t("invoiceDate")}</th>
+                    <th className="pb-2 pr-4 font-medium">{t("invoicePeriod")}</th>
+                    <th className="pb-2 pr-4 font-medium text-right">{t("invoiceAmount")}</th>
+                    <th className="pb-2 pr-4 font-medium">{t("invoiceStatus")}</th>
+                    <th className="pb-2 font-medium text-right">{t("invoiceActions")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {invoices.map((inv) => (
+                    <tr key={inv.id} className="border-b last:border-0">
+                      <td className="py-3 pr-4 font-medium">
+                        {inv.number ?? "–"}
+                      </td>
+                      <td className="py-3 pr-4 text-muted-foreground">
+                        {new Date(inv.created * 1000).toLocaleDateString()}
+                      </td>
+                      <td className="py-3 pr-4 text-muted-foreground">
+                        {new Date(inv.periodStart * 1000).toLocaleDateString()}
+                        {" – "}
+                        {new Date(inv.periodEnd * 1000).toLocaleDateString()}
+                      </td>
+                      <td className="py-3 pr-4 text-right font-medium">
+                        {(inv.amount / 100).toLocaleString(undefined, {
+                          style: "currency",
+                          currency: inv.currency,
+                        })}
+                      </td>
+                      <td className="py-3 pr-4">
+                        <Badge
+                          variant={
+                            inv.status === "paid"
+                              ? "default"
+                              : inv.status === "open"
+                                ? "secondary"
+                                : "outline"
+                          }
+                          className={
+                            inv.status === "paid"
+                              ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                              : ""
+                          }
+                        >
+                          {t(`invoiceStatus_${inv.status ?? "unknown"}`)}
+                        </Badge>
+                      </td>
+                      <td className="py-3 text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          {inv.pdfUrl && (
+                            <a
+                              href={inv.pdfUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-muted"
+                              title={t("invoiceDownloadPdf")}
+                            >
+                              <Download className="h-4 w-4" />
+                            </a>
+                          )}
+                          {inv.hostedUrl && (
+                            <a
+                              href={inv.hostedUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-muted"
+                              title={t("invoiceView")}
+                            >
+                              <ExternalLink className="h-4 w-4" />
+                            </a>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
