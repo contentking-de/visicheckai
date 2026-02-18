@@ -450,6 +450,16 @@
     "articleNotFound": "Artikel nicht gefunden",
     "articleTitleSuffix": "Magazin – visicheck.ai"
   },
+  "Trial": {
+    "bannerText": "Testphase: Noch {days, plural, one {# Tag} other {# Tage}} übrig.",
+    "upgradeCta": "Plan auswählen",
+    "expiredTitle": "Testphase abgelaufen",
+    "expiredDescription": "Ihre 14-tägige Testphase ist beendet. Wählen Sie einen Plan, um visicheck.ai weiterhin zu nutzen.",
+    "choosePlan": "Plan auswählen",
+    "trialCardTitle": "Kostenlose Testphase",
+    "trialCardDescription": "Sie befinden sich in der kostenlosen Testphase. Noch {days, plural, one {# Tag} other {# Tage}} übrig – danach wird ein Abonnement benötigt.",
+    "expiredBillingHint": "Ihre Testphase ist abgelaufen. Wählen Sie unten einen Plan, um alle Funktionen wieder freizuschalten."
+  },
   "Billing": {
     "title": "Abrechnung",
     "description": "Verwalten Sie Ihr Abonnement und Ihre Zahlungen.",

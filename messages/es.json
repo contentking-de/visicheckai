@@ -450,6 +450,16 @@
     "articleNotFound": "Artículo no encontrado",
     "articleTitleSuffix": "Revista – visicheck.ai"
   },
+  "Trial": {
+    "bannerText": "Período de prueba: {days, plural, one {# día} other {# días}} restante(s).",
+    "upgradeCta": "Elegir un plan",
+    "expiredTitle": "Período de prueba expirado",
+    "expiredDescription": "Su período de prueba gratuito de 14 días ha terminado. Elija un plan para seguir usando visicheck.ai.",
+    "choosePlan": "Elegir un plan",
+    "trialCardTitle": "Prueba gratuita",
+    "trialCardDescription": "Está en el período de prueba gratuito. {days, plural, one {# día} other {# días}} restante(s) – después se requiere una suscripción.",
+    "expiredBillingHint": "Su período de prueba ha expirado. Elija un plan a continuación para desbloquear todas las funciones."
+  },
   "Billing": {
     "title": "Facturación",
     "description": "Gestione su suscripción y pagos.",

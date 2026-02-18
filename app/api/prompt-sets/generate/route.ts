@@ -1,12 +1,15 @@
 import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
+import { requireAccess } from "@/lib/access";
 
 export async function POST(request: Request) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  const denied = await requireAccess(session as Parameters<typeof requireAccess>[0]);
+  if (denied) return denied;
 
   const body = await request.json().catch(() => ({}));
   const keyword = body.keyword as string | undefined;

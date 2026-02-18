@@ -3,6 +3,8 @@ import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { UserMenu } from "@/components/user-menu";
+import { AccessGate } from "@/components/access-gate";
+import { getAccessStatus } from "@/lib/access";
 import {
   LayoutDashboard,
   Globe,
@@ -30,6 +32,12 @@ export default async function DashboardLayout({
   if (!session?.user) {
     redirect(`${prefix}/login`);
   }
+
+  const access = await getAccessStatus(
+    session.user.id!,
+    session.user.teamId,
+    session.user.role
+  );
 
   const t = await getTranslations("Nav");
 
@@ -92,11 +100,13 @@ export default async function DashboardLayout({
             role={session.user.role}
           />
         </header>
-        <main className="flex-1 overflow-auto">
-          <div className="container mx-auto max-w-6xl px-4 py-8 has-[.full-bleed]:max-w-none">
-            {children}
-          </div>
-        </main>
+        <AccessGate access={access}>
+          <main className="flex-1 overflow-auto">
+            <div className="container mx-auto max-w-6xl px-4 py-8 has-[.full-bleed]:max-w-none">
+              {children}
+            </div>
+          </main>
+        </AccessGate>
       </div>
     </div>
   );

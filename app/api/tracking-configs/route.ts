@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { trackingConfigs } from "@/lib/schema";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
+import { requireAccess } from "@/lib/access";
 
 export async function GET() {
   const session = await auth();
@@ -24,6 +25,8 @@ export async function POST(request: Request) {
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  const denied = await requireAccess(session as Parameters<typeof requireAccess>[0]);
+  if (denied) return denied;
 
   const body = await request.json();
   const { domainId, promptSetId, interval } = body;

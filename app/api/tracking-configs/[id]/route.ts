@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { trackingConfigs } from "@/lib/schema";
 import { eq, and } from "drizzle-orm";
 import { NextResponse } from "next/server";
+import { requireAccess } from "@/lib/access";
 
 function teamOrUserFilter(id: string, session: { user: { id: string; teamId?: string | null } }) {
   const teamId = session.user.teamId;
@@ -20,6 +21,8 @@ export async function DELETE(
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  const denied = await requireAccess(session as Parameters<typeof requireAccess>[0]);
+  if (denied) return denied;
 
   const { id } = await params;
   const [config] = await db
@@ -42,6 +45,8 @@ export async function PATCH(
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  const denied = await requireAccess(session as Parameters<typeof requireAccess>[0]);
+  if (denied) return denied;
 
   const { id } = await params;
   const body = await request.json();

@@ -13,7 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check, ExternalLink, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Check, ExternalLink, Loader2, AlertCircle, CheckCircle2, Clock } from "lucide-react";
 import type { PlanId } from "@/lib/schema";
 
 type Subscription = {
@@ -23,12 +23,21 @@ type Subscription = {
   cancelAtPeriodEnd: boolean;
 } | null;
 
+type TrialInfo = {
+  isTrial: boolean;
+  daysLeft: number;
+  endsAt: string | null;
+  hasAccess: boolean;
+} | null;
+
 const PLAN_ORDER: PlanId[] = ["starter", "team", "professional"];
 
 export function BillingPage() {
   const t = useTranslations("Billing");
+  const tTrial = useTranslations("Trial");
   const searchParams = useSearchParams();
   const [subscription, setSubscription] = useState<Subscription>(null);
+  const [trial, setTrial] = useState<TrialInfo>(null);
   const [loading, setLoading] = useState(true);
   const [checkoutLoading, setCheckoutLoading] = useState<PlanId | null>(null);
   const [portalLoading, setPortalLoading] = useState(false);
@@ -45,6 +54,7 @@ export function BillingPage() {
       const res = await fetch("/api/stripe/subscription");
       const data = await res.json();
       setSubscription(data.subscription);
+      setTrial(data.trial);
     } catch {
       console.error("Failed to fetch subscription");
     } finally {
@@ -111,6 +121,38 @@ export function BillingPage() {
           <AlertCircle className="h-5 w-5 shrink-0" />
           <p className="text-sm">{t("canceledMessage")}</p>
         </div>
+      )}
+
+      {trial?.isTrial && !isActive && (
+        <Card className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-amber-800 dark:text-amber-200">
+              <Clock className="h-5 w-5" />
+              {tTrial("trialCardTitle")}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-amber-700 dark:text-amber-300">
+              {tTrial("trialCardDescription", { days: trial.daysLeft })}
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+      {trial && !trial.hasAccess && !isActive && (
+        <Card className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-red-800 dark:text-red-200">
+              <AlertCircle className="h-5 w-5" />
+              {tTrial("expiredTitle")}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-red-700 dark:text-red-300">
+              {tTrial("expiredBillingHint")}
+            </p>
+          </CardContent>
+        </Card>
       )}
 
       {isActive && subscription && (

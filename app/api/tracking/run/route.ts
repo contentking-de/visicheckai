@@ -8,6 +8,7 @@ import {
   promptSets,
   users,
 } from "@/lib/schema";
+import { requireAccess } from "@/lib/access";
 import { eq, and } from "drizzle-orm";
 import { NextResponse, after } from "next/server";
 import { runProvider, type Provider } from "@/lib/ai-providers";
@@ -167,6 +168,8 @@ export async function POST(request: Request) {
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  const denied = await requireAccess(session as Parameters<typeof requireAccess>[0]);
+  if (denied) return denied;
 
   const body = await request.json().catch(() => ({}));
   const configId = body.configId as string | undefined;
