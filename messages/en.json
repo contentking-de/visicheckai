@@ -197,7 +197,7 @@
     "team": "Team",
     "welcome": "Welcome {name}",
     "signOut": "Sign out",
-    "sentiment": "Sentiment",
+    "sentiment": "Sentiment Analysis",
     "admin": "Admin",
     "magazine": "Magazine",
     "billing": "Billing"

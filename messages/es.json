@@ -197,6 +197,7 @@
     "team": "Equipo",
     "welcome": "Bienvenido {name}",
     "signOut": "Cerrar sesión",
+    "sentiment": "Análisis de sentimiento",
     "admin": "Admin",
     "magazine": "Revista",
     "billing": "Facturación"
