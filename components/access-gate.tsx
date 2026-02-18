@@ -11,6 +11,8 @@ const ALWAYS_ALLOWED = ["/dashboard/billing", "/dashboard/profile", "/dashboard/
 
 function isAllowedPath(pathname: string): boolean {
   return ALWAYS_ALLOWED.some((p) => {
+    if (pathname.startsWith(p)) return true;
+    // Strip locale prefix (e.g. /en/dashboard/billing → /dashboard/billing)
     const segments = pathname.split("/");
     const pathWithoutLocale = "/" + segments.slice(2).join("/");
     return pathWithoutLocale.startsWith(p);
