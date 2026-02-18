@@ -3,6 +3,7 @@ import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { buildHreflangAlternates } from "@/lib/locale-href";
+import { AuthButtons } from "@/components/auth-buttons";
 import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { MobileNav } from "@/components/mobile-nav";
@@ -46,14 +47,9 @@ export default async function AboutPage() {
               {tLanding("navFaq")}
             </Link>
             <LanguageSwitcher />
-            <Button asChild variant="ghost">
-              <Link href="/login">{tLanding("login")}</Link>
-            </Button>
-            <Button asChild>
-              <Link href="/sign-up">{tLanding("signUp")}</Link>
-            </Button>
+            <AuthButtons loginLabel={tLanding("login")} signUpLabel={tLanding("signUp")} dashboardLabel={tLanding("dashboard")} />
           </div>
-          <MobileNav loginLabel={tLanding("login")} signUpLabel={tLanding("signUp")} pricingLabel={tLanding("navPricing")} faqLabel={tLanding("navFaq")} />
+          <MobileNav loginLabel={tLanding("login")} signUpLabel={tLanding("signUp")} dashboardLabel={tLanding("dashboard")} pricingLabel={tLanding("navPricing")} faqLabel={tLanding("navFaq")} />
         </div>
       </header>
 

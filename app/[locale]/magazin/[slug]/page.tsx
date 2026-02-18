@@ -8,6 +8,7 @@ import { magazineArticles, magazineArticleTranslations, users } from "@/lib/sche
 import { eq, and } from "drizzle-orm";
 import { defaultLocale, type Locale } from "@/i18n/config";
 import { buildHreflangAlternates } from "@/lib/locale-href";
+import { AuthButtons } from "@/components/auth-buttons";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { MobileNav } from "@/components/mobile-nav";
 import { ArrowLeft, Calendar, User } from "lucide-react";
@@ -208,21 +209,10 @@ export default async function ArticlePage({ params }: Props) {
               {tLanding("footerMagazine")}
             </Link>
             <LanguageSwitcher />
-            <Link
-              href="/login"
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-            >
-              {tLanding("login")}
-            </Link>
-            <Link
-              href="/sign-up"
-              className="inline-flex h-9 items-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-            >
-              {tLanding("signUp")}
-            </Link>
+            <AuthButtons loginLabel={tLanding("login")} signUpLabel={tLanding("signUp")} dashboardLabel={tLanding("dashboard")} />
           </div>
           <div className="md:hidden">
-            <MobileNav loginLabel={tLanding("login")} signUpLabel={tLanding("signUp")} />
+            <MobileNav loginLabel={tLanding("login")} signUpLabel={tLanding("signUp")} dashboardLabel={tLanding("dashboard")} />
           </div>
         </div>
       </header>

@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 import { Link } from "@/i18n/navigation";
-import { Menu } from "lucide-react";
+import { LayoutDashboard, LogOut, Menu } from "lucide-react";
+import { signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import {
@@ -15,12 +17,22 @@ import {
 type MobileNavProps = {
   loginLabel: string;
   signUpLabel: string;
+  dashboardLabel?: string;
+  signOutLabel?: string;
   pricingLabel?: string;
   faqLabel?: string;
 };
 
-export function MobileNav({ loginLabel, signUpLabel, pricingLabel, faqLabel }: MobileNavProps) {
+export function MobileNav({
+  loginLabel,
+  signUpLabel,
+  dashboardLabel = "Dashboard",
+  signOutLabel = "Abmelden",
+  pricingLabel,
+  faqLabel,
+}: MobileNavProps) {
   const [open, setOpen] = useState(false);
+  const { data: session } = useSession();
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -49,12 +61,36 @@ export function MobileNav({ loginLabel, signUpLabel, pricingLabel, faqLabel }: M
             </Button>
           )}
           <LanguageSwitcher />
-          <Button asChild variant="ghost" className="justify-start" onClick={() => setOpen(false)}>
-            <Link href="/login">{loginLabel}</Link>
-          </Button>
-          <Button asChild className="justify-start" onClick={() => setOpen(false)}>
-            <Link href="/sign-up">{signUpLabel}</Link>
-          </Button>
+          {session?.user ? (
+            <>
+              <Button asChild variant="ghost" className="justify-start" onClick={() => setOpen(false)}>
+                <Link href="/dashboard">
+                  <LayoutDashboard className="mr-2 h-4 w-4" />
+                  {dashboardLabel}
+                </Link>
+              </Button>
+              <Button
+                variant="ghost"
+                className="justify-start text-destructive hover:text-destructive"
+                onClick={() => {
+                  setOpen(false);
+                  signOut({ callbackUrl: "/" });
+                }}
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                {signOutLabel}
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button asChild variant="ghost" className="justify-start" onClick={() => setOpen(false)}>
+                <Link href="/login">{loginLabel}</Link>
+              </Button>
+              <Button asChild className="justify-start" onClick={() => setOpen(false)}>
+                <Link href="/sign-up">{signUpLabel}</Link>
+              </Button>
+            </>
+          )}
         </nav>
       </SheetContent>
     </Sheet>
