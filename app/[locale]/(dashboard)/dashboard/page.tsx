@@ -7,8 +7,9 @@ import {
   trackingRuns,
   trackingConfigs,
   trackingResults,
+  teamMembers,
 } from "@/lib/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, count } from "drizzle-orm";
 import { teamFilter } from "@/lib/rbac";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,7 +21,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Globe, FileText, BarChart3, Activity } from "lucide-react";
+import { Plus, Globe, FileText, BarChart3, Activity, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { getTranslations, getLocale } from "next-intl/server";
 
@@ -44,6 +45,15 @@ export default async function DashboardPage() {
     .from(promptSets)
     .where(teamFilter("promptSets", session));
   const promptSetCount = promptSetList.length;
+
+  const teamMemberCount = session.user.teamId
+    ? (
+        await db
+          .select({ value: count() })
+          .from(teamMembers)
+          .where(eq(teamMembers.teamId, session.user.teamId))
+      )[0]?.value ?? 0
+    : 0;
 
   const recentRuns = await db
     .select({
@@ -224,6 +234,18 @@ export default async function DashboardPage() {
             <div className="text-2xl font-bold">{recentRuns.length}</div>
             <Button asChild variant="link" className="h-auto p-0">
               <Link href="/dashboard/runs">{tc("showAll")}</Link>
+            </Button>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">{t("teamMembers")}</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{teamMemberCount}</div>
+            <Button asChild variant="link" className="h-auto p-0">
+              <Link href="/dashboard/team">{tc("manage")}</Link>
             </Button>
           </CardContent>
         </Card>

@@ -218,7 +218,8 @@
     "avgScore": "Score moy.",
     "noData": "Pas encore de données",
     "lastRun": "Dernière exécution",
-    "viewRuns": "Voir les exécutions"
+    "viewRuns": "Voir les exécutions",
+    "teamMembers": "Membres de l'équipe"
   },
   "Domains": {
     "title": "Domaines",

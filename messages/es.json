@@ -218,7 +218,8 @@
     "avgScore": "Puntuación media",
     "noData": "Aún no hay datos",
     "lastRun": "Última ejecución",
-    "viewRuns": "Ver ejecuciones"
+    "viewRuns": "Ver ejecuciones",
+    "teamMembers": "Miembros del equipo"
   },
   "Domains": {
     "title": "Dominios",

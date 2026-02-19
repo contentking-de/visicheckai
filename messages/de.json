@@ -218,7 +218,8 @@
     "avgScore": "Ø Score",
     "noData": "Noch keine Daten",
     "lastRun": "Letzter Run",
-    "viewRuns": "Runs anzeigen"
+    "viewRuns": "Runs anzeigen",
+    "teamMembers": "Team-Mitglieder"
   },
   "Domains": {
     "title": "Domains",

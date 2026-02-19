@@ -218,7 +218,8 @@
     "avgScore": "Avg score",
     "noData": "No data yet",
     "lastRun": "Last run",
-    "viewRuns": "View runs"
+    "viewRuns": "View runs",
+    "teamMembers": "Team Members"
   },
   "Domains": {
     "title": "Domains",
