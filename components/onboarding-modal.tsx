@@ -116,7 +116,7 @@ export function OnboardingModal() {
             <div className="flex gap-2">
               {step < STEPS.length - 1 ? (
                 <>
-                  <Button variant="outline" size="sm" onClick={handleAction}>
+                  <Button variant="outline" size="sm" onClick={() => handleAction()}>
                     {t("goToStep")}
                     <ArrowRight className="ml-1 h-4 w-4" />
                   </Button>
