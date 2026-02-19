@@ -188,6 +188,21 @@
     "feature3": "Puntuaciones de visibilidad detalladas e informes",
     "feature4": "Comience gratis – sin tarjeta de crédito"
   },
+  "Onboarding": {
+    "title": "Primeros pasos",
+    "subtitle": "Inicie su seguimiento de visibilidad IA en tres sencillos pasos.",
+    "stepLabel": "Paso {current} de {total}",
+    "domainsTitle": "Añadir dominio y marca",
+    "domainsDesc": "Primero, añada su dominio e introduzca el nombre de marca que los modelos de IA deben buscar. Así visicheck.ai sabrá qué sitio web y marca supervisar.",
+    "promptsTitle": "Definir conjunto de prompts",
+    "promptsDesc": "Cree un conjunto de prompts con las preguntas que se harán a los modelos de IA. Puede introducir los prompts manualmente o generarlos automáticamente, adaptados a su sector y palabras clave.",
+    "configTitle": "Configurar ejecución",
+    "configDesc": "Vincule su dominio con un conjunto de prompts y elija el intervalo (diario, semanal, mensual). Sus verificaciones de visibilidad se ejecutarán automáticamente.",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "goToStep": "Ir ahora",
+    "finish": "Configurar ahora"
+  },
   "Nav": {
     "dashboard": "Panel de control",
     "domains": "Dominios & Marcas",

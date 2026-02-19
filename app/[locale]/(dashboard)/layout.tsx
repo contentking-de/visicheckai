@@ -22,6 +22,7 @@ import { isSuperAdmin } from "@/lib/rbac";
 import type { UserRole } from "@/lib/schema";
 import { redirect } from "next/navigation";
 import { getLocalePrefix } from "@/lib/locale-href";
+import { OnboardingModal } from "@/components/onboarding-modal";
 
 export default async function DashboardLayout({
   children,
@@ -141,6 +142,7 @@ export default async function DashboardLayout({
       </aside>
       <div className="flex flex-1 flex-col">
         <header className="flex h-16 items-center justify-end gap-3 border-b px-6">
+          <OnboardingModal />
           <span className="text-sm text-muted-foreground">
             {t("welcome", { name: session.user.name ?? "" })}
           </span>
