@@ -45,6 +45,7 @@ export function RunConfigButton({
     if (runActive) {
       pollRef.current = setInterval(() => {
         router.refresh();
+        window.dispatchEvent(new Event("plan-usage-refresh"));
       }, POLL_INTERVAL_MS);
     }
 

@@ -1,9 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
+import { usePathname } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import { CreditCard, Zap } from "lucide-react";
+
+export const PLAN_USAGE_REFRESH_EVENT = "plan-usage-refresh";
 
 type PlanData = {
   plan: string | null;
@@ -15,8 +18,9 @@ type PlanData = {
 export function SidebarPlanInfo() {
   const t = useTranslations("PlanInfo");
   const [data, setData] = useState<PlanData | null>(null);
+  const pathname = usePathname();
 
-  useEffect(() => {
+  const refresh = useCallback(() => {
     fetch("/api/stripe/subscription")
       .then((r) => r.json())
       .then((res) => {
@@ -29,6 +33,15 @@ export function SidebarPlanInfo() {
       })
       .catch(() => {});
   }, []);
+
+  useEffect(() => {
+    refresh();
+  }, [pathname, refresh]);
+
+  useEffect(() => {
+    window.addEventListener(PLAN_USAGE_REFRESH_EVENT, refresh);
+    return () => window.removeEventListener(PLAN_USAGE_REFRESH_EVENT, refresh);
+  }, [refresh]);
 
   if (!data) return null;
 

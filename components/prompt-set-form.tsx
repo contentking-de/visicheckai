@@ -63,6 +63,7 @@ export function PromptSetForm({ promptSet }: { promptSet?: PromptSet }) {
         const data = await res.json();
         throw new Error(data.error ?? tc("error"));
       }
+      window.dispatchEvent(new Event("plan-usage-refresh"));
       router.push("/dashboard/prompt-sets");
       router.refresh();
     } catch (err) {
