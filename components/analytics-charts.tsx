@@ -20,6 +20,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { ProviderBadge } from "@/components/provider-badge";
 import {
   Link2,
   FileText,
@@ -51,19 +52,7 @@ type OutputItem = {
   date: string | null;
 };
 
-const PROVIDER_LABELS: Record<string, string> = {
-  chatgpt: "ChatGPT",
-  claude: "Claude",
-  gemini: "Gemini",
-  perplexity: "Perplexity",
-};
-
-const PROVIDER_COLORS: Record<string, string> = {
-  chatgpt: "#10a37f",
-  claude: "#d97706",
-  gemini: "#4285f4",
-  perplexity: "#6366f1",
-};
+import { PROVIDER_LABELS, PROVIDER_COLORS } from "@/lib/providers";
 
 const tooltipStyle = {
   borderRadius: "8px",
@@ -106,9 +95,7 @@ function ExpandableUrl({ entry }: { entry: OwnUrlEntry }) {
               key={i}
               className="flex items-center gap-2 text-xs text-muted-foreground"
             >
-              <Badge variant="outline" className="text-xs font-normal shrink-0">
-                {PROVIDER_LABELS[p.provider] ?? p.provider}
-              </Badge>
+              <ProviderBadge provider={p.provider} className="shrink-0" />
               <span className="min-w-0 flex-1 truncate" title={p.prompt}>
                 {p.prompt}
               </span>
@@ -137,9 +124,7 @@ function ExpandableOutput({ item }: { item: OutputItem }) {
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Badge variant="outline" className="text-xs font-normal">
-              {PROVIDER_LABELS[item.provider] ?? item.provider}
-            </Badge>
+            <ProviderBadge provider={item.provider} />
             {item.date && (
               <span>
                 {new Date(item.date).toLocaleDateString("de-DE", {

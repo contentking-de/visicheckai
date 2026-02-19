@@ -29,6 +29,8 @@ import { ExpandableResponse } from "@/components/expandable-response";
 import { ExpandableCitations } from "@/components/expandable-citations";
 import { CompetitorOverview } from "@/components/competitor-overview";
 import { SourceUrls } from "@/components/source-urls";
+import { PROVIDER_LABELS, PROVIDER_ICONS } from "@/lib/providers";
+import Image from "next/image";
 
 export default async function RunDetailPage({
   params,
@@ -138,12 +140,7 @@ export default async function RunDetailPage({
     await fetchFaviconsForDomains(domainArray);
   });
 
-  const providerLabels: Record<string, string> = {
-    chatgpt: "ChatGPT",
-    claude: "Claude",
-    gemini: "Gemini",
-    perplexity: "Perplexity",
-  };
+  const providerLabels = PROVIDER_LABELS;
 
   return (
     <div className="space-y-8">
@@ -220,7 +217,12 @@ export default async function RunDetailPage({
       {Object.entries(byProvider).map(([provider, items]) => (
         <Card key={provider}>
           <CardHeader>
-            <CardTitle>{providerLabels[provider] ?? provider}</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              {PROVIDER_ICONS[provider] && (
+                <Image src={PROVIDER_ICONS[provider]} alt="" width={20} height={20} className="h-5 w-5" />
+              )}
+              {providerLabels[provider] ?? provider}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <Table>

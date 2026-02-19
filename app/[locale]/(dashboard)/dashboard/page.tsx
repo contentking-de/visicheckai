@@ -21,9 +21,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Globe, FileText, BarChart3, Activity, Users } from "lucide-react";
+import { Plus, Globe, FileText, BarChart3, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { getTranslations, getLocale } from "next-intl/server";
+import { PROVIDER_LABELS, PROVIDER_ICONS } from "@/lib/providers";
+import Image from "next/image";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -168,12 +170,7 @@ export default async function DashboardPage() {
 
   const domainStats = [...domainStatsMap.values()];
 
-  const providerLabels: Record<string, string> = {
-    chatgpt: "ChatGPT",
-    claude: "Claude",
-    gemini: "Gemini",
-    perplexity: "Perplexity",
-  };
+  const providerLabels = PROVIDER_LABELS;
 
   return (
     <div className="space-y-8">
@@ -318,7 +315,9 @@ export default async function DashboardPage() {
                               variant="secondary"
                               className="flex items-center gap-1.5 text-xs"
                             >
-                              <Activity className="h-3 w-3" />
+                              {PROVIDER_ICONS[provider] && (
+                                <Image src={PROVIDER_ICONS[provider]} alt="" width={14} height={14} className="h-3.5 w-3.5" />
+                              )}
                               {providerLabels[provider] ?? provider}
                               <span className="font-semibold">
                                 {data.mentions}

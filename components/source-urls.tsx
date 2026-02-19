@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { ProviderBadge } from "@/components/provider-badge";
 import {
   ChevronDown,
   ChevronRight,
@@ -10,8 +11,7 @@ import {
   Globe,
   LinkIcon,
 } from "lucide-react";
-
-type ProviderName = "chatgpt" | "claude" | "gemini" | "perplexity";
+import type { ProviderName } from "@/lib/providers";
 
 interface SourceResult {
   provider: ProviderName;
@@ -50,19 +50,7 @@ interface SourceUrlsProps {
   };
 }
 
-const PROVIDER_LABELS: Record<ProviderName, string> = {
-  chatgpt: "ChatGPT",
-  claude: "Claude",
-  gemini: "Gemini",
-  perplexity: "Perplexity",
-};
-
-const PROVIDER_COLORS: Record<ProviderName, string> = {
-  chatgpt: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300",
-  claude: "bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300",
-  gemini: "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300",
-  perplexity: "bg-violet-100 text-violet-800 dark:bg-violet-900/40 dark:text-violet-300",
-};
+import { PROVIDER_LABELS } from "@/lib/providers";
 
 function extractDomain(url: string): string {
   try {
@@ -282,12 +270,7 @@ export function SourceUrls({
                               </span>
                             )}
                             {entry.providers.map((p) => (
-                              <span
-                                key={p}
-                                className={`inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-medium ${PROVIDER_COLORS[p]}`}
-                              >
-                                {PROVIDER_LABELS[p]}
-                              </span>
+                              <ProviderBadge key={p} provider={p} variant="secondary" />
                             ))}
                           </div>
                         </div>

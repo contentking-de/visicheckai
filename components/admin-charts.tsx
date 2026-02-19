@@ -170,19 +170,7 @@ function GrowthChart({
   );
 }
 
-const PROVIDER_COLORS: Record<string, string> = {
-  chatgpt: "#10a37f",
-  claude: "#d97706",
-  gemini: "#4285f4",
-  perplexity: "#6366f1",
-};
-
-const PROVIDER_LABELS: Record<string, string> = {
-  chatgpt: "ChatGPT",
-  claude: "Claude",
-  gemini: "Gemini",
-  perplexity: "Perplexity",
-};
+import { PROVIDER_COLORS, PROVIDER_LABELS } from "@/lib/providers";
 
 export function AdminCharts() {
   const t = useTranslations("Admin");

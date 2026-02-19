@@ -75,12 +75,7 @@ const SENTIMENT_COLORS = {
   negative: "#ef4444",
 };
 
-const PROVIDER_LABELS: Record<string, string> = {
-  chatgpt: "ChatGPT",
-  claude: "Claude",
-  gemini: "Gemini",
-  perplexity: "Perplexity",
-};
+import { PROVIDER_LABELS } from "@/lib/providers";
 
 const PROVIDER_COLORS: Record<string, string> = {
   chatgpt: "#10a37f",

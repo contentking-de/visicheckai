@@ -20,8 +20,9 @@ import {
   MessageSquareQuote,
 } from "lucide-react";
 
-type ProviderName = "chatgpt" | "claude" | "gemini" | "perplexity";
-const PROVIDERS: ProviderName[] = ["chatgpt", "claude", "gemini", "perplexity"];
+import { ProviderIcon } from "@/components/provider-badge";
+import { PROVIDERS, PROVIDER_LABELS_SHORT } from "@/lib/providers";
+import type { ProviderName } from "@/lib/providers";
 
 interface ResultItem {
   provider: ProviderName;
@@ -303,12 +304,7 @@ export function CompetitorOverview({
 
   const maxScore = Math.max(...competitors.map((c) => c.totalScore));
 
-  const providerLabels: Record<ProviderName, string> = {
-    chatgpt: "GPT",
-    claude: "Claude",
-    gemini: "Gemini",
-    perplexity: "Pplx",
-  };
+  const providerLabels = PROVIDER_LABELS_SHORT;
 
   return (
     <Card>
@@ -342,7 +338,10 @@ export function CompetitorOverview({
               <TableHead className="text-center font-bold">{t.total}</TableHead>
               {PROVIDERS.map((p) => (
                 <TableHead key={p} className="text-center text-xs px-1">
-                  <div>{providerLabels[p]}</div>
+                  <div className="flex items-center justify-center gap-1">
+                    <ProviderIcon provider={p} size={14} />
+                    {providerLabels[p]}
+                  </div>
                   <div className="flex items-center justify-center gap-1.5 mt-0.5 text-[10px] font-normal text-muted-foreground">
                     <span className="flex items-center gap-0.5">
                       <MessageSquareQuote className="h-2.5 w-2.5" />

@@ -32,6 +32,9 @@ export async function generateMetadata(): Promise<Metadata> {
       shortcut: [{ url: "/favicon.webp", type: "image/webp" }],
       apple: [{ url: "/favicon.webp", type: "image/webp" }],
     },
+    verification: {
+      google: "ZCYsmD347K6MbSqKda2IchboOt7KywSLofVmXvdLZhY",
+    },
   };
 }
 
