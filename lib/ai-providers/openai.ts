@@ -13,20 +13,19 @@ export type Provider = "chatgpt";
 export async function chat(
   prompt: string,
   _domainUrl: string,
-  customFetch?: typeof globalThis.fetch
+  customFetch?: typeof globalThis.fetch,
+  geoContext?: string
 ): Promise<{ response: string; provider: Provider; citations?: string[] }> {
   const client = getClient(customFetch);
+  const messages: Array<{ role: "system" | "user"; content: string }> = [];
+  if (geoContext) messages.push({ role: "system", content: geoContext });
+  messages.push({ role: "user", content: prompt });
   const response = await client.chat.completions.create({
     model: "gpt-4o-mini-search-preview",
     web_search_options: {
       search_context_size: "medium",
     },
-    messages: [
-      {
-        role: "user",
-        content: prompt,
-      },
-    ],
+    messages,
     max_tokens: 1024,
   });
 

@@ -225,8 +225,8 @@ export function CompetitorOverview({
     }
 
     // Step 4: Convert to sorted array, filter out domains with zero activity
+    // Always keep the own domain visible (even with 0 citations/mentions)
     const entries: CompetitorEntry[] = [...domainMap.entries()]
-      .filter(([, data]) => data.citationCount > 0 || data.mentionCount > 0)
       .map(([domain, data]) => ({
         domain,
         brand: extractBrandFromDomain(domain),
@@ -241,6 +241,7 @@ export function CompetitorOverview({
           domain.endsWith(`.${ownDomain}`),
         urls: [...data.urls],
       }))
+      .filter((entry) => entry.isOwnDomain || entry.citationCount > 0 || entry.mentionCount > 0)
       .sort((a, b) => {
         if (a.isOwnDomain && !b.isOwnDomain) return -1;
         if (!a.isOwnDomain && b.isOwnDomain) return 1;

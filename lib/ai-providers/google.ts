@@ -10,10 +10,11 @@ export type Provider = "gemini";
 /**
  * Call Gemini via the official SDK (used when no proxy is needed).
  */
-async function chatWithSdk(prompt: string) {
+async function chatWithSdk(prompt: string, geoContext?: string) {
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? "");
   const model = genAI.getGenerativeModel({
     model: "gemini-2.0-flash",
+    ...(geoContext ? { systemInstruction: geoContext } : {}),
     tools: [{ googleSearch: {} } as any],
   });
   const result = await model.generateContent(prompt);
@@ -40,7 +41,7 @@ async function chatWithSdk(prompt: string) {
  * Call Gemini via REST API (used when proxy is needed, since the SDK
  * doesn't support custom fetch/httpAgent).
  */
-async function chatWithRest(prompt: string, customFetch: typeof globalThis.fetch) {
+async function chatWithRest(prompt: string, customFetch: typeof globalThis.fetch, geoContext?: string) {
   const apiKey = process.env.GEMINI_API_KEY ?? "";
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
@@ -48,6 +49,7 @@ async function chatWithRest(prompt: string, customFetch: typeof globalThis.fetch
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
+      ...(geoContext ? { system_instruction: { parts: [{ text: geoContext }] } } : {}),
       contents: [{ parts: [{ text: prompt }] }],
       tools: [{ google_search: {} }],
     }),
@@ -84,11 +86,12 @@ async function chatWithRest(prompt: string, customFetch: typeof globalThis.fetch
 export async function chat(
   prompt: string,
   _domainUrl: string,
-  customFetch?: typeof globalThis.fetch
+  customFetch?: typeof globalThis.fetch,
+  geoContext?: string
 ): Promise<{ response: string; provider: Provider; citations?: string[] }> {
   const { content, citations } = customFetch
-    ? await chatWithRest(prompt, customFetch)
-    : await chatWithSdk(prompt);
+    ? await chatWithRest(prompt, customFetch, geoContext)
+    : await chatWithSdk(prompt, geoContext);
 
   return { response: content, provider: "gemini", citations };
 }

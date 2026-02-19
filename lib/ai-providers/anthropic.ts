@@ -13,12 +13,14 @@ export type Provider = "claude";
 export async function chat(
   prompt: string,
   _domainUrl: string,
-  customFetch?: typeof globalThis.fetch
+  customFetch?: typeof globalThis.fetch,
+  geoContext?: string
 ): Promise<{ response: string; provider: Provider; citations?: string[] }> {
   const client = getClient(customFetch);
   const response = await client.messages.create({
     model: "claude-haiku-4-5-20251001",
     max_tokens: 1024,
+    ...(geoContext ? { system: geoContext } : {}),
     messages: [{ role: "user", content: prompt }],
     tools: [
       {

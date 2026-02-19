@@ -3,7 +3,7 @@ import * as anthropic from "./anthropic";
 import * as google from "./google";
 import * as perplexity from "./perplexity";
 import type { Country } from "../countries";
-import { getProxyUrl } from "../countries";
+import { getProxyUrl, COUNTRY_LABELS } from "../countries";
 import { createProxyFetch } from "../proxy-fetch";
 
 export type Provider = "chatgpt" | "claude" | "gemini" | "perplexity";
@@ -68,6 +68,21 @@ function stripMarkdown(text: string): string {
     .trim();
 }
 
+/**
+ * Build a system-level geo-context hint so AI providers return
+ * results relevant to the configured country instead of defaulting to DE.
+ */
+function buildGeoContext(country?: Country): string | undefined {
+  if (!country) return undefined;
+  const label = COUNTRY_LABELS[country];
+  if (!label) return undefined;
+  return (
+    `The user is located in ${label.en}. ` +
+    `Focus your response, recommendations, and sources on the ${label.en} market. ` +
+    `Prefer local providers, brands, services, and domain extensions relevant to ${label.en}.`
+  );
+}
+
 const PROVIDER_TIMEOUT_MS = 30_000;
 
 function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
@@ -106,8 +121,10 @@ export async function runProvider(
   const proxyUrl = country ? getProxyUrl(country) : undefined;
   const customFetch = proxyUrl ? createProxyFetch(proxyUrl) : undefined;
 
+  const geoContext = buildGeoContext(country);
+
   const result = await withTimeout(
-    mod.chat(prompt, domainUrl, customFetch) as Promise<{ response: string; provider: string; citations?: string[] }>,
+    mod.chat(prompt, domainUrl, customFetch, geoContext) as Promise<{ response: string; provider: string; citations?: string[] }>,
     PROVIDER_TIMEOUT_MS,
     `${provider} call`
   );

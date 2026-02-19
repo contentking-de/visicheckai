@@ -32,6 +32,7 @@ export default async function RunsPage({
 
   const t = await getTranslations("Runs");
   const tc = await getTranslations("Common");
+  const tConfigs = await getTranslations("Configs");
   const locale = await getLocale();
   const params = await searchParams;
   const domainFilter = params.domain ?? "";
@@ -102,6 +103,7 @@ export default async function RunsPage({
             <TableRow>
               <TableHead>Domain</TableHead>
               <TableHead>Prompt-Set</TableHead>
+              <TableHead>{tConfigs("country")}</TableHead>
               <TableHead>{t("status")}</TableHead>
               <TableHead>{t("startedAt")}</TableHead>
               <TableHead></TableHead>
@@ -110,7 +112,7 @@ export default async function RunsPage({
           <TableBody>
             {runsWithConfig.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
                   {domainFilter || promptSetFilter ? (
                     t("noFilterResults")
                   ) : (
@@ -128,10 +130,13 @@ export default async function RunsPage({
                 </TableCell>
               </TableRow>
             ) : (
-              runsWithConfig.map(({ run, domain, promptSet }) => (
+              runsWithConfig.map(({ run, config, domain, promptSet }) => (
                 <TableRow key={run.id}>
                   <TableCell className="font-medium">{domain.name}</TableCell>
                   <TableCell>{promptSet.name}</TableCell>
+                  <TableCell>
+                    {config.country ? tConfigs(`country${config.country}`) : tConfigs("countryDE")}
+                  </TableCell>
                   <TableCell>
                     <span
                       className={

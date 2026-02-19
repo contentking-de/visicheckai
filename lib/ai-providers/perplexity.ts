@@ -3,9 +3,14 @@ export type Provider = "perplexity";
 export async function chat(
   prompt: string,
   _domainUrl: string,
-  customFetch?: typeof globalThis.fetch
+  customFetch?: typeof globalThis.fetch,
+  geoContext?: string
 ): Promise<{ response: string; provider: Provider; citations?: string[] }> {
   const fetchFn = customFetch ?? globalThis.fetch;
+
+  const messages: Array<{ role: string; content: string }> = [];
+  if (geoContext) messages.push({ role: "system", content: geoContext });
+  messages.push({ role: "user", content: prompt });
 
   const res = await fetchFn("https://api.perplexity.ai/chat/completions", {
     method: "POST",
@@ -15,7 +20,7 @@ export async function chat(
     },
     body: JSON.stringify({
       model: "sonar",
-      messages: [{ role: "user", content: prompt }],
+      messages,
       max_tokens: 1024,
     }),
   });
