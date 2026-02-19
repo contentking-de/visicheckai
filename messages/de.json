@@ -356,6 +356,18 @@
     "responseExcerpt": "Antwort (Auszug)",
     "noResults": "Noch keine Ergebnisse. Der Run läuft möglicherweise noch."
   },
+  "SourceUrls": {
+    "title": "Quellenauswertung",
+    "totalUrls": "URLs zitiert",
+    "provider": "Anbieter",
+    "prompt": "Prompt",
+    "citedBy": "Zitiert von",
+    "noCitations": "Keine Quellen-URLs in diesem Run gefunden.",
+    "showAll": "Alle Domains anzeigen",
+    "showLess": "Weniger anzeigen",
+    "urlsCited": "URLs",
+    "timesShort": "zitiert"
+  },
   "CompetitorOverview": {
     "title": "Wettbewerbsübersicht",
     "domain": "Domain / Marke",

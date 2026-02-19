@@ -23,10 +23,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowLeft, CheckCircle, XCircle } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { getTranslations, getLocale } from "next-intl/server";
 import { ExpandableResponse } from "@/components/expandable-response";
+import { ExpandableCitations } from "@/components/expandable-citations";
 import { CompetitorOverview } from "@/components/competitor-overview";
+import { SourceUrls } from "@/components/source-urls";
 
 export default async function RunDetailPage({
   params,
@@ -36,9 +38,10 @@ export default async function RunDetailPage({
   const [session, { id }] = await Promise.all([auth(), params]);
   if (!session?.user?.id) return null;
 
-  const [t, tComp, locale] = await Promise.all([
+  const [t, tComp, tSrc, locale] = await Promise.all([
     getTranslations("RunDetail"),
     getTranslations("CompetitorOverview"),
+    getTranslations("SourceUrls"),
     getLocale(),
   ]);
 
@@ -75,7 +78,7 @@ export default async function RunDetailPage({
   const ownHost = domain.domainUrl.replace(/^https?:\/\//, "").replace(/^www\./, "").split("/")[0].toLowerCase();
 
   const byProvider = results.reduce<
-    Record<string, { prompt: string; response: string; mentions: number; citationCount: number; ownDomainCited: boolean }[]>
+    Record<string, { prompt: string; response: string; mentions: number; citationCount: number; ownDomainCited: boolean; citations: string[] }[]>
   >((acc, r) => {
     if (!acc[r.provider]) acc[r.provider] = [];
     const cits = (r.citations as string[] | null) ?? [];
@@ -91,9 +94,16 @@ export default async function RunDetailPage({
       mentions: r.mentionCount ?? 0,
       citationCount: cits.length,
       ownDomainCited,
+      citations: cits,
     });
     return acc;
   }, {});
+
+  const sourceResults = results.map((r) => ({
+    provider: r.provider as "chatgpt" | "claude" | "gemini" | "perplexity",
+    prompt: r.prompt,
+    citations: (r.citations as string[] | null) ?? null,
+  }));
 
   const citationResults = results.map((r) => ({
     provider: r.provider,
@@ -190,6 +200,23 @@ export default async function RunDetailPage({
         }}
       />
 
+      <SourceUrls
+        results={sourceResults}
+        favicons={faviconObj}
+        translations={{
+          title: tSrc("title"),
+          totalUrls: tSrc("totalUrls"),
+          provider: tSrc("provider"),
+          prompt: tSrc("prompt"),
+          citedBy: tSrc("citedBy"),
+          noCitations: tSrc("noCitations"),
+          showAll: tSrc("showAll"),
+          showLess: tSrc("showLess"),
+          urlsCited: tSrc("urlsCited"),
+          timesShort: tSrc("timesShort"),
+        }}
+      />
+
       {Object.entries(byProvider).map(([provider, items]) => (
         <Card key={provider}>
           <CardHeader>
@@ -213,14 +240,11 @@ export default async function RunDetailPage({
                     </TableCell>
                     <TableCell>{item.mentions}</TableCell>
                     <TableCell>
-                      <span className="inline-flex items-center gap-1">
-                        {item.ownDomainCited ? (
-                          <CheckCircle className="h-4 w-4 text-green-500 shrink-0" />
-                        ) : (
-                          <XCircle className="h-4 w-4 text-red-400 shrink-0" />
-                        )}
-                        {item.citationCount}
-                      </span>
+                      <ExpandableCitations
+                        citations={item.citations}
+                        ownDomainCited={item.ownDomainCited}
+                        count={item.citationCount}
+                      />
                     </TableCell>
                     <TableCell className="max-w-[400px]">
                       <ExpandableResponse text={item.response} />

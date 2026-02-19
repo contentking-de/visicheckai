@@ -356,6 +356,18 @@
     "responseExcerpt": "Réponse (extrait)",
     "noResults": "Pas encore de résultats. L'exécution est peut-être encore en cours."
   },
+  "SourceUrls": {
+    "title": "Analyse des sources",
+    "totalUrls": "URLs citées",
+    "provider": "Fournisseur",
+    "prompt": "Prompt",
+    "citedBy": "Cité par",
+    "noCitations": "Aucune URL source trouvée dans cette exécution.",
+    "showAll": "Afficher tous les domaines",
+    "showLess": "Afficher moins",
+    "urlsCited": "URLs",
+    "timesShort": "citées"
+  },
   "CompetitorOverview": {
     "title": "Aperçu concurrentiel",
     "domain": "Domaine / Marque",

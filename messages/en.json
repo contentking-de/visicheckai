@@ -356,6 +356,18 @@
     "responseExcerpt": "Response (excerpt)",
     "noResults": "No results yet. The run may still be in progress."
   },
+  "SourceUrls": {
+    "title": "Source Analysis",
+    "totalUrls": "URLs cited",
+    "provider": "Provider",
+    "prompt": "Prompt",
+    "citedBy": "Cited by",
+    "noCitations": "No source URLs found in this run.",
+    "showAll": "Show all domains",
+    "showLess": "Show less",
+    "urlsCited": "URLs",
+    "timesShort": "cited"
+  },
   "CompetitorOverview": {
     "title": "Competitor Overview",
     "domain": "Domain / Brand",
