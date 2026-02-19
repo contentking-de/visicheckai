@@ -120,18 +120,29 @@ const tooltipStyle = {
   boxShadow: "0 4px 12px rgba(0,0,0,.15)",
 };
 
-export function SentimentCharts() {
+export function SentimentCharts({
+  domainId,
+  runId,
+}: {
+  domainId?: string;
+  runId?: string;
+}) {
   const t = useTranslations("Sentiment");
   const [data, setData] = useState<SentimentData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/sentiment")
+    setLoading(true);
+    const params = new URLSearchParams();
+    if (domainId) params.set("domain", domainId);
+    if (runId) params.set("runId", runId);
+    const qs = params.toString();
+    fetch(`/api/sentiment${qs ? `?${qs}` : ""}`)
       .then((r) => r.json())
       .then(setData)
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, []);
+  }, [domainId, runId]);
 
   if (loading) {
     return (

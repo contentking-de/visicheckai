@@ -562,7 +562,10 @@
     "promptRanking": "Prompt-Ranking",
     "promptRankingDesc": "Welche Prompts erzeugen die positivsten/negativsten Antworten? Sortiert vom schlechtesten zum besten.",
     "recentNegative": "Letzte negative Ergebnisse",
-    "recentNegativeDesc": "Die aktuellsten Antworten mit negativer Stimmung – hier besteht möglicher Handlungsbedarf."
+    "recentNegativeDesc": "Die aktuellsten Antworten mit negativer Stimmung – hier besteht möglicher Handlungsbedarf.",
+    "filterByDomain": "Domain filtern",
+    "filterByRun": "Run filtern",
+    "clearFilters": "Filter zurücksetzen"
   },
   "Usage": {
     "title": "Prompt-Verbrauch",

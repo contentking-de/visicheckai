@@ -562,7 +562,10 @@
     "promptRanking": "Prompt Ranking",
     "promptRankingDesc": "Which prompts generate the most positive/negative responses? Sorted worst to best.",
     "recentNegative": "Recent Negative Results",
-    "recentNegativeDesc": "The latest responses with negative sentiment – potential action items."
+    "recentNegativeDesc": "The latest responses with negative sentiment – potential action items.",
+    "filterByDomain": "Filter by domain",
+    "filterByRun": "Filter by run",
+    "clearFilters": "Clear filters"
   },
   "Usage": {
     "title": "Prompt Usage",

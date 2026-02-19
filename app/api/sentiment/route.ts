@@ -8,9 +8,9 @@ import {
   trackingConfigs,
   domains,
 } from "@/lib/schema";
-import { eq, and, isNotNull, sql, desc } from "drizzle-orm";
+import { eq, and, isNotNull, type SQL } from "drizzle-orm";
 
-export async function GET() {
+export async function GET(request: Request) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -18,13 +18,23 @@ export async function GET() {
   const denied = await requireAccess(session as Parameters<typeof requireAccess>[0]);
   if (denied) return denied;
 
+  const { searchParams } = new URL(request.url);
+  const domainId = searchParams.get("domain") ?? "";
+  const runId = searchParams.get("runId") ?? "";
+
   const teamId = session.user.teamId;
 
-  const ownerFilter = teamId
-    ? eq(trackingConfigs.teamId, teamId)
-    : eq(trackingConfigs.userId, session.user.id);
+  const conditions: SQL[] = [
+    teamId
+      ? eq(trackingConfigs.teamId, teamId)
+      : eq(trackingConfigs.userId, session.user.id),
+    isNotNull(trackingResults.sentiment),
+  ];
 
-  const baseJoin = db
+  if (domainId) conditions.push(eq(domains.id, domainId));
+  if (runId) conditions.push(eq(trackingRuns.id, runId));
+
+  const allResults = await db
     .select({
       sentiment: trackingResults.sentiment,
       sentimentScore: trackingResults.sentimentScore,
@@ -38,9 +48,7 @@ export async function GET() {
     .innerJoin(trackingRuns, eq(trackingResults.runId, trackingRuns.id))
     .innerJoin(trackingConfigs, eq(trackingRuns.configId, trackingConfigs.id))
     .innerJoin(domains, eq(trackingConfigs.domainId, domains.id))
-    .where(and(ownerFilter, isNotNull(trackingResults.sentiment)));
-
-  const allResults = await baseJoin;
+    .where(and(...conditions));
 
   // --- Totals ---
   let positive = 0;
