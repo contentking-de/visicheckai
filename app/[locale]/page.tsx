@@ -68,6 +68,26 @@ export default async function LandingPage() {
         {/* Section 1: Hero – Kategorie definieren */}
         <section className="relative overflow-hidden bg-black py-24 text-white sm:py-32 lg:py-40">
           <div className="mx-auto max-w-4xl px-4 text-center">
+            <div className="mb-8 flex items-center justify-center gap-2.5">
+              {[
+                { src: "/chatgpt-icon.svg", alt: "ChatGPT", delay: "0s" },
+                { src: "/claude-ai-icon.svg", alt: "Claude", delay: "0.3s" },
+                { src: "/google-gemini-icon.svg", alt: "Google Gemini", delay: "0.6s" },
+                { src: "/perplexity-ai-icon.svg", alt: "Perplexity", delay: "0.9s" },
+                { src: "/deepseek-logo-icon.svg", alt: "DeepSeek", delay: "1.2s" },
+                { src: "/grok-icon.svg", alt: "Grok", delay: "1.5s" },
+              ].map((provider) => (
+                <Image
+                  key={provider.alt}
+                  src={provider.src}
+                  alt={provider.alt}
+                  width={36}
+                  height={36}
+                  className="animate-gentle-bounce h-7 w-7 sm:h-9 sm:w-9"
+                  style={{ animationDelay: provider.delay }}
+                />
+              ))}
+            </div>
             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
               {t("heroTitle")}
             </h1>
