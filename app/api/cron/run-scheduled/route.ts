@@ -28,7 +28,7 @@ async function executePromptForAllProviders(
   await Promise.allSettled(
     providers.map(async (provider) => {
       try {
-        const { response, mentionCount, visibilityScore, citations } = await runProvider(
+        const { response, mentionCount, visibilityScore, citations, usage } = await runProvider(
           provider,
           prompt,
           domainUrl,
@@ -46,6 +46,8 @@ async function executePromptForAllProviders(
           citations,
           sentiment,
           sentimentScore,
+          inputTokens: usage?.inputTokens,
+          outputTokens: usage?.outputTokens,
         });
       } catch (err) {
         console.error(`[Cron] Provider ${provider} failed:`, err);

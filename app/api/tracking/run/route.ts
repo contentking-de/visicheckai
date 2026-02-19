@@ -34,7 +34,7 @@ async function executePromptForAllProviders(
   const results = await Promise.allSettled(
     providers.map(async (provider) => {
       try {
-        const { response, mentionCount, visibilityScore, citations } = await runProvider(
+        const { response, mentionCount, visibilityScore, citations, usage } = await runProvider(
           provider,
           prompt,
           domainUrl,
@@ -52,6 +52,8 @@ async function executePromptForAllProviders(
           citations,
           sentiment,
           sentimentScore,
+          inputTokens: usage?.inputTokens,
+          outputTokens: usage?.outputTokens,
         });
         return { provider, status: "ok" as const };
       } catch (err) {

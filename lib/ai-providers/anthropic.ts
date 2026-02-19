@@ -15,7 +15,7 @@ export async function chat(
   _domainUrl: string,
   customFetch?: typeof globalThis.fetch,
   geoContext?: string
-): Promise<{ response: string; provider: Provider; citations?: string[] }> {
+): Promise<{ response: string; provider: Provider; citations?: string[]; usage?: { inputTokens: number; outputTokens: number } }> {
   const client = getClient(customFetch);
   const response = await client.messages.create({
     model: "claude-haiku-4-5-20251001",
@@ -55,5 +55,9 @@ export async function chat(
   const content = textParts.join("").trim();
   const uniqueCitations = [...new Set(citations)];
 
-  return { response: content, provider: "claude", citations: uniqueCitations };
+  const usage = response.usage
+    ? { inputTokens: response.usage.input_tokens, outputTokens: response.usage.output_tokens }
+    : undefined;
+
+  return { response: content, provider: "claude", citations: uniqueCitations, usage };
 }

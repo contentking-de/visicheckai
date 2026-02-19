@@ -33,6 +33,7 @@ type CostByProvider = {
   outputTokens: number;
   cost: number;
   calls: number;
+  hasActualUsage: boolean;
 };
 
 type AdminStats = {
@@ -43,6 +44,7 @@ type AdminStats = {
     apiCalls: number;
     estimatedCost: number;
   };
+  usageCoverage: number;
   usersOverTime: TimeSeriesPoint[];
   domainsOverTime: TimeSeriesPoint[];
   promptSetsOverTime: TimeSeriesPoint[];
@@ -226,7 +228,7 @@ export function AdminCharts() {
           icon={Activity}
         />
         <StatCard
-          title={t("estimatedCost")}
+          title={stats.usageCoverage === 100 ? t("actualCost") : stats.usageCoverage > 0 ? t("costMixed") : t("estimatedCost")}
           value={formatCurrency(stats.totals.estimatedCost)}
           icon={DollarSign}
         />
@@ -306,7 +308,13 @@ export function AdminCharts() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base">{t("costBreakdown")}</CardTitle>
-          <CardDescription>{t("costDisclaimer")}</CardDescription>
+          <CardDescription>
+            {stats.usageCoverage === 100
+              ? t("costDisclaimerActual")
+              : stats.usageCoverage > 0
+                ? t("costDisclaimerMixed", { percent: stats.usageCoverage })
+                : t("costDisclaimer")}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {stats.costByProvider.length === 0 ? (
@@ -364,7 +372,9 @@ export function AdminCharts() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base">{t("dailyCosts")}</CardTitle>
-          <CardDescription>{t("dailyCostsDesc")}</CardDescription>
+          <CardDescription>
+            {stats.usageCoverage === 100 ? t("dailyCostsDescActual") : t("dailyCostsDesc")}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {stats.dailyCosts.length === 0 ? (

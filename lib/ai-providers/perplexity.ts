@@ -5,7 +5,7 @@ export async function chat(
   _domainUrl: string,
   customFetch?: typeof globalThis.fetch,
   geoContext?: string
-): Promise<{ response: string; provider: Provider; citations?: string[] }> {
+): Promise<{ response: string; provider: Provider; citations?: string[]; usage?: { inputTokens: number; outputTokens: number } }> {
   const fetchFn = customFetch ?? globalThis.fetch;
 
   const messages: Array<{ role: string; content: string }> = [];
@@ -33,8 +33,12 @@ export async function chat(
   const data = (await res.json()) as {
     choices?: Array<{ message?: { content?: string } }>;
     citations?: string[];
+    usage?: { prompt_tokens?: number; completion_tokens?: number };
   };
   const content = data.choices?.[0]?.message?.content?.trim() ?? "";
   const citations = data.citations ?? [];
-  return { response: content, provider: "perplexity", citations };
+  const usage = data.usage
+    ? { inputTokens: data.usage.prompt_tokens ?? 0, outputTokens: data.usage.completion_tokens ?? 0 }
+    : undefined;
+  return { response: content, provider: "perplexity", citations, usage };
 }

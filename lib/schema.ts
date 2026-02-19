@@ -323,5 +323,7 @@ export const trackingResults = pgTable("tracking_results", {
   citations: jsonb("citations").$type<string[]>(),
   sentiment: text("sentiment").$type<Sentiment>(),
   sentimentScore: integer("sentiment_score"),
+  inputTokens: integer("input_tokens"),
+  outputTokens: integer("output_tokens"),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
 });

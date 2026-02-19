@@ -34,7 +34,12 @@ async function chatWithSdk(prompt: string, geoContext?: string) {
     }
   }
 
-  return { content, citations };
+  const meta = result.response.usageMetadata;
+  const usage = meta
+    ? { inputTokens: meta.promptTokenCount ?? 0, outputTokens: meta.candidatesTokenCount ?? 0 }
+    : undefined;
+
+  return { content, citations, usage };
 }
 
 /**
@@ -80,7 +85,12 @@ async function chatWithRest(prompt: string, customFetch: typeof globalThis.fetch
     }
   }
 
-  return { content, citations };
+  const meta = data.usageMetadata;
+  const usage = meta
+    ? { inputTokens: meta.promptTokenCount ?? 0, outputTokens: meta.candidatesTokenCount ?? 0 }
+    : undefined;
+
+  return { content, citations, usage };
 }
 
 export async function chat(
@@ -88,10 +98,10 @@ export async function chat(
   _domainUrl: string,
   customFetch?: typeof globalThis.fetch,
   geoContext?: string
-): Promise<{ response: string; provider: Provider; citations?: string[] }> {
-  const { content, citations } = customFetch
+): Promise<{ response: string; provider: Provider; citations?: string[]; usage?: { inputTokens: number; outputTokens: number } }> {
+  const { content, citations, usage } = customFetch
     ? await chatWithRest(prompt, customFetch, geoContext)
     : await chatWithSdk(prompt, geoContext);
 
-  return { response: content, provider: "gemini", citations };
+  return { response: content, provider: "gemini", citations, usage };
 }

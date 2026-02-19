@@ -57,6 +57,13 @@
       "when": 1771431158975,
       "tag": "0007_jittery_alice",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1771504031660,
+      "tag": "0008_superb_dreadnoughts",
+      "breakpoints": true
     }
   ]
 }

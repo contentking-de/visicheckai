@@ -108,13 +108,15 @@ function resolveCitations(text: string, citations: string[]): string {
   });
 }
 
+export type TokenUsage = { inputTokens: number; outputTokens: number };
+
 export async function runProvider(
   provider: Provider,
   prompt: string,
   domainUrl: string,
   brandName?: string,
   country?: Country
-): Promise<{ response: string; mentionCount: number; visibilityScore: number; citations: string[] }> {
+): Promise<{ response: string; mentionCount: number; visibilityScore: number; citations: string[]; usage?: TokenUsage }> {
   const mod = providers[provider];
 
   // Resolve proxy for the target country
@@ -124,7 +126,7 @@ export async function runProvider(
   const geoContext = buildGeoContext(country);
 
   const result = await withTimeout(
-    mod.chat(prompt, domainUrl, customFetch, geoContext) as Promise<{ response: string; provider: string; citations?: string[] }>,
+    mod.chat(prompt, domainUrl, customFetch, geoContext) as Promise<{ response: string; provider: string; citations?: string[]; usage?: TokenUsage }>,
     PROVIDER_TIMEOUT_MS,
     `${provider} call`
   );
@@ -143,5 +145,5 @@ export async function runProvider(
   const mentionCount = countMentions(fullTextForCounting, domainUrl, brandName);
 
   const visibilityScore = computeVisibilityScore(mentionCount);
-  return { response: cleanResponse, mentionCount, visibilityScore, citations };
+  return { response: cleanResponse, mentionCount, visibilityScore, citations, usage: result.usage };
 }

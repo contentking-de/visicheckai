@@ -15,7 +15,7 @@ export async function chat(
   _domainUrl: string,
   customFetch?: typeof globalThis.fetch,
   geoContext?: string
-): Promise<{ response: string; provider: Provider; citations?: string[] }> {
+): Promise<{ response: string; provider: Provider; citations?: string[]; usage?: { inputTokens: number; outputTokens: number } }> {
   const client = getClient(customFetch);
   const messages: Array<{ role: "system" | "user"; content: string }> = [];
   if (geoContext) messages.push({ role: "system", content: geoContext });
@@ -49,5 +49,9 @@ export async function chat(
     }
   }
 
-  return { response: content, provider: "chatgpt", citations };
+  const usage = response.usage
+    ? { inputTokens: response.usage.prompt_tokens, outputTokens: response.usage.completion_tokens }
+    : undefined;
+
+  return { response: content, provider: "chatgpt", citations, usage };
 }

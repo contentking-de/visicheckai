@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth";
 import { isSuperAdmin } from "@/lib/rbac";
 import { db } from "@/lib/db";
 import { users, domains, promptSets, trackingResults } from "@/lib/schema";
-import { sql, count, sum } from "drizzle-orm";
+import { sql, count } from "drizzle-orm";
 import type { UserRole } from "@/lib/schema";
 
 // Pricing per 1M tokens (USD) – update when models change
@@ -15,6 +15,17 @@ const MODEL_PRICING: Record<string, { input: number; output: number }> = {
 };
 
 const CHARS_PER_TOKEN = 4;
+
+/**
+ * Hybrid token calculation: use real token counts from API when available,
+ * fall back to character-based estimation for legacy rows (before tracking).
+ */
+const ACTUAL_INPUT_TOKENS = sql<number>`coalesce(sum(input_tokens), 0)`;
+const ACTUAL_OUTPUT_TOKENS = sql<number>`coalesce(sum(output_tokens), 0)`;
+const ESTIMATED_INPUT_TOKENS = sql<number>`coalesce(sum(case when input_tokens is null then length(prompt) / ${CHARS_PER_TOKEN} else 0 end), 0)`;
+const ESTIMATED_OUTPUT_TOKENS = sql<number>`coalesce(sum(case when output_tokens is null then length(response) / ${CHARS_PER_TOKEN} else 0 end), 0)`;
+const ROWS_WITH_USAGE = sql<number>`count(input_tokens)`;
+const TOTAL_ROWS = sql<number>`count(*)`;
 
 export async function GET() {
   const session = await auth();
@@ -116,42 +127,61 @@ export async function GET() {
     }
   }
 
-  // Cost estimation: aggregate character counts per provider
+  // Cost calculation: use real token counts when available, estimate for legacy data
   const costByProvider = await db
     .select({
       provider: trackingResults.provider,
-      inputChars: sum(sql<number>`length(prompt)`).as("input_chars"),
-      outputChars: sum(sql<number>`length(response)`).as("output_chars"),
+      actualInput: ACTUAL_INPUT_TOKENS.as("actual_input"),
+      actualOutput: ACTUAL_OUTPUT_TOKENS.as("actual_output"),
+      estimatedInput: ESTIMATED_INPUT_TOKENS.as("estimated_input"),
+      estimatedOutput: ESTIMATED_OUTPUT_TOKENS.as("estimated_output"),
+      rowsWithUsage: ROWS_WITH_USAGE.as("rows_with_usage"),
+      totalRows: TOTAL_ROWS.as("total_rows"),
       calls: count(),
     })
     .from(trackingResults)
     .groupBy(trackingResults.provider);
 
-  const costs: Record<string, { provider: string; inputTokens: number; outputTokens: number; cost: number; calls: number }> = {};
+  const costs: Record<string, { provider: string; inputTokens: number; outputTokens: number; cost: number; calls: number; hasActualUsage: boolean }> = {};
   let totalCost = 0;
+  let totalWithUsage = 0;
+  let totalRowsAll = 0;
 
   for (const row of costByProvider) {
     const p = row.provider;
     const pricing = MODEL_PRICING[p];
     if (!pricing) continue;
 
-    const inputTokens = Math.round(Number(row.inputChars ?? 0) / CHARS_PER_TOKEN);
-    const outputTokens = Math.round(Number(row.outputChars ?? 0) / CHARS_PER_TOKEN);
+    const inputTokens = Number(row.actualInput ?? 0) + Number(row.estimatedInput ?? 0);
+    const outputTokens = Number(row.actualOutput ?? 0) + Number(row.estimatedOutput ?? 0);
+    const withUsage = Number(row.rowsWithUsage ?? 0);
+    const total = Number(row.totalRows ?? 0);
     const cost =
       (inputTokens / 1_000_000) * pricing.input +
       (outputTokens / 1_000_000) * pricing.output;
 
-    costs[p] = { provider: p, inputTokens, outputTokens, cost: Math.round(cost * 10000) / 10000, calls: row.calls };
+    costs[p] = {
+      provider: p,
+      inputTokens,
+      outputTokens,
+      cost: Math.round(cost * 10000) / 10000,
+      calls: row.calls,
+      hasActualUsage: withUsage > 0,
+    };
     totalCost += cost;
+    totalWithUsage += withUsage;
+    totalRowsAll += total;
   }
 
-  // Daily cost breakdown (last 90 days)
+  // Daily cost breakdown (last 90 days) – hybrid: actual tokens + estimation fallback
   const dailyCostRows = await db
     .select({
       date: sql<string>`to_char(created_at, 'YYYY-MM-DD')`.as("date"),
       provider: trackingResults.provider,
-      inputChars: sum(sql<number>`length(prompt)`).as("input_chars"),
-      outputChars: sum(sql<number>`length(response)`).as("output_chars"),
+      actualInput: sql<number>`coalesce(sum(input_tokens), 0)`.as("actual_input"),
+      actualOutput: sql<number>`coalesce(sum(output_tokens), 0)`.as("actual_output"),
+      estimatedInput: sql<number>`coalesce(sum(case when input_tokens is null then length(prompt) / ${CHARS_PER_TOKEN} else 0 end), 0)`.as("estimated_input"),
+      estimatedOutput: sql<number>`coalesce(sum(case when output_tokens is null then length(response) / ${CHARS_PER_TOKEN} else 0 end), 0)`.as("estimated_output"),
     })
     .from(trackingResults)
     .where(sql`created_at >= now() - interval '90 days'`)
@@ -172,8 +202,8 @@ export async function GET() {
     const pricing = MODEL_PRICING[row.provider];
     if (!pricing) continue;
 
-    const inputTokens = Number(row.inputChars ?? 0) / CHARS_PER_TOKEN;
-    const outputTokens = Number(row.outputChars ?? 0) / CHARS_PER_TOKEN;
+    const inputTokens = Number(row.actualInput ?? 0) + Number(row.estimatedInput ?? 0);
+    const outputTokens = Number(row.actualOutput ?? 0) + Number(row.estimatedOutput ?? 0);
     const cost =
       (inputTokens / 1_000_000) * pricing.input +
       (outputTokens / 1_000_000) * pricing.output;
@@ -207,6 +237,10 @@ export async function GET() {
     return { date: row.date, count: cumPromptSets };
   });
 
+  const usageCoverage = totalRowsAll > 0
+    ? Math.round((totalWithUsage / totalRowsAll) * 100)
+    : 0;
+
   return NextResponse.json({
     totals: {
       users: totalUsers.count,
@@ -215,6 +249,7 @@ export async function GET() {
       apiCalls: totalApiCalls.count,
       estimatedCost: Math.round(totalCost * 100) / 100,
     },
+    usageCoverage,
     usersOverTime: usersCumulative,
     domainsOverTime: domainsCumulative,
     promptSetsOverTime: promptSetsCumulative,
