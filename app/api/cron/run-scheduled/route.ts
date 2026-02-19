@@ -8,6 +8,7 @@ import { fetchFaviconsForDomains } from "@/lib/favicon";
 import { sendRunCompletedEmail } from "@/lib/email";
 import { getAccessStatus } from "@/lib/access";
 import { checkPromptQuota } from "@/lib/usage";
+import { getTeamForUser } from "@/lib/rbac";
 import type { Country } from "@/lib/countries";
 
 export const dynamic = "force-dynamic";
@@ -89,19 +90,25 @@ export async function GET(request: Request) {
 
     const prompts = (promptSet.prompts as string[]) ?? [];
 
-    // Quota check: skip this config if the team/user has exceeded their limit
-    const access = await getAccessStatus(config.userId, config.teamId);
-    const quota = await checkPromptQuota(
-      config.userId,
-      config.teamId,
-      access.isTrial,
-      prompts.length
-    );
-    if (!quota.allowed) {
-      console.log(
-        `[Cron] Skipping config ${config.id}: ${quota.reason}`
+    // Resolve user role so super_admins bypass the quota
+    const teamCtx = await getTeamForUser(config.userId);
+    const userRole = teamCtx?.role ?? null;
+
+    const access = await getAccessStatus(config.userId, config.teamId, userRole);
+
+    if (userRole !== "super_admin") {
+      const quota = await checkPromptQuota(
+        config.userId,
+        config.teamId,
+        access.isTrial,
+        prompts.length
       );
-      continue;
+      if (!quota.allowed) {
+        console.log(
+          `[Cron] Skipping config ${config.id}: ${quota.reason}`
+        );
+        continue;
+      }
     }
 
     // Get user email for notification

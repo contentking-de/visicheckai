@@ -222,27 +222,26 @@ export async function POST(request: Request) {
 
   const prompts = (promptSet.prompts as string[]) ?? [];
 
-  // Quota check: ensure the team/user has enough prompts remaining
-  const access = await getAccessStatus(
-    session.user.id,
-    teamId,
-    (session as { user: { role?: string | null } }).user.role
-  );
-  const quota = await checkPromptQuota(
-    session.user.id,
-    teamId,
-    access.isTrial,
-    prompts.length
-  );
-  if (!quota.allowed) {
-    return NextResponse.json(
-      {
-        error: quota.reason,
-        code: "PROMPT_LIMIT_EXCEEDED",
-        usage: quota.usage,
-      },
-      { status: 429 }
+  const userRole = (session as { user: { role?: string | null } }).user.role;
+  const access = await getAccessStatus(session.user.id, teamId, userRole);
+
+  if (userRole !== "super_admin") {
+    const quota = await checkPromptQuota(
+      session.user.id,
+      teamId,
+      access.isTrial,
+      prompts.length
     );
+    if (!quota.allowed) {
+      return NextResponse.json(
+        {
+          error: quota.reason,
+          code: "PROMPT_LIMIT_EXCEEDED",
+          usage: quota.usage,
+        },
+        { status: 429 }
+      );
+    }
   }
 
   // Get user email for notification
