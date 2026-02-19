@@ -191,7 +191,7 @@
     "dashboard": "Dashboard",
     "domains": "Domains & Marken",
     "promptSets": "Prompt-Sets",
-    "configs": "Konfiguration",
+    "configs": "Runs Konfiguration",
     "runs": "Tracking Runs",
     "profile": "Profil",
     "team": "Team",
@@ -271,8 +271,8 @@
     "importButton": "{count} Prompts importieren"
   },
   "Configs": {
-    "title": "Tracking-Konfiguration",
-    "description": "Verbinden Sie Domains mit Prompt-Sets und legen Sie das Intervall fest",
+    "title": "Runs Konfiguration",
+    "description": "Verbinden Sie Domains mit Prompt-Sets und legen Sie das Intervall für die Runs fest",
     "createConfig": "Konfiguration erstellen",
     "interval": "Intervall",
     "country": "Land",

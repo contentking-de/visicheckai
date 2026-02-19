@@ -191,7 +191,7 @@
     "dashboard": "Tableau de bord",
     "domains": "Domaines & Marques",
     "promptSets": "Ensembles de prompts",
-    "configs": "Configuration",
+    "configs": "Configuration des Runs",
     "runs": "Tracking Runs",
     "profile": "Profil",
     "team": "Équipe",
@@ -271,8 +271,8 @@
     "importButton": "Importer {count} prompts"
   },
   "Configs": {
-    "title": "Configuration de suivi",
-    "description": "Liez des domaines à des ensembles de prompts et définissez l'intervalle",
+    "title": "Configuration des Runs",
+    "description": "Liez des domaines à des ensembles de prompts et définissez l'intervalle des runs",
     "createConfig": "Créer une configuration",
     "interval": "Intervalle",
     "country": "Pays",
