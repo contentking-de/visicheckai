@@ -296,6 +296,7 @@
     "description": "Link domains with prompt sets and set the interval for runs",
     "createConfig": "Create configuration",
     "interval": "Interval",
+    "prompts": "Prompts",
     "country": "Country",
     "daily": "Daily",
     "weekly": "Weekly",

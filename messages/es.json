@@ -296,6 +296,7 @@
     "description": "Vincule dominios con conjuntos de prompts y establezca el intervalo para los runs",
     "createConfig": "Crear configuración",
     "interval": "Intervalo",
+    "prompts": "Prompts",
     "country": "País",
     "daily": "Diario",
     "weekly": "Semanal",

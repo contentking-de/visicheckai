@@ -296,6 +296,7 @@
     "description": "Liez des domaines à des ensembles de prompts et définissez l'intervalle des runs",
     "createConfig": "Créer une configuration",
     "interval": "Intervalle",
+    "prompts": "Prompts",
     "country": "Pays",
     "daily": "Quotidien",
     "weekly": "Hebdomadaire",

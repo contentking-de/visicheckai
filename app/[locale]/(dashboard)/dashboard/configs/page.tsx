@@ -97,6 +97,7 @@ export default async function ConfigsPage() {
             <TableRow>
               <TableHead>Domain</TableHead>
               <TableHead>Prompt-Set</TableHead>
+              <TableHead className="text-right">{t("prompts")}</TableHead>
               <TableHead>{t("country")}</TableHead>
               <TableHead>{t("interval")}</TableHead>
               <TableHead className="w-[150px]">{tc("actions")}</TableHead>
@@ -105,7 +106,7 @@ export default async function ConfigsPage() {
           <TableBody>
             {configs.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
                   {t("empty")}{" "}
                   <Link
                     href="/dashboard/configs/new"
@@ -120,6 +121,7 @@ export default async function ConfigsPage() {
                 <TableRow key={config.id}>
                   <TableCell className="font-medium">{domain.name}</TableCell>
                   <TableCell>{promptSet.name}</TableCell>
+                  <TableCell className="text-right">{(promptSet.prompts as string[]).length}</TableCell>
                   <TableCell>
                     {config.country ? (countryLabels[config.country] ?? config.country) : countryLabels["DE"]}
                   </TableCell>

@@ -296,6 +296,7 @@
     "description": "Verbinden Sie Domains mit Prompt-Sets und legen Sie das Intervall für die Runs fest",
     "createConfig": "Konfiguration erstellen",
     "interval": "Intervall",
+    "prompts": "Prompts",
     "country": "Land",
     "daily": "Täglich",
     "weekly": "Wöchentlich",
