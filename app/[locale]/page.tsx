@@ -572,6 +572,14 @@ export default async function LandingPage() {
                     {t("footerMagazine")}
                   </Link>
                 </li>
+                <li>
+                  <Link
+                    href="/dokumentation"
+                    className="text-sm text-white/60 transition-colors hover:text-white"
+                  >
+                    {t("footerDocumentation")}
+                  </Link>
+                </li>
               </ul>
             </div>
 

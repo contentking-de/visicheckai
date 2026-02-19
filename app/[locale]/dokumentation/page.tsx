@@ -9,30 +9,78 @@ import { LanguageSwitcher } from "@/components/language-switcher";
 import { MobileNav } from "@/components/mobile-nav";
 import {
   ArrowRight,
-  Wrench,
+  Globe,
+  MessageSquare,
+  Settings,
+  Play,
+  Users as UsersIcon,
   BarChart3,
-  Eye,
-  ExternalLink,
+  Link2,
+  Heart,
+  CreditCard,
+  Bot,
   Check,
 } from "lucide-react";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("About");
+  const t = await getTranslations("Documentation");
   return {
     title: t("metaTitle"),
+    description: t("metaDescription"),
     alternates: {
-      languages: buildHreflangAlternates("/ueber-uns"),
+      languages: buildHreflangAlternates("/dokumentation"),
     },
   };
 }
 
-export default async function AboutPage() {
-  const t = await getTranslations("About");
+function FeatureSection({
+  icon: Icon,
+  title,
+  description,
+  features,
+  reverse = false,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  description: string;
+  features: string[];
+  reverse?: boolean;
+}) {
+  return (
+    <div
+      className={`grid items-start gap-10 lg:grid-cols-2 ${reverse ? "lg:direction-rtl" : ""}`}
+    >
+      <div className={reverse ? "lg:order-2" : ""}>
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+          <Icon className="h-6 w-6 text-primary" />
+        </div>
+        <h3 className="mt-4 text-xl font-bold tracking-tight sm:text-2xl">
+          {title}
+        </h3>
+        <p className="mt-3 leading-relaxed text-muted-foreground">
+          {description}
+        </p>
+      </div>
+      <div className={reverse ? "lg:order-1" : ""}>
+        <ul className="space-y-3">
+          {features.map((feature, i) => (
+            <li key={i} className="flex items-start gap-3 rounded-lg border bg-card px-5 py-4">
+              <Check className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+              <span className="font-medium">{feature}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+export default async function DocumentationPage() {
+  const t = await getTranslations("Documentation");
   const tLanding = await getTranslations("Landing");
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header – identisch zur Startseite */}
       <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-sm">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2 text-xl font-semibold tracking-tight">
@@ -66,100 +114,120 @@ export default async function AboutPage() {
           </div>
         </section>
 
-        {/* Story */}
+        {/* Overview */}
         <section className="py-20 sm:py-24">
           <div className="mx-auto max-w-3xl px-4">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
-              {t("storyTitle")}
+              {t("overviewTitle")}
             </h2>
             <div className="mt-8 space-y-6 text-lg leading-relaxed text-muted-foreground">
-              <p>{t("storyP1")}</p>
-              <p>{t("storyP2")}</p>
-              <p>{t("storyP3")}</p>
+              <p>{t("overviewP1")}</p>
+              <p>{t("overviewP2")}</p>
             </div>
           </div>
         </section>
 
-        {/* Origin – contentking.de */}
+        {/* Supported AI Models */}
         <section className="border-y bg-muted/40 py-20 sm:py-24">
-          <div className="mx-auto max-w-3xl px-4">
-            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
-              {t("originTitle")}
-            </h2>
-            <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
-              {t("originDesc")}
-            </p>
-            <div className="mt-6">
-              <a
-                href="https://contentking.de"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm font-medium text-primary transition-colors hover:text-primary/80"
-              >
-                contentking.de
-                <ExternalLink className="h-4 w-4" />
-              </a>
-            </div>
-          </div>
-        </section>
-
-        {/* Values */}
-        <section className="py-20 sm:py-24">
           <div className="mx-auto max-w-4xl px-4">
             <h2 className="text-center text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
-              {t("valuesTitle")}
+              {t("modelsTitle")}
             </h2>
-            <div className="mt-14 grid gap-10 sm:grid-cols-3">
-              <div className="flex flex-col items-center text-center">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
-                  <Wrench className="h-6 w-6 text-primary" />
+            <p className="mx-auto mt-4 max-w-2xl text-center text-muted-foreground">
+              {t("modelsDesc")}
+            </p>
+            <div className="mt-12 grid gap-6 sm:grid-cols-2">
+              {[
+                { key: "modelChatGPT" as const, icon: Bot },
+                { key: "modelGemini" as const, icon: Globe },
+                { key: "modelClaude" as const, icon: MessageSquare },
+                { key: "modelPerplexity" as const, icon: Link2 },
+              ].map(({ key, icon: ModelIcon }) => (
+                <div key={key} className="flex items-start gap-4 rounded-xl border bg-card p-6">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                    <ModelIcon className="h-5 w-5 text-primary" />
+                  </div>
+                  <p className="font-medium">{t(key)}</p>
                 </div>
-                <h3 className="mt-5 text-lg font-semibold">{t("value1Title")}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  {t("value1Desc")}
-                </p>
-              </div>
-              <div className="flex flex-col items-center text-center">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
-                  <BarChart3 className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="mt-5 text-lg font-semibold">{t("value2Title")}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  {t("value2Desc")}
-                </p>
-              </div>
-              <div className="flex flex-col items-center text-center">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
-                  <Eye className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="mt-5 text-lg font-semibold">{t("value3Title")}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  {t("value3Desc")}
-                </p>
-              </div>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* Why visicheck.ai – wiederverwendet von Startseite */}
+        {/* Feature Sections */}
+        <section className="py-20 sm:py-24">
+          <div className="mx-auto max-w-5xl space-y-24 px-4">
+            <FeatureSection
+              icon={Globe}
+              title={t("domainsTitle")}
+              description={t("domainsDesc")}
+              features={[t("domainsFeature1"), t("domainsFeature2"), t("domainsFeature3")]}
+            />
+
+            <FeatureSection
+              icon={MessageSquare}
+              title={t("promptSetsTitle")}
+              description={t("promptSetsDesc")}
+              features={[t("promptSetsFeature1"), t("promptSetsFeature2"), t("promptSetsFeature3")]}
+              reverse
+            />
+
+            <FeatureSection
+              icon={Settings}
+              title={t("configsTitle")}
+              description={t("configsDesc")}
+              features={[t("configsFeature1"), t("configsFeature2"), t("configsFeature3")]}
+            />
+
+            <FeatureSection
+              icon={Play}
+              title={t("runsTitle")}
+              description={t("runsDesc")}
+              features={[t("runsFeature1"), t("runsFeature2"), t("runsFeature3")]}
+              reverse
+            />
+
+            <FeatureSection
+              icon={BarChart3}
+              title={t("competitorTitle")}
+              description={t("competitorDesc")}
+              features={[t("competitorFeature1"), t("competitorFeature2"), t("competitorFeature3")]}
+            />
+
+            <FeatureSection
+              icon={Link2}
+              title={t("sourcesTitle")}
+              description={t("sourcesDesc")}
+              features={[t("sourcesFeature1"), t("sourcesFeature2"), t("sourcesFeature3")]}
+              reverse
+            />
+
+            <FeatureSection
+              icon={Heart}
+              title={t("sentimentTitle")}
+              description={t("sentimentDesc")}
+              features={[t("sentimentFeature1"), t("sentimentFeature2"), t("sentimentFeature3")]}
+            />
+          </div>
+        </section>
+
+        {/* Team & Pricing */}
         <section className="border-y bg-muted/40 py-20 sm:py-24">
-          <div className="mx-auto max-w-3xl px-4 text-center">
-            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
-              {tLanding("whyTitle")}
-            </h2>
-            <div className="mt-10 space-y-4 text-left">
-              {(["whyPoint1", "whyPoint2", "whyPoint3", "whyPoint4"] as const).map(
-                (key) => (
-                  <div
-                    key={key}
-                    className="flex items-center gap-4 rounded-lg border bg-card px-6 py-4"
-                  >
-                    <Check className="h-5 w-5 shrink-0 text-primary" />
-                    <span className="font-medium">{tLanding(key)}</span>
-                  </div>
-                )
-              )}
-            </div>
+          <div className="mx-auto max-w-5xl space-y-24 px-4">
+            <FeatureSection
+              icon={UsersIcon}
+              title={t("teamTitle")}
+              description={t("teamDesc")}
+              features={[t("teamFeature1"), t("teamFeature2"), t("teamFeature3")]}
+              reverse
+            />
+
+            <FeatureSection
+              icon={CreditCard}
+              title={t("pricingTitle")}
+              description={t("pricingDesc")}
+              features={[t("pricingFeature1"), t("pricingFeature2"), t("pricingFeature3")]}
+            />
           </div>
         </section>
 
@@ -189,7 +257,7 @@ export default async function AboutPage() {
         </section>
       </main>
 
-      {/* Footer – identisch zur Startseite */}
+      {/* Footer */}
       <footer className="mt-20 bg-black pt-16 pb-8 text-white">
         <div className="mx-auto max-w-6xl px-4">
           <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">

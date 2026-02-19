@@ -268,6 +268,14 @@ export default async function MagazinPage() {
                     {tLanding("footerMagazine")}
                   </Link>
                 </li>
+                <li>
+                  <Link
+                    href="/dokumentation"
+                    className="text-sm text-white/60 transition-colors hover:text-white"
+                  >
+                    {tLanding("footerDocumentation")}
+                  </Link>
+                </li>
               </ul>
             </div>
 
