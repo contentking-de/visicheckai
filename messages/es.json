@@ -202,7 +202,10 @@
     "analytics": "Analytics",
     "admin": "Admin",
     "magazine": "Revista",
-    "billing": "Facturación"
+    "billing": "Facturación",
+    "sectionData": "Datos",
+    "sectionSettings": "Configuración",
+    "sectionAdmin": "Administración"
   },
   "Dashboard": {
     "title": "Panel de control",

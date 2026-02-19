@@ -43,23 +43,26 @@ export default async function DashboardLayout({
 
   const t = await getTranslations("Nav");
 
-  const navItems = [
-    { href: "/dashboard", label: t("dashboard"), icon: LayoutDashboard },
-    { href: "/dashboard/domains", label: t("domains"), icon: Globe },
-    { href: "/dashboard/prompt-sets", label: t("promptSets"), icon: FileText },
-    { href: "/dashboard/configs", label: t("configs"), icon: Settings },
+  const dataItems = [
     { href: "/dashboard/runs", label: t("runs"), icon: BarChart3 },
     { href: "/dashboard/sentiment", label: t("sentiment"), icon: Heart },
     { href: "/dashboard/analytics", label: t("analytics"), icon: PieChart },
   ];
 
+  const settingsItems = [
+    { href: "/dashboard/domains", label: t("domains"), icon: Globe },
+    { href: "/dashboard/prompt-sets", label: t("promptSets"), icon: FileText },
+    { href: "/dashboard/configs", label: t("configs"), icon: Settings },
+  ];
+
+  const adminItems: typeof dataItems = [];
   if (session.user.role && isSuperAdmin(session.user.role as UserRole)) {
-    navItems.push({
+    adminItems.push({
       href: "/dashboard/admin",
       label: t("admin"),
       icon: ShieldCheck,
     });
-    navItems.push({
+    adminItems.push({
       href: "/dashboard/admin/magazin",
       label: t("magazine"),
       icon: Newspaper,
@@ -75,17 +78,61 @@ export default async function DashboardLayout({
             visicheck.ai
           </Link>
         </div>
-        <nav className="flex-1 space-y-1 overflow-y-auto p-2">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium hover:bg-muted"
-            >
-              <item.icon className="h-4 w-4" />
-              {item.label}
-            </Link>
-          ))}
+        <nav className="flex-1 overflow-y-auto p-2">
+          <Link
+            href="/dashboard"
+            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium hover:bg-muted"
+          >
+            <LayoutDashboard className="h-4 w-4" />
+            {t("dashboard")}
+          </Link>
+          <div className="mt-4 space-y-1">
+            <p className="px-3 pt-2 pb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              {t("sectionData")}
+            </p>
+            {dataItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium hover:bg-muted"
+              >
+                <item.icon className="h-4 w-4" />
+                {item.label}
+              </Link>
+            ))}
+          </div>
+          <div className="mt-6 space-y-1">
+            <p className="px-3 pt-2 pb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              {t("sectionSettings")}
+            </p>
+            {settingsItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium hover:bg-muted"
+              >
+                <item.icon className="h-4 w-4" />
+                {item.label}
+              </Link>
+            ))}
+          </div>
+          {adminItems.length > 0 && (
+            <div className="mt-6 space-y-1">
+              <p className="px-3 pt-2 pb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                {t("sectionAdmin")}
+              </p>
+              {adminItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium hover:bg-muted"
+                >
+                  <item.icon className="h-4 w-4" />
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          )}
         </nav>
         <div className="shrink-0 space-y-2 border-t p-2 px-3 pt-3">
           <SidebarPlanInfo />
