@@ -569,11 +569,13 @@
   "PlanInfo": {
     "trial": "Prueba gratuita",
     "noPlan": "Sin plan",
+    "superAdmin": "Super Administrador",
     "plan_starter": "Starter",
     "plan_team": "Team",
     "plan_professional": "Professional",
     "trialDays": "{days, plural, one {# día} other {# días}} restantes",
-    "prompts": "Prompts"
+    "prompts": "Prompts",
+    "domains": "Dominios"
   },
   "Sentiment": {
     "title": "Análisis de sentimiento",

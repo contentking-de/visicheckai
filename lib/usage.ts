@@ -79,8 +79,9 @@ export async function getPromptUsage(
       periodEnd = sub.currentPeriodEnd;
     } else {
       limit = 0;
-      periodStart = new Date();
-      periodEnd = new Date();
+      const now = new Date();
+      periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
     }
   } else {
     limit = TRIAL_PROMPTS_PER_MONTH;

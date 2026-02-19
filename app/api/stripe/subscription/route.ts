@@ -3,8 +3,9 @@ import { auth } from "@/lib/auth";
 import { getAccessStatus } from "@/lib/access";
 import { getPromptUsage } from "@/lib/usage";
 import { db } from "@/lib/db";
-import { subscriptions } from "@/lib/schema";
-import { eq, desc } from "drizzle-orm";
+import { subscriptions, domains } from "@/lib/schema";
+import { eq, desc, count } from "drizzle-orm";
+import { teamFilter } from "@/lib/rbac";
 
 export async function GET() {
   const session = await auth();
@@ -25,13 +26,21 @@ export async function GET() {
     .orderBy(desc(subscriptions.createdAt))
     .limit(1);
 
+  const isSuperAdmin = session.user.role === "super_admin";
+
   const usage = await getPromptUsage(
     session.user.id,
     session.user.teamId,
-    access.isTrial
+    isSuperAdmin ? false : access.isTrial
   );
 
+  const [domainCount] = await db
+    .select({ value: count() })
+    .from(domains)
+    .where(teamFilter("domains", session));
+
   return NextResponse.json({
+    role: session.user.role ?? null,
     subscription: sub
       ? {
           plan: sub.plan,
@@ -53,5 +62,6 @@ export async function GET() {
       periodStart: usage.periodStart,
       periodEnd: usage.periodEnd,
     },
+    domainCount: domainCount?.value ?? 0,
   });
 }

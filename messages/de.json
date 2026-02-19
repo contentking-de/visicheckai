@@ -569,11 +569,13 @@
   "PlanInfo": {
     "trial": "Testphase",
     "noPlan": "Kein Plan",
+    "superAdmin": "Super Administrator",
     "plan_starter": "Starter",
     "plan_team": "Team",
     "plan_professional": "Professional",
     "trialDays": "Noch {days, plural, one {# Tag} other {# Tage}}",
-    "prompts": "Prompts"
+    "prompts": "Prompts",
+    "domains": "Domains"
   },
   "Sentiment": {
     "title": "Sentiment-Analyse",
