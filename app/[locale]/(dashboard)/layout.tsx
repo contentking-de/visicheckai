@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   Newspaper,
   Heart,
+  PieChart,
 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { isSuperAdmin } from "@/lib/rbac";
@@ -49,6 +50,7 @@ export default async function DashboardLayout({
     { href: "/dashboard/configs", label: t("configs"), icon: Settings },
     { href: "/dashboard/runs", label: t("runs"), icon: BarChart3 },
     { href: "/dashboard/sentiment", label: t("sentiment"), icon: Heart },
+    { href: "/dashboard/analytics", label: t("analytics"), icon: PieChart },
   ];
 
   if (session.user.role && isSuperAdmin(session.user.role as UserRole)) {
