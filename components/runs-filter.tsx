@@ -12,11 +12,16 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
+import { FUNNEL_PHASES } from "@/lib/prompt-categories";
 
 interface FilterOption {
   id: string;
   name: string;
+}
+
+interface PromptSetFilterOption extends FilterOption {
+  intentCategories: string[];
 }
 
 export function RunsFilter({
@@ -24,16 +29,31 @@ export function RunsFilter({
   promptSets,
 }: {
   domains: FilterOption[];
-  promptSets: FilterOption[];
+  promptSets: PromptSetFilterOption[];
 }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const t = useTranslations("Runs");
+  const tg = useTranslations("GeneratePrompts");
 
   const currentDomain = searchParams.get("domain") ?? "";
   const currentPromptSet = searchParams.get("promptSet") ?? "";
-  const hasFilters = currentDomain || currentPromptSet;
+  const currentCategory = searchParams.get("category") ?? "";
+  const hasFilters = currentDomain || currentPromptSet || currentCategory;
+
+  const filteredPromptSets = useMemo(() => {
+    if (!currentCategory) return promptSets;
+    return promptSets.filter((ps) => ps.intentCategories.includes(currentCategory));
+  }, [promptSets, currentCategory]);
+
+  const availablePhases = useMemo(() => {
+    const all = new Set<string>();
+    for (const ps of promptSets) {
+      for (const cat of ps.intentCategories) all.add(cat);
+    }
+    return FUNNEL_PHASES.filter((phase) => all.has(phase) || all.size === 0);
+  }, [promptSets]);
 
   const updateFilter = useCallback(
     (key: string, value: string) => {
@@ -42,6 +62,9 @@ export function RunsFilter({
         params.set(key, value);
       } else {
         params.delete(key);
+      }
+      if (key === "category") {
+        params.delete("promptSet");
       }
       const qs = params.toString();
       router.push(qs ? `${pathname}?${qs}` : pathname);
@@ -72,6 +95,22 @@ export function RunsFilter({
       </Select>
 
       <Select
+        value={currentCategory}
+        onValueChange={(v) => updateFilter("category", v)}
+      >
+        <SelectTrigger className="w-[200px]">
+          <SelectValue placeholder={t("filterByCategory")} />
+        </SelectTrigger>
+        <SelectContent>
+          {availablePhases.map((phase) => (
+            <SelectItem key={phase} value={phase}>
+              {tg(`phase_${phase}` as Parameters<typeof tg>[0])}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      <Select
         value={currentPromptSet}
         onValueChange={(v) => updateFilter("promptSet", v)}
       >
@@ -79,7 +118,7 @@ export function RunsFilter({
           <SelectValue placeholder={t("filterByPromptSet")} />
         </SelectTrigger>
         <SelectContent>
-          {promptSets.map((ps) => (
+          {filteredPromptSets.map((ps) => (
             <SelectItem key={ps.id} value={ps.id}>
               {ps.name}
             </SelectItem>

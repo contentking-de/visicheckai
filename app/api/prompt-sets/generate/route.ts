@@ -2,6 +2,10 @@ import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
 import { requireAccess } from "@/lib/access";
+import {
+  ALL_SUBCATEGORY_IDS,
+  buildCategoryPromptContext,
+} from "@/lib/prompt-categories";
 
 export async function POST(request: Request) {
   const session = await auth();
@@ -13,6 +17,8 @@ export async function POST(request: Request) {
 
   const body = await request.json().catch(() => ({}));
   const keyword = body.keyword as string | undefined;
+  const categories = body.categories as string[] | undefined;
+  const locale = (body.locale as string | undefined) ?? "en";
 
   if (!keyword || typeof keyword !== "string" || !keyword.trim()) {
     return NextResponse.json(
@@ -21,23 +27,54 @@ export async function POST(request: Request) {
     );
   }
 
+  const LOCALE_LABELS: Record<string, string> = {
+    de: "German",
+    en: "English",
+    fr: "French",
+    es: "Spanish",
+  };
+  const language = LOCALE_LABELS[locale] ?? "English";
+
+  const validCategories = (categories ?? []).filter((c) =>
+    ALL_SUBCATEGORY_IDS.includes(c)
+  );
+
   const client = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
   });
 
-  // Step 1: Generate FAQs for the keyword
+  const hasCategoryContext = validCategories.length > 0;
+  const categoryBlock = hasCategoryContext
+    ? buildCategoryPromptContext(validCategories)
+    : "";
+
+  const languageInstruction = `IMPORTANT: All generated questions MUST be written in ${language}.`;
+
+  const systemPromptFaq = hasCategoryContext
+    ? `You are an SEO and AI search intent expert. Generate frequently asked questions about a given topic, specifically aligned with the user intent categories described below. The questions should be realistic queries that users would actually ask AI chatbots like ChatGPT, Claude, or Perplexity. Make sure each question clearly reflects the intent of its category. ${languageInstruction} Return ONLY valid JSON, no markdown formatting.`
+    : `You are an SEO and AI search intent expert. Generate the most frequently asked questions about a given topic or keyword. These should be realistic questions that users would actually ask AI chatbots like ChatGPT, Claude, or Perplexity. ${languageInstruction} Return ONLY valid JSON, no markdown formatting.`;
+
+  const userPromptFaq = hasCategoryContext
+    ? `Generate 8 frequently asked questions in ${language} about: "${keyword.trim()}"
+
+Focus on these user intent categories:
+${categoryBlock}
+
+Distribute the questions across the selected categories. Each question should clearly match the intent of one of the categories above.
+All questions must be in ${language}.
+
+Return as JSON: { "questions": ["question1", "question2", ...] }`
+    : `Generate 8 frequently asked questions in ${language} about: "${keyword.trim()}"
+
+All questions must be in ${language}.
+
+Return as JSON: { "questions": ["question1", "question2", ...] }`;
+
   const faqResponse = await client.chat.completions.create({
     model: "gpt-4o-mini",
     messages: [
-      {
-        role: "system",
-        content:
-          "You are an SEO and AI search intent expert. Generate the most frequently asked questions about a given topic or keyword. These should be realistic questions that users would actually ask AI chatbots like ChatGPT, Claude, or Perplexity. Return ONLY valid JSON, no markdown formatting.",
-      },
-      {
-        role: "user",
-        content: `Generate 8 frequently asked questions about: "${keyword.trim()}"\n\nReturn as JSON: { "questions": ["question1", "question2", ...] }`,
-      },
+      { role: "system", content: systemPromptFaq },
+      { role: "user", content: userPromptFaq },
     ],
     temperature: 0.7,
     max_tokens: 1024,
@@ -65,18 +102,16 @@ export async function POST(request: Request) {
     );
   }
 
-  // Step 2: Generate query fanout for each FAQ
   const fanoutResponse = await client.chat.completions.create({
     model: "gpt-4o-mini",
     messages: [
       {
         role: "system",
-        content:
-          "You are an AI search behavior expert. For each given question, generate query fanout — the related queries, reformulations, and follow-up questions that AI models internally consider when processing the original query. These represent the different angles and sub-queries a search or AI system would explore to provide a comprehensive answer. Return ONLY valid JSON, no markdown formatting.",
+        content: `You are an AI search behavior expert. For each given question, generate query fanout — the related queries, reformulations, and follow-up questions that AI models internally consider when processing the original query. These represent the different angles and sub-queries a search or AI system would explore to provide a comprehensive answer. ${languageInstruction} Return ONLY valid JSON, no markdown formatting.`,
       },
       {
         role: "user",
-        content: `For each of these questions, generate 3–5 query fanout variations:\n\n${faqs.map((q, i) => `${i + 1}. ${q}`).join("\n")}\n\nReturn as JSON: { "results": [{ "question": "original question", "fanout": ["variation1", "variation2", ...] }] }`,
+        content: `For each of these questions, generate 3–5 query fanout variations in ${language}:\n\n${faqs.map((q, i) => `${i + 1}. ${q}`).join("\n")}\n\nAll fanout variations must be in ${language}.\n\nReturn as JSON: { "results": [{ "question": "original question", "fanout": ["variation1", "variation2", ...] }] }`,
       },
     ],
     temperature: 0.7,

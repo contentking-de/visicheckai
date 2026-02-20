@@ -173,6 +173,7 @@ export const promptSets = pgTable(
       .references(() => teams.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
     prompts: jsonb("prompts").$type<string[]>().notNull(),
+    intentCategories: jsonb("intent_categories").$type<string[]>(),
     createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
   },
   (table) => [

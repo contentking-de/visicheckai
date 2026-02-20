@@ -48,9 +48,9 @@ export async function PATCH(
 
   const { id } = await params;
   const body = await request.json();
-  const { name, prompts } = body;
+  const { name, prompts, intentCategories } = body;
 
-  const updates: { name?: string; prompts?: string[] } = {};
+  const updates: { name?: string; prompts?: string[]; intentCategories?: string[] | null } = {};
   if (name !== undefined) updates.name = String(name);
   if (Array.isArray(prompts)) {
     updates.prompts = prompts.filter((p: unknown) => typeof p === "string");
@@ -60,6 +60,12 @@ export async function PATCH(
         { status: 400 }
       );
     }
+  }
+  if (intentCategories !== undefined) {
+    const valid = Array.isArray(intentCategories)
+      ? intentCategories.filter((c: unknown) => typeof c === "string")
+      : [];
+    updates.intentCategories = valid.length > 0 ? valid : null;
   }
 
   const [promptSet] = await db

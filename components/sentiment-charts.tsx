@@ -101,9 +101,11 @@ function ScoreDisplay({ score, label }: { score: number; label: string }) {
 export function SentimentCharts({
   domainId,
   runId,
+  category,
 }: {
   domainId?: string;
   runId?: string;
+  category?: string;
 }) {
   const t = useTranslations("Sentiment");
   const [data, setData] = useState<SentimentData | null>(null);
@@ -115,13 +117,14 @@ export function SentimentCharts({
     const params = new URLSearchParams();
     if (domainId) params.set("domain", domainId);
     if (runId) params.set("runId", runId);
+    if (category) params.set("category", category);
     const qs = params.toString();
     fetch(`/api/sentiment${qs ? `?${qs}` : ""}`)
       .then((r) => r.json())
       .then(setData)
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [domainId, runId]);
+  }, [domainId, runId, category]);
 
   if (loading) {
     return (

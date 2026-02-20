@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { useCallback, useMemo } from "react";
+import { FUNNEL_PHASES } from "@/lib/prompt-categories";
 
 interface DomainOption {
   id: string;
@@ -24,6 +25,7 @@ interface RunOption {
   domainId: string;
   domainName: string;
   startedAt: string;
+  intentCategories: string[];
 }
 
 export function SentimentFilter({
@@ -37,15 +39,30 @@ export function SentimentFilter({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const t = useTranslations("Sentiment");
+  const tg = useTranslations("GeneratePrompts");
 
   const currentDomain = searchParams.get("domain") ?? "";
   const currentRun = searchParams.get("runId") ?? "";
-  const hasFilters = currentDomain || currentRun;
+  const currentCategory = searchParams.get("category") ?? "";
+  const hasFilters = currentDomain || currentRun || currentCategory;
 
-  const filteredRuns = useMemo(
-    () => (currentDomain ? runs.filter((r) => r.domainId === currentDomain) : runs),
-    [runs, currentDomain]
-  );
+  const filteredRuns = useMemo(() => {
+    let r = runs;
+    if (currentDomain) r = r.filter((run) => run.domainId === currentDomain);
+    if (currentCategory) r = r.filter((run) => run.intentCategories.includes(currentCategory));
+    return r;
+  }, [runs, currentDomain, currentCategory]);
+
+  const availablePhases = useMemo(() => {
+    const all = new Set<string>();
+    const relevant = currentDomain
+      ? runs.filter((r) => r.domainId === currentDomain)
+      : runs;
+    for (const r of relevant) {
+      for (const cat of r.intentCategories) all.add(cat);
+    }
+    return FUNNEL_PHASES.filter((phase) => all.has(phase) || all.size === 0);
+  }, [runs, currentDomain]);
 
   const updateFilter = useCallback(
     (key: string, value: string) => {
@@ -56,6 +73,9 @@ export function SentimentFilter({
         params.delete(key);
       }
       if (key === "domain") {
+        params.delete("runId");
+      }
+      if (key === "category") {
         params.delete("runId");
       }
       const qs = params.toString();
@@ -92,6 +112,22 @@ export function SentimentFilter({
           {domains.map((d) => (
             <SelectItem key={d.id} value={d.id}>
               {d.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      <Select
+        value={currentCategory}
+        onValueChange={(v) => updateFilter("category", v)}
+      >
+        <SelectTrigger className="w-[200px]">
+          <SelectValue placeholder={t("filterByCategory")} />
+        </SelectTrigger>
+        <SelectContent>
+          {availablePhases.map((phase) => (
+            <SelectItem key={phase} value={phase}>
+              {tg(`phase_${phase}` as Parameters<typeof tg>[0])}
             </SelectItem>
           ))}
         </SelectContent>

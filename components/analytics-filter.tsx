@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { useCallback, useMemo } from "react";
+import { FUNNEL_PHASES } from "@/lib/prompt-categories";
 
 interface DomainOption {
   id: string;
@@ -23,6 +24,7 @@ interface PromptSetOption {
   id: string;
   name: string;
   domainIds: string[];
+  intentCategories: string[];
 }
 
 export function AnalyticsFilter({
@@ -36,18 +38,34 @@ export function AnalyticsFilter({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const t = useTranslations("Analytics");
+  const tg = useTranslations("GeneratePrompts");
 
   const currentDomain = searchParams.get("domain") ?? "";
   const currentPromptSet = searchParams.get("promptSet") ?? "";
-  const hasFilters = currentDomain || currentPromptSet;
+  const currentCategory = searchParams.get("category") ?? "";
+  const hasFilters = currentDomain || currentPromptSet || currentCategory;
 
-  const filteredPromptSets = useMemo(
-    () =>
-      currentDomain
-        ? promptSets.filter((ps) => ps.domainIds.includes(currentDomain))
-        : promptSets,
-    [promptSets, currentDomain]
-  );
+  const filteredPromptSets = useMemo(() => {
+    let sets = promptSets;
+    if (currentDomain) {
+      sets = sets.filter((ps) => ps.domainIds.includes(currentDomain));
+    }
+    if (currentCategory) {
+      sets = sets.filter((ps) => ps.intentCategories.includes(currentCategory));
+    }
+    return sets;
+  }, [promptSets, currentDomain, currentCategory]);
+
+  const availablePhases = useMemo(() => {
+    const all = new Set<string>();
+    const relevant = currentDomain
+      ? promptSets.filter((ps) => ps.domainIds.includes(currentDomain))
+      : promptSets;
+    for (const ps of relevant) {
+      for (const cat of ps.intentCategories) all.add(cat);
+    }
+    return FUNNEL_PHASES.filter((phase) => all.has(phase) || all.size === 0);
+  }, [promptSets, currentDomain]);
 
   const updateFilter = useCallback(
     (key: string, value: string) => {
@@ -58,6 +76,9 @@ export function AnalyticsFilter({
         params.delete(key);
       }
       if (key === "domain") {
+        params.delete("promptSet");
+      }
+      if (key === "category") {
         params.delete("promptSet");
       }
       const qs = params.toString();
@@ -83,6 +104,22 @@ export function AnalyticsFilter({
           {domains.map((d) => (
             <SelectItem key={d.id} value={d.id}>
               {d.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      <Select
+        value={currentCategory}
+        onValueChange={(v) => updateFilter("category", v)}
+      >
+        <SelectTrigger className="w-[200px]">
+          <SelectValue placeholder={t("filterByCategory")} />
+        </SelectTrigger>
+        <SelectContent>
+          {availablePhases.map((phase) => (
+            <SelectItem key={phase} value={phase}>
+              {tg(`phase_${phase}` as Parameters<typeof tg>[0])}
             </SelectItem>
           ))}
         </SelectContent>

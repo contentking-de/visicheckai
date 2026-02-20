@@ -6,11 +6,22 @@ import { teamFilter } from "@/lib/rbac";
 import { getTranslations } from "next-intl/server";
 import { AnalyticsCharts } from "@/components/analytics-charts";
 import { AnalyticsFilter } from "@/components/analytics-filter";
+import { FUNNEL_PHASES, PHASE_SUBCATEGORIES } from "@/lib/prompt-categories";
+
+function derivePhasesFromSubs(categories: string[]): string[] {
+  const phases = new Set<string>();
+  for (const phase of FUNNEL_PHASES) {
+    if (PHASE_SUBCATEGORIES[phase].some((s) => categories.includes(s))) {
+      phases.add(phase);
+    }
+  }
+  return Array.from(phases);
+}
 
 export default async function AnalyticsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ domain?: string; promptSet?: string }>;
+  searchParams: Promise<{ domain?: string; promptSet?: string; category?: string }>;
 }) {
   const [session, t, params] = await Promise.all([
     auth(),
@@ -21,6 +32,7 @@ export default async function AnalyticsPage({
 
   const domainFilter = params.domain ?? "";
   const promptSetFilter = params.promptSet ?? "";
+  const categoryFilter = params.category ?? "";
 
   const [userDomains, configs] = await Promise.all([
     db
@@ -33,6 +45,7 @@ export default async function AnalyticsPage({
         promptSetId: trackingConfigs.promptSetId,
         promptSetName: promptSets.name,
         domainId: trackingConfigs.domainId,
+        intentCategories: promptSets.intentCategories,
       })
       .from(trackingConfigs)
       .innerJoin(promptSets, eq(trackingConfigs.promptSetId, promptSets.id))
@@ -41,9 +54,10 @@ export default async function AnalyticsPage({
 
   const promptSetMap = new Map<
     string,
-    { id: string; name: string; domainIds: string[] }
+    { id: string; name: string; domainIds: string[]; intentCategories: string[] }
   >();
   for (const c of configs) {
+    const phases = derivePhasesFromSubs(c.intentCategories ?? []);
     const existing = promptSetMap.get(c.promptSetId);
     if (existing) {
       if (!existing.domainIds.includes(c.domainId)) {
@@ -54,6 +68,7 @@ export default async function AnalyticsPage({
         id: c.promptSetId,
         name: c.promptSetName,
         domainIds: [c.domainId],
+        intentCategories: phases,
       });
     }
   }
@@ -68,7 +83,11 @@ export default async function AnalyticsPage({
 
       <AnalyticsFilter domains={userDomains} promptSets={promptSetOptions} />
 
-      <AnalyticsCharts domainId={domainFilter} promptSetId={promptSetFilter} />
+      <AnalyticsCharts
+        domainId={domainFilter}
+        promptSetId={promptSetFilter}
+        category={categoryFilter}
+      />
     </div>
   );
 }

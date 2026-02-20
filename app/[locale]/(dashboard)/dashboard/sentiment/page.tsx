@@ -1,16 +1,27 @@
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { domains, trackingRuns, trackingConfigs } from "@/lib/schema";
+import { domains, trackingRuns, trackingConfigs, promptSets } from "@/lib/schema";
 import { eq, desc } from "drizzle-orm";
 import { teamFilter } from "@/lib/rbac";
 import { getTranslations, getLocale } from "next-intl/server";
 import { SentimentCharts } from "@/components/sentiment-charts";
 import { SentimentFilter } from "@/components/sentiment-filter";
+import { FUNNEL_PHASES, PHASE_SUBCATEGORIES } from "@/lib/prompt-categories";
+
+function derivePhasesFromSubs(categories: string[]): string[] {
+  const phases = new Set<string>();
+  for (const phase of FUNNEL_PHASES) {
+    if (PHASE_SUBCATEGORIES[phase].some((s) => categories.includes(s))) {
+      phases.add(phase);
+    }
+  }
+  return Array.from(phases);
+}
 
 export default async function SentimentPage({
   searchParams,
 }: {
-  searchParams: Promise<{ domain?: string; runId?: string }>;
+  searchParams: Promise<{ domain?: string; runId?: string; category?: string }>;
 }) {
   const [session, t, locale, params] = await Promise.all([
     auth(),
@@ -22,6 +33,7 @@ export default async function SentimentPage({
 
   const domainFilter = params.domain ?? "";
   const runIdFilter = params.runId ?? "";
+  const categoryFilter = params.category ?? "";
 
   const [userDomains, completedRuns] = await Promise.all([
     db
@@ -35,10 +47,12 @@ export default async function SentimentPage({
         domainId: domains.id,
         domainName: domains.name,
         startedAt: trackingRuns.startedAt,
+        intentCategories: promptSets.intentCategories,
       })
       .from(trackingRuns)
       .innerJoin(trackingConfigs, eq(trackingRuns.configId, trackingConfigs.id))
       .innerJoin(domains, eq(trackingConfigs.domainId, domains.id))
+      .innerJoin(promptSets, eq(trackingConfigs.promptSetId, promptSets.id))
       .where(teamFilter("trackingConfigs", session))
       .orderBy(desc(trackingRuns.startedAt))
       .limit(100),
@@ -49,6 +63,7 @@ export default async function SentimentPage({
     domainId: r.domainId,
     domainName: r.domainName,
     startedAt: r.startedAt?.toISOString() ?? "",
+    intentCategories: derivePhasesFromSubs(r.intentCategories ?? []),
   }));
 
   return (
@@ -60,7 +75,11 @@ export default async function SentimentPage({
 
       <SentimentFilter domains={userDomains} runs={runOptions} />
 
-      <SentimentCharts domainId={domainFilter} runId={runIdFilter} />
+      <SentimentCharts
+        domainId={domainFilter}
+        runId={runIdFilter}
+        category={categoryFilter}
+      />
     </div>
   );
 }

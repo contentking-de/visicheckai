@@ -29,7 +29,7 @@ export async function POST(request: Request) {
   if (denied) return denied;
 
   const body = await request.json();
-  const { name, prompts } = body;
+  const { name, prompts, intentCategories } = body;
 
   if (!name || !Array.isArray(prompts)) {
     return NextResponse.json(
@@ -46,6 +46,10 @@ export async function POST(request: Request) {
     );
   }
 
+  const validCategories = Array.isArray(intentCategories)
+    ? intentCategories.filter((c: unknown) => typeof c === "string")
+    : null;
+
   const [promptSet] = await db
     .insert(promptSets)
     .values({
@@ -53,6 +57,7 @@ export async function POST(request: Request) {
       teamId: session.user.teamId ?? null,
       name: String(name),
       prompts: validPrompts,
+      intentCategories: validCategories && validCategories.length > 0 ? validCategories : null,
     })
     .returning();
 

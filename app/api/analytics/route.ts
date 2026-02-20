@@ -10,6 +10,7 @@ import {
   promptSets,
 } from "@/lib/schema";
 import { eq, and, type SQL } from "drizzle-orm";
+import { PHASE_SUBCATEGORIES, type FunnelPhase } from "@/lib/prompt-categories";
 
 export async function GET(request: Request) {
   const session = await auth();
@@ -24,6 +25,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const domainId = searchParams.get("domain") ?? "";
   const promptSetId = searchParams.get("promptSet") ?? "";
+  const categoryFilter = searchParams.get("category") ?? "";
 
   if (!domainId) {
     return NextResponse.json({ error: "domain is required" }, { status: 400 });
@@ -40,7 +42,7 @@ export async function GET(request: Request) {
 
   if (promptSetId) conditions.push(eq(promptSets.id, promptSetId));
 
-  const allResults = await db
+  const allResultsRaw = await db
     .select({
       provider: trackingResults.provider,
       prompt: trackingResults.prompt,
@@ -51,6 +53,7 @@ export async function GET(request: Request) {
       domainName: domains.name,
       domainUrl: domains.domainUrl,
       promptSetName: promptSets.name,
+      intentCategories: promptSets.intentCategories,
     })
     .from(trackingResults)
     .innerJoin(trackingRuns, eq(trackingResults.runId, trackingRuns.id))
@@ -58,6 +61,14 @@ export async function GET(request: Request) {
     .innerJoin(domains, eq(trackingConfigs.domainId, domains.id))
     .innerJoin(promptSets, eq(trackingConfigs.promptSetId, promptSets.id))
     .where(and(...conditions));
+
+  const allResults = categoryFilter
+    ? allResultsRaw.filter((r) => {
+        const cats = r.intentCategories ?? [];
+        const phaseSubs = PHASE_SUBCATEGORIES[categoryFilter as FunnelPhase] ?? [];
+        return phaseSubs.some((sub) => cats.includes(sub));
+      })
+    : allResultsRaw;
 
   if (allResults.length === 0) {
     return NextResponse.json({

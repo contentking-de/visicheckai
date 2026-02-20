@@ -10,6 +10,7 @@ import {
   promptSets,
 } from "@/lib/schema";
 import { eq, and, sql, type SQL } from "drizzle-orm";
+import { PHASE_SUBCATEGORIES, type FunnelPhase } from "@/lib/prompt-categories";
 
 export async function GET(request: Request) {
   const session = await auth();
@@ -24,6 +25,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const domainId = searchParams.get("domain") ?? "";
   const promptSetId = searchParams.get("promptSet") ?? "";
+  const categoryFilter = searchParams.get("category") ?? "";
 
   if (!domainId) {
     return NextResponse.json({ error: "domain is required" }, { status: 400 });
@@ -39,6 +41,16 @@ export async function GET(request: Request) {
   ];
 
   if (promptSetId) conditions.push(eq(promptSets.id, promptSetId));
+
+  if (categoryFilter) {
+    const phaseSubs = PHASE_SUBCATEGORIES[categoryFilter as FunnelPhase];
+    if (phaseSubs?.length) {
+      const checks = phaseSubs.map(
+        (sub) => sql`${promptSets.intentCategories} @> ${JSON.stringify([sub])}::jsonb`
+      );
+      conditions.push(sql`(${sql.join(checks, sql` OR `)})`);
+    }
+  }
 
   const rows = await db
     .select({

@@ -7,23 +7,34 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, X, Sparkles } from "lucide-react";
 import { GeneratePromptsSheet } from "@/components/generate-prompts-sheet";
+import {
+  FUNNEL_PHASES,
+  PHASE_SUBCATEGORIES,
+  getPhaseForSubcategory,
+} from "@/lib/prompt-categories";
 
 type PromptSet = {
   id: string;
   name: string;
   prompts: string[];
+  intentCategories?: string[] | null;
 };
 
 export function PromptSetForm({ promptSet }: { promptSet?: PromptSet }) {
   const router = useRouter();
   const t = useTranslations("PromptSetForm");
+  const tg = useTranslations("GeneratePrompts");
   const tc = useTranslations("Common");
   const [name, setName] = useState(promptSet?.name ?? "");
   const [prompts, setPrompts] = useState<string[]>(
     promptSet?.prompts?.length ? promptSet.prompts : [""]
+  );
+  const [intentCategories, setIntentCategories] = useState<string[]>(
+    promptSet?.intentCategories ?? []
   );
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,9 +46,15 @@ export function PromptSetForm({ promptSet }: { promptSet?: PromptSet }) {
   const updatePrompt = (i: number, v: string) =>
     setPrompts((p) => p.map((x, j) => (j === i ? v : x)));
 
-  const handleImportGenerated = (generated: string[]) => {
+  const handleImportGenerated = (generated: string[], categories: string[]) => {
     const existing = prompts.filter((p) => p.trim());
     setPrompts([...existing, ...generated]);
+    const merged = new Set([...intentCategories, ...categories]);
+    setIntentCategories(Array.from(merged));
+  };
+
+  const removeCategory = (catId: string) => {
+    setIntentCategories((prev) => prev.filter((c) => c !== catId));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -57,7 +74,11 @@ export function PromptSetForm({ promptSet }: { promptSet?: PromptSet }) {
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, prompts: validPrompts }),
+        body: JSON.stringify({
+          name,
+          prompts: validPrompts,
+          intentCategories: intentCategories.length > 0 ? intentCategories : null,
+        }),
       });
       if (!res.ok) {
         const data = await res.json();
@@ -72,6 +93,10 @@ export function PromptSetForm({ promptSet }: { promptSet?: PromptSet }) {
       setIsLoading(false);
     }
   };
+
+  const categoryPhases = new Set(
+    intentCategories.map((c) => getPhaseForSubcategory(c)).filter(Boolean)
+  );
 
   return (
     <Card>
@@ -92,6 +117,39 @@ export function PromptSetForm({ promptSet }: { promptSet?: PromptSet }) {
               required
             />
           </div>
+
+          {intentCategories.length > 0 && (
+            <div className="space-y-2">
+              <Label>{t("intentCategoriesLabel")}</Label>
+              <div className="flex flex-wrap gap-1.5">
+                {FUNNEL_PHASES.filter((p) => categoryPhases.has(p)).map(
+                  (phase) => {
+                    const phaseSubs = PHASE_SUBCATEGORIES[phase].filter((s) =>
+                      intentCategories.includes(s)
+                    );
+                    if (phaseSubs.length === 0) return null;
+                    return phaseSubs.map((subId) => (
+                      <Badge
+                        key={subId}
+                        variant="secondary"
+                        className="gap-1 pr-1"
+                      >
+                        {tg(`sub_${subId}` as Parameters<typeof tg>[0])}
+                        <button
+                          type="button"
+                          onClick={() => removeCategory(subId)}
+                          className="ml-0.5 rounded-full p-0.5 hover:bg-muted"
+                        >
+                          <X className="h-2.5 w-2.5" />
+                        </button>
+                      </Badge>
+                    ));
+                  }
+                )}
+              </div>
+            </div>
+          )}
+
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label>{t("promptsLabel")}</Label>

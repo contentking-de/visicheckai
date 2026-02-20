@@ -152,9 +152,11 @@ function ExpandableOutput({ item }: { item: OutputItem }) {
 export function AnalyticsCharts({
   domainId,
   promptSetId,
+  category,
 }: {
   domainId: string;
   promptSetId?: string;
+  category?: string;
 }) {
   const t = useTranslations("Analytics");
   const [data, setData] = useState<AnalyticsData | null>(null);
@@ -169,12 +171,13 @@ export function AnalyticsCharts({
     const params = new URLSearchParams();
     params.set("domain", domainId);
     if (promptSetId) params.set("promptSet", promptSetId);
+    if (category) params.set("category", category);
     fetch(`/api/analytics?${params.toString()}`)
       .then((r) => r.json())
       .then(setData)
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [domainId, promptSetId]);
+  }, [domainId, promptSetId, category]);
 
   if (loading) {
     return (

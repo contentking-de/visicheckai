@@ -10,6 +10,7 @@ import {
 import { eq, desc, and, type SQL } from "drizzle-orm";
 import { teamFilter } from "@/lib/rbac";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -21,11 +22,22 @@ import {
 import { Play, Eye } from "lucide-react";
 import { RunsFilter } from "@/components/runs-filter";
 import { getTranslations, getLocale } from "next-intl/server";
+import { FUNNEL_PHASES, PHASE_SUBCATEGORIES, type FunnelPhase } from "@/lib/prompt-categories";
+
+function derivePhasesFromSubs(categories: string[]): string[] {
+  const phases: string[] = [];
+  for (const phase of FUNNEL_PHASES) {
+    if (PHASE_SUBCATEGORIES[phase].some((s) => categories.includes(s))) {
+      phases.push(phase);
+    }
+  }
+  return phases;
+}
 
 export default async function RunsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ domain?: string; promptSet?: string }>;
+  searchParams: Promise<{ domain?: string; promptSet?: string; category?: string }>;
 }) {
   const session = await auth();
   if (!session?.user?.id) return null;
@@ -33,12 +45,13 @@ export default async function RunsPage({
   const t = await getTranslations("Runs");
   const tc = await getTranslations("Common");
   const tConfigs = await getTranslations("Configs");
+  const tg = await getTranslations("GeneratePrompts");
   const locale = await getLocale();
   const params = await searchParams;
   const domainFilter = params.domain ?? "";
   const promptSetFilter = params.promptSet ?? "";
+  const categoryFilter = params.category ?? "";
 
-  // Build where conditions
   const conditions: SQL[] = [teamFilter("trackingConfigs", session)];
   if (domainFilter) {
     conditions.push(eq(domains.id, domainFilter));
@@ -62,18 +75,35 @@ export default async function RunsPage({
     .orderBy(desc(trackingRuns.startedAt))
     .limit(50);
 
-  // Fetch available filter options (only domains/promptSets the user actually has runs for)
+  const filteredRuns = categoryFilter
+    ? runsWithConfig.filter(({ promptSet }) => {
+        const cats = promptSet.intentCategories ?? [];
+        const phaseSubs = PHASE_SUBCATEGORIES[categoryFilter as FunnelPhase] ?? [];
+        return phaseSubs.some((sub) => cats.includes(sub));
+      })
+    : runsWithConfig;
+
   const userDomains = await db
     .selectDistinct({ id: domains.id, name: domains.name })
     .from(domains)
     .where(teamFilter("domains", session))
     .orderBy(domains.name);
 
-  const userPromptSets = await db
-    .selectDistinct({ id: promptSets.id, name: promptSets.name })
+  const userPromptSetsRaw = await db
+    .selectDistinct({
+      id: promptSets.id,
+      name: promptSets.name,
+      intentCategories: promptSets.intentCategories,
+    })
     .from(promptSets)
     .where(teamFilter("promptSets", session))
     .orderBy(promptSets.name);
+
+  const userPromptSets = userPromptSetsRaw.map((ps) => ({
+    id: ps.id,
+    name: ps.name,
+    intentCategories: derivePhasesFromSubs(ps.intentCategories ?? []),
+  }));
 
   return (
     <div className="space-y-8">
@@ -103,6 +133,7 @@ export default async function RunsPage({
             <TableRow>
               <TableHead>Domain</TableHead>
               <TableHead>Prompt-Set</TableHead>
+              <TableHead>{t("intentCategory")}</TableHead>
               <TableHead>{tConfigs("country")}</TableHead>
               <TableHead>{t("status")}</TableHead>
               <TableHead>{t("startedAt")}</TableHead>
@@ -110,10 +141,10 @@ export default async function RunsPage({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {runsWithConfig.length === 0 ? (
+            {filteredRuns.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
-                  {domainFilter || promptSetFilter ? (
+                <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                  {domainFilter || promptSetFilter || categoryFilter ? (
                     t("noFilterResults")
                   ) : (
                     <>
@@ -130,41 +161,57 @@ export default async function RunsPage({
                 </TableCell>
               </TableRow>
             ) : (
-              runsWithConfig.map(({ run, config, domain, promptSet }) => (
-                <TableRow key={run.id}>
-                  <TableCell className="font-medium">{domain.name}</TableCell>
-                  <TableCell>{promptSet.name}</TableCell>
-                  <TableCell>
-                    {config.country ? tConfigs(`country${config.country}`) : tConfigs("countryDE")}
-                  </TableCell>
-                  <TableCell>
-                    <span
-                      className={
-                        run.status === "completed"
-                          ? "text-green-600"
-                          : run.status === "failed"
-                            ? "text-destructive"
-                            : "text-muted-foreground"
-                      }
-                    >
-                      {run.status}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    {run.startedAt
-                      ? new Date(run.startedAt).toLocaleString(locale)
-                      : "-"}
-                  </TableCell>
-                  <TableCell>
-                    <Button asChild variant="ghost" size="sm">
-                      <Link href={`/dashboard/runs/${run.id}`}>
-                        <Eye className="h-4 w-4 mr-1" />
-                        {tc("details")}
-                      </Link>
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))
+              filteredRuns.map(({ run, config, domain, promptSet }) => {
+                const phases = derivePhasesFromSubs(promptSet.intentCategories ?? []);
+                return (
+                  <TableRow key={run.id}>
+                    <TableCell className="font-medium">{domain.name}</TableCell>
+                    <TableCell>{promptSet.name}</TableCell>
+                    <TableCell>
+                      {phases.length > 0 ? (
+                        <div className="flex flex-wrap gap-1">
+                          {phases.map((phase) => (
+                            <Badge key={phase} variant="outline" className="text-xs">
+                              {tg(`phase_${phase}` as Parameters<typeof tg>[0])}
+                            </Badge>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground text-xs">—</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {config.country ? tConfigs(`country${config.country}`) : tConfigs("countryDE")}
+                    </TableCell>
+                    <TableCell>
+                      <span
+                        className={
+                          run.status === "completed"
+                            ? "text-green-600"
+                            : run.status === "failed"
+                              ? "text-destructive"
+                              : "text-muted-foreground"
+                        }
+                      >
+                        {run.status}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      {run.startedAt
+                        ? new Date(run.startedAt).toLocaleString(locale)
+                        : "-"}
+                    </TableCell>
+                    <TableCell>
+                      <Button asChild variant="ghost" size="sm">
+                        <Link href={`/dashboard/runs/${run.id}`}>
+                          <Eye className="h-4 w-4 mr-1" />
+                          {tc("details")}
+                        </Link>
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
             )}
           </TableBody>
         </Table>
