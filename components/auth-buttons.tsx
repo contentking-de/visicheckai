@@ -44,10 +44,10 @@ export function AuthButtons({
 
   return (
     <>
-      <Button asChild variant="ghost">
+      <Button asChild variant="outline" size="lg" className="border-black text-black hover:bg-black/5">
         <Link href="/login">{loginLabel}</Link>
       </Button>
-      <Button asChild>
+      <Button asChild size="lg">
         <Link href="/sign-up">{signUpLabel}</Link>
       </Button>
     </>

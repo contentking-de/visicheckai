@@ -83,7 +83,7 @@ export function MobileNav({
             </>
           ) : (
             <>
-              <Button asChild variant="ghost" className="justify-start" onClick={() => setOpen(false)}>
+              <Button asChild variant="outline" className="justify-start border-black text-black hover:bg-black/5" onClick={() => setOpen(false)}>
                 <Link href="/login">{loginLabel}</Link>
               </Button>
               <Button asChild className="justify-start" onClick={() => setOpen(false)}>
