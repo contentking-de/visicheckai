@@ -16,6 +16,7 @@ import {
   Newspaper,
   Heart,
   PieChart,
+  Eye,
 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { isSuperAdmin } from "@/lib/rbac";
@@ -86,6 +87,13 @@ export default async function DashboardLayout({
           >
             <LayoutDashboard className="h-4 w-4" />
             {t("dashboard")}
+          </Link>
+          <Link
+            href="/dashboard/visibility"
+            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium hover:bg-muted"
+          >
+            <Eye className="h-4 w-4" />
+            {t("visibility")}
           </Link>
           <div className="mt-4 space-y-1">
             <p className="px-3 pt-2 pb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">

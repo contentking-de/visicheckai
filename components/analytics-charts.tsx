@@ -2,16 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { PieChart, Pie } from "recharts";
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Cell,
-} from "recharts";
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+  type ChartConfig,
+} from "@/components/ui/chart";
 import {
   Card,
   CardContent,
@@ -53,14 +52,6 @@ type OutputItem = {
 };
 
 import { PROVIDER_LABELS, PROVIDER_COLORS } from "@/lib/providers";
-
-const tooltipStyle = {
-  borderRadius: "8px",
-  border: "1px solid hsl(var(--border))",
-  backgroundColor: "hsl(var(--card))",
-  color: "hsl(var(--card-foreground))",
-  boxShadow: "0 4px 12px rgba(0,0,0,.15)",
-};
 
 function ExpandableUrl({ entry }: { entry: OwnUrlEntry }) {
   const [expanded, setExpanded] = useState(false);
@@ -241,16 +232,31 @@ export function AnalyticsCharts({
   }
 
   const ALL_PROVIDERS = ["chatgpt", "claude", "gemini", "perplexity"] as const;
-  const sourceChartData = ALL_PROVIDERS.map((provider) => ({
-    provider: PROVIDER_LABELS[provider],
-    count: data.sourcesByProvider[provider] ?? 0,
-    fill: PROVIDER_COLORS[provider],
-  }));
-  const brandChartData = ALL_PROVIDERS.map((provider) => ({
-    provider: PROVIDER_LABELS[provider],
-    count: data.brandOnlyByProvider[provider] ?? 0,
-    fill: PROVIDER_COLORS[provider],
-  }));
+
+  const baseProviderConfig = {
+    chatgpt: { label: PROVIDER_LABELS["chatgpt"], color: PROVIDER_COLORS["chatgpt"] },
+    claude: { label: PROVIDER_LABELS["claude"], color: PROVIDER_COLORS["claude"] },
+    gemini: { label: PROVIDER_LABELS["gemini"], color: PROVIDER_COLORS["gemini"] },
+    perplexity: { label: PROVIDER_LABELS["perplexity"], color: PROVIDER_COLORS["perplexity"] },
+  };
+
+  const providerPieConfig = baseProviderConfig satisfies ChartConfig;
+
+  const sourceChartData = ALL_PROVIDERS
+    .map((provider) => ({
+      provider,
+      count: data.sourcesByProvider[provider] ?? 0,
+      fill: `var(--color-${provider})`,
+    }))
+    .filter((d) => d.count > 0);
+
+  const brandChartData = ALL_PROVIDERS
+    .map((provider) => ({
+      provider,
+      count: data.brandOnlyByProvider[provider] ?? 0,
+      fill: `var(--color-${provider})`,
+    }))
+    .filter((d) => d.count > 0);
 
   return (
     <div className="space-y-8">
@@ -314,22 +320,22 @@ export function AnalyticsCharts({
             <CardDescription>{t("sourcesByProviderDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={sourceChartData}>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  className="stroke-muted"
+            <ChartContainer config={providerPieConfig} className="mx-auto h-[280px] w-full">
+              <PieChart>
+                <ChartTooltip content={<ChartTooltipContent nameKey="provider" />} />
+                <Pie
+                  data={sourceChartData}
+                  dataKey="count"
+                  nameKey="provider"
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={55}
+                  outerRadius={90}
+                  paddingAngle={3}
                 />
-                <XAxis dataKey="provider" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} allowDecimals={false} />
-                <Tooltip contentStyle={tooltipStyle} />
-                <Bar dataKey="count" name={t("sources")} radius={[4, 4, 0, 0]}>
-                  {sourceChartData.map((entry, i) => (
-                    <Cell key={i} fill={entry.fill} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+                <ChartLegend content={<ChartLegendContent nameKey="provider" />} />
+              </PieChart>
+            </ChartContainer>
           </CardContent>
         </Card>
 
@@ -341,22 +347,22 @@ export function AnalyticsCharts({
             <CardDescription>{t("brandOnlyByProviderDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={brandChartData}>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  className="stroke-muted"
+            <ChartContainer config={providerPieConfig} className="mx-auto h-[280px] w-full">
+              <PieChart>
+                <ChartTooltip content={<ChartTooltipContent nameKey="provider" />} />
+                <Pie
+                  data={brandChartData}
+                  dataKey="count"
+                  nameKey="provider"
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={55}
+                  outerRadius={90}
+                  paddingAngle={3}
                 />
-                <XAxis dataKey="provider" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} allowDecimals={false} />
-                <Tooltip contentStyle={tooltipStyle} />
-                <Bar dataKey="count" name={t("brandOnly")} radius={[4, 4, 0, 0]}>
-                  {brandChartData.map((entry, i) => (
-                    <Cell key={i} fill={entry.fill} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+                <ChartLegend content={<ChartLegendContent nameKey="provider" />} />
+              </PieChart>
+            </ChartContainer>
           </CardContent>
         </Card>
       </div>
@@ -381,7 +387,7 @@ export function AnalyticsCharts({
         </Card>
       )}
 
-      {/* Outputs with source (domain URL in text or citations) */}
+      {/* Outputs with source */}
       {hasOutputs && (
         <Card>
           <CardHeader>

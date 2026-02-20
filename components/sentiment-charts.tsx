@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useId } from "react";
 import { useTranslations } from "next-intl";
 import {
   BarChart,
@@ -9,14 +9,18 @@ import {
   Area,
   PieChart,
   Pie,
-  Cell,
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
 } from "recharts";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+  type ChartConfig,
+} from "@/components/ui/chart";
 import {
   Card,
   CardContent,
@@ -69,20 +73,7 @@ type SentimentData = {
   }[];
 };
 
-const SENTIMENT_COLORS = {
-  positive: "#22c55e",
-  neutral: "#a1a1aa",
-  negative: "#ef4444",
-};
-
 import { PROVIDER_LABELS } from "@/lib/providers";
-
-const PROVIDER_COLORS: Record<string, string> = {
-  chatgpt: "#10a37f",
-  claude: "#d97706",
-  gemini: "#4285f4",
-  perplexity: "#6366f1",
-};
 
 function formatDate(dateStr: string) {
   const d = new Date(dateStr);
@@ -107,14 +98,6 @@ function ScoreDisplay({ score, label }: { score: number; label: string }) {
   );
 }
 
-const tooltipStyle = {
-  borderRadius: "8px",
-  border: "1px solid hsl(var(--border))",
-  backgroundColor: "hsl(var(--card))",
-  color: "hsl(var(--card-foreground))",
-  boxShadow: "0 4px 12px rgba(0,0,0,.15)",
-};
-
 export function SentimentCharts({
   domainId,
   runId,
@@ -125,6 +108,7 @@ export function SentimentCharts({
   const t = useTranslations("Sentiment");
   const [data, setData] = useState<SentimentData | null>(null);
   const [loading, setLoading] = useState(true);
+  const id = useId().replace(/:/g, "");
 
   useEffect(() => {
     setLoading(true);
@@ -160,10 +144,16 @@ export function SentimentCharts({
     );
   }
 
+  const sentimentConfig = {
+    positive: { label: t("positive"), color: "#22c55e" },
+    neutral: { label: t("neutral"), color: "#a1a1aa" },
+    negative: { label: t("negative"), color: "#ef4444" },
+  } satisfies ChartConfig;
+
   const pieData = [
-    { name: t("positive"), value: data.totals.positive, color: SENTIMENT_COLORS.positive },
-    { name: t("neutral"), value: data.totals.neutral, color: SENTIMENT_COLORS.neutral },
-    { name: t("negative"), value: data.totals.negative, color: SENTIMENT_COLORS.negative },
+    { sentiment: "positive", value: data.totals.positive, fill: "var(--color-positive)" },
+    { sentiment: "neutral", value: data.totals.neutral, fill: "var(--color-neutral)" },
+    { sentiment: "negative", value: data.totals.negative, fill: "var(--color-negative)" },
   ];
 
   const providerData = Object.entries(data.byProvider).map(([key, val]) => ({
@@ -250,15 +240,15 @@ export function SentimentCharts({
 
       {/* Row: Pie chart + Provider comparison */}
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Pie chart: overall distribution */}
         <Card>
           <CardHeader>
             <CardTitle className="text-base">{t("distribution")}</CardTitle>
             <CardDescription>{t("distributionDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={280}>
+            <ChartContainer config={sentimentConfig} className="mx-auto h-[280px] w-full">
               <PieChart>
+                <ChartTooltip content={<ChartTooltipContent nameKey="sentiment" />} />
                 <Pie
                   data={pieData}
                   cx="50%"
@@ -267,44 +257,34 @@ export function SentimentCharts({
                   outerRadius={100}
                   paddingAngle={3}
                   dataKey="value"
-                  label={({ name, percent }) =>
-                    `${name} ${((percent ?? 0) * 100).toFixed(0)}%`
+                  nameKey="sentiment"
+                  label={({ name, percent }: { name: string; percent: number }) =>
+                    `${sentimentConfig[name as keyof typeof sentimentConfig]?.label ?? name} ${((percent ?? 0) * 100).toFixed(0)}%`
                   }
-                >
-                  {pieData.map((entry, i) => (
-                    <Cell key={i} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip contentStyle={tooltipStyle} />
+                />
               </PieChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </CardContent>
         </Card>
 
-        {/* Provider comparison */}
         <Card>
           <CardHeader>
             <CardTitle className="text-base">{t("byProvider")}</CardTitle>
             <CardDescription>{t("byProviderDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={280}>
+            <ChartContainer config={sentimentConfig} className="h-[280px] w-full">
               <BarChart data={providerData} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis type="number" tick={{ fontSize: 12 }} />
-                <YAxis
-                  type="category"
-                  dataKey="provider"
-                  tick={{ fontSize: 12 }}
-                  width={80}
-                />
-                <Tooltip contentStyle={tooltipStyle} />
-                <Legend />
-                <Bar dataKey="positive" name={t("positive")} stackId="a" fill={SENTIMENT_COLORS.positive} />
-                <Bar dataKey="neutral" name={t("neutral")} stackId="a" fill={SENTIMENT_COLORS.neutral} />
-                <Bar dataKey="negative" name={t("negative")} stackId="a" fill={SENTIMENT_COLORS.negative} radius={[0, 4, 4, 0]} />
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis type="number" />
+                <YAxis type="category" dataKey="provider" width={80} />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <ChartLegend content={<ChartLegendContent />} />
+                <Bar dataKey="positive" stackId="a" fill="var(--color-positive)" />
+                <Bar dataKey="neutral" stackId="a" fill="var(--color-neutral)" />
+                <Bar dataKey="negative" stackId="a" fill="var(--color-negative)" radius={[0, 4, 4, 0]} />
               </BarChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </CardContent>
         </Card>
       </div>
@@ -317,57 +297,53 @@ export function SentimentCharts({
             <CardDescription>{t("overTimeDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={320}>
+            <ChartContainer config={sentimentConfig} className="h-[320px] w-full">
               <AreaChart data={data.overTime}>
                 <defs>
-                  <linearGradient id="gradPos" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={SENTIMENT_COLORS.positive} stopOpacity={0.3} />
-                    <stop offset="95%" stopColor={SENTIMENT_COLORS.positive} stopOpacity={0} />
+                  <linearGradient id={`${id}-pos`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--color-positive)" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="var(--color-positive)" stopOpacity={0} />
                   </linearGradient>
-                  <linearGradient id="gradNeg" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={SENTIMENT_COLORS.negative} stopOpacity={0.3} />
-                    <stop offset="95%" stopColor={SENTIMENT_COLORS.negative} stopOpacity={0} />
+                  <linearGradient id={`${id}-neg`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--color-negative)" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="var(--color-negative)" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis
-                  dataKey="date"
-                  tickFormatter={formatDate}
-                  tick={{ fontSize: 12 }}
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" tickFormatter={formatDate} />
+                <YAxis allowDecimals={false} />
+                <ChartTooltip
+                  content={
+                    <ChartTooltipContent
+                      labelFormatter={(label) => new Date(String(label)).toLocaleDateString()}
+                    />
+                  }
                 />
-                <YAxis tick={{ fontSize: 12 }} allowDecimals={false} />
-                <Tooltip
-                  labelFormatter={(label) => new Date(label).toLocaleDateString()}
-                  contentStyle={tooltipStyle}
-                />
-                <Legend />
+                <ChartLegend content={<ChartLegendContent />} />
                 <Area
                   type="monotone"
                   dataKey="positive"
-                  name={t("positive")}
-                  stroke={SENTIMENT_COLORS.positive}
+                  stroke="var(--color-positive)"
                   strokeWidth={2}
-                  fill="url(#gradPos)"
+                  fill={`url(#${id}-pos)`}
                 />
                 <Area
                   type="monotone"
                   dataKey="negative"
-                  name={t("negative")}
-                  stroke={SENTIMENT_COLORS.negative}
+                  stroke="var(--color-negative)"
                   strokeWidth={2}
-                  fill="url(#gradNeg)"
+                  fill={`url(#${id}-neg)`}
                 />
                 <Area
                   type="monotone"
                   dataKey="neutral"
-                  name={t("neutral")}
-                  stroke={SENTIMENT_COLORS.neutral}
+                  stroke="var(--color-neutral)"
                   strokeWidth={1}
                   fill="none"
                   strokeDasharray="4 4"
                 />
               </AreaChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </CardContent>
         </Card>
       )}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useId } from "react";
 import { useTranslations } from "next-intl";
 import {
   AreaChart,
@@ -10,10 +10,15 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
 } from "recharts";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+  type ChartConfig,
+} from "@/components/ui/chart";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Users, Globe, FileText, Activity, DollarSign } from "lucide-react";
 
@@ -113,6 +118,11 @@ function GrowthChart({
   data: TimeSeriesPoint[];
   color: string;
 }) {
+  const gradId = useId().replace(/:/g, "");
+  const chartConfig = {
+    count: { label: title, color },
+  } satisfies ChartConfig;
+
   return (
     <Card>
       <CardHeader>
@@ -125,47 +135,33 @@ function GrowthChart({
             Keine Daten
           </p>
         ) : (
-          <ResponsiveContainer width="100%" height={260}>
+          <ChartContainer config={chartConfig} className="h-[260px] w-full">
             <AreaChart data={data}>
               <defs>
-                <linearGradient id={`gradient-${color}`} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={color} stopOpacity={0.3} />
-                  <stop offset="95%" stopColor={color} stopOpacity={0} />
+                <linearGradient id={`grad-${gradId}`} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="var(--color-count)" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="var(--color-count)" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-              <XAxis
-                dataKey="date"
-                tickFormatter={formatDate}
-                tick={{ fontSize: 12 }}
-                className="text-muted-foreground"
-              />
-              <YAxis
-                tick={{ fontSize: 12 }}
-                allowDecimals={false}
-                className="text-muted-foreground"
-              />
-              <Tooltip
-                labelFormatter={(label) => new Date(label).toLocaleDateString()}
-                contentStyle={{
-                  borderRadius: "8px",
-                  border: "1px solid hsl(var(--border))",
-                  backgroundColor: "hsl(var(--card))",
-                  color: "hsl(var(--card-foreground))",
-                  boxShadow: "0 4px 12px rgba(0,0,0,.15)",
-                }}
-                labelStyle={{ color: "hsl(var(--card-foreground))", fontWeight: 600 }}
-                itemStyle={{ color: "hsl(var(--card-foreground))" }}
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" tickFormatter={formatDate} />
+              <YAxis allowDecimals={false} />
+              <ChartTooltip
+                content={
+                  <ChartTooltipContent
+                    labelFormatter={(label) => new Date(String(label)).toLocaleDateString()}
+                  />
+                }
               />
               <Area
                 type="monotone"
                 dataKey="count"
-                stroke={color}
+                stroke="var(--color-count)"
                 strokeWidth={2}
-                fill={`url(#gradient-${color})`}
+                fill={`url(#grad-${gradId})`}
               />
             </AreaChart>
-          </ResponsiveContainer>
+          </ChartContainer>
         )}
       </CardContent>
     </Card>
@@ -173,6 +169,13 @@ function GrowthChart({
 }
 
 import { PROVIDER_COLORS, PROVIDER_LABELS } from "@/lib/providers";
+
+const providerConfig = {
+  chatgpt: { label: PROVIDER_LABELS["chatgpt"], color: PROVIDER_COLORS["chatgpt"] },
+  claude: { label: PROVIDER_LABELS["claude"], color: PROVIDER_COLORS["claude"] },
+  gemini: { label: PROVIDER_LABELS["gemini"], color: PROVIDER_COLORS["gemini"] },
+  perplexity: { label: PROVIDER_LABELS["perplexity"], color: PROVIDER_COLORS["perplexity"] },
+} satisfies ChartConfig;
 
 export function AdminCharts() {
   const t = useTranslations("Admin");
@@ -254,52 +257,32 @@ export function AdminCharts() {
               {t("noData")}
             </p>
           ) : (
-            <ResponsiveContainer width="100%" height={320}>
+            <ChartContainer config={providerConfig} className="h-[320px] w-full">
               <BarChart data={stats.apiCallsPerDay}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis
-                  dataKey="date"
-                  tickFormatter={formatDate}
-                  tick={{ fontSize: 12 }}
-                  className="text-muted-foreground"
-                />
-                <YAxis
-                  tick={{ fontSize: 12 }}
-                  allowDecimals={false}
-                  className="text-muted-foreground"
-                />
-                <Tooltip
-                  labelFormatter={(label) =>
-                    new Date(label).toLocaleDateString()
-                  }
-                  contentStyle={{
-                    borderRadius: "8px",
-                    border: "1px solid hsl(var(--border))",
-                    backgroundColor: "hsl(var(--card))",
-                    color: "hsl(var(--card-foreground))",
-                    boxShadow: "0 4px 12px rgba(0,0,0,.15)",
-                  }}
-                  labelStyle={{ color: "hsl(var(--card-foreground))", fontWeight: 600 }}
-                  itemStyle={{ color: "hsl(var(--card-foreground))" }}
-                />
-                <Legend
-                  formatter={(value: string) =>
-                    PROVIDER_LABELS[value] ?? value
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" tickFormatter={formatDate} />
+                <YAxis allowDecimals={false} />
+                <ChartTooltip
+                  content={
+                    <ChartTooltipContent
+                      labelFormatter={(label) => new Date(String(label)).toLocaleDateString()}
+                    />
                   }
                 />
-                {Object.entries(PROVIDER_COLORS).map(([key, color]) => (
+                <ChartLegend content={<ChartLegendContent />} />
+                {Object.keys(PROVIDER_COLORS).map((key) => (
                   <Bar
                     key={key}
                     dataKey={key}
                     stackId="a"
-                    fill={color}
+                    fill={`var(--color-${key})`}
                     radius={
                       key === "perplexity" ? [4, 4, 0, 0] : [0, 0, 0, 0]
                     }
                   />
                 ))}
               </BarChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           )}
         </CardContent>
       </Card>
@@ -382,50 +365,46 @@ export function AdminCharts() {
               {t("noData")}
             </p>
           ) : (
-            <ResponsiveContainer width="100%" height={320}>
+            <ChartContainer config={providerConfig} className="h-[320px] w-full">
               <BarChart data={stats.dailyCosts}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis
-                  dataKey="date"
-                  tickFormatter={formatDate}
-                  tick={{ fontSize: 12 }}
-                  className="text-muted-foreground"
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" tickFormatter={formatDate} />
+                <YAxis tickFormatter={(v: number) => `$${v.toFixed(2)}`} />
+                <ChartTooltip
+                  content={
+                    <ChartTooltipContent
+                      labelFormatter={(label) => new Date(String(label)).toLocaleDateString()}
+                      formatter={(value, name, item, index) => (
+                        <>
+                          <div
+                            className="h-2.5 w-2.5 shrink-0 rounded-[2px]"
+                            style={{ backgroundColor: item.color }}
+                          />
+                          <div className="flex flex-1 items-center justify-between gap-2 leading-none">
+                            <span className="text-muted-foreground">
+                              {providerConfig[String(name) as keyof typeof providerConfig]?.label ?? name}
+                            </span>
+                            <span className="font-mono font-medium tabular-nums text-foreground">
+                              ${Number(value).toFixed(4)}
+                            </span>
+                          </div>
+                        </>
+                      )}
+                    />
+                  }
                 />
-                <YAxis
-                  tick={{ fontSize: 12 }}
-                  tickFormatter={(v: number) => `$${v.toFixed(2)}`}
-                  className="text-muted-foreground"
-                />
-                <Tooltip
-                  labelFormatter={(label) => new Date(label).toLocaleDateString()}
-                  formatter={(value?: number, name?: string) => [
-                    `$${(value ?? 0).toFixed(4)}`,
-                    PROVIDER_LABELS[name ?? ""] ?? name ?? "",
-                  ]}
-                  contentStyle={{
-                    borderRadius: "8px",
-                    border: "1px solid hsl(var(--border))",
-                    backgroundColor: "hsl(var(--card))",
-                    color: "hsl(var(--card-foreground))",
-                    boxShadow: "0 4px 12px rgba(0,0,0,.15)",
-                  }}
-                  labelStyle={{ color: "hsl(var(--card-foreground))", fontWeight: 600 }}
-                  itemStyle={{ color: "hsl(var(--card-foreground))" }}
-                />
-                <Legend
-                  formatter={(value: string) => PROVIDER_LABELS[value] ?? value}
-                />
-                {Object.entries(PROVIDER_COLORS).map(([key, color]) => (
+                <ChartLegend content={<ChartLegendContent />} />
+                {Object.keys(PROVIDER_COLORS).map((key) => (
                   <Bar
                     key={key}
                     dataKey={key}
                     stackId="a"
-                    fill={color}
+                    fill={`var(--color-${key})`}
                     radius={key === "perplexity" ? [4, 4, 0, 0] : [0, 0, 0, 0]}
                   />
                 ))}
               </BarChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           )}
         </CardContent>
       </Card>
