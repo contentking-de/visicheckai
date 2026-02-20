@@ -157,58 +157,75 @@ export default async function LandingPage() {
           </div>
         </section>
 
-        {/* Section 3: Core-USP-Bereich */}
+        {/* Section: Warum AI Search Visibility wichtig ist */}
         <section className="py-20 sm:py-24">
+          <div className="mx-auto max-w-5xl px-4">
+            <h2 className="mx-auto max-w-3xl text-center text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
+              {t("whyAiVisTitle")}
+            </h2>
+            <div className="mt-14 grid gap-10 lg:grid-cols-2">
+              <p className="leading-relaxed text-muted-foreground">
+                {t("whyAiVisCol1")}
+              </p>
+              <p className="leading-relaxed text-muted-foreground">
+                {t("whyAiVisCol2")}
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Section 3: Core-USP-Bereich */}
+        <section className="bg-black py-20 text-white sm:py-24">
           <div className="mx-auto max-w-6xl px-4">
             <h2 className="mx-auto max-w-3xl text-center text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
               {t("uspSectionTitle")}
             </h2>
-            <p className="mx-auto mb-14 mt-4 max-w-2xl text-center text-muted-foreground">
+            <p className="mx-auto mb-14 mt-4 max-w-2xl text-center text-white/60">
               {t("uspSectionSubtitle")}
             </p>
             <div className="flex flex-wrap justify-center gap-6">
-              <div className="w-full rounded-xl border bg-card p-8 shadow-sm transition-shadow hover:shadow-md sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]">
-                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10">
-                  <Search className="h-5 w-5 text-primary" />
+              <div className="w-full rounded-xl border border-white/10 bg-white/5 p-8 transition-colors hover:bg-white/10 sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]">
+                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-white/10">
+                  <Search className="h-5 w-5 text-white" />
                 </div>
                 <h3 className="mt-5 text-lg font-semibold">{t("usp1Title")}</h3>
-                <p className="mt-2 leading-relaxed text-muted-foreground">
+                <p className="mt-2 leading-relaxed text-white/60">
                   {t("usp1Desc")}
                 </p>
               </div>
-              <div className="w-full rounded-xl border bg-card p-8 shadow-sm transition-shadow hover:shadow-md sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]">
-                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10">
-                  <BarChart3 className="h-5 w-5 text-primary" />
+              <div className="w-full rounded-xl border border-white/10 bg-white/5 p-8 transition-colors hover:bg-white/10 sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]">
+                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-white/10">
+                  <BarChart3 className="h-5 w-5 text-white" />
                 </div>
                 <h3 className="mt-5 text-lg font-semibold">{t("usp2Title")}</h3>
-                <p className="mt-2 leading-relaxed text-muted-foreground">
+                <p className="mt-2 leading-relaxed text-white/60">
                   {t("usp2Desc")}
                 </p>
               </div>
-              <div className="w-full rounded-xl border bg-card p-8 shadow-sm transition-shadow hover:shadow-md sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]">
-                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10">
-                  <Bot className="h-5 w-5 text-primary" />
+              <div className="w-full rounded-xl border border-white/10 bg-white/5 p-8 transition-colors hover:bg-white/10 sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]">
+                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-white/10">
+                  <Bot className="h-5 w-5 text-white" />
                 </div>
                 <h3 className="mt-5 text-lg font-semibold">{t("usp3Title")}</h3>
-                <p className="mt-2 leading-relaxed text-muted-foreground">
+                <p className="mt-2 leading-relaxed text-white/60">
                   {t("usp3Desc")}
                 </p>
               </div>
-              <div className="w-full rounded-xl border bg-card p-8 shadow-sm transition-shadow hover:shadow-md sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]">
-                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10">
-                  <Brain className="h-5 w-5 text-primary" />
+              <div className="w-full rounded-xl border border-white/10 bg-white/5 p-8 transition-colors hover:bg-white/10 sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]">
+                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-white/10">
+                  <Brain className="h-5 w-5 text-white" />
                 </div>
                 <h3 className="mt-5 text-lg font-semibold">{t("usp4Title")}</h3>
-                <p className="mt-2 leading-relaxed text-muted-foreground">
+                <p className="mt-2 leading-relaxed text-white/60">
                   {t("usp4Desc")}
                 </p>
               </div>
-              <div className="w-full rounded-xl border bg-card p-8 shadow-sm transition-shadow hover:shadow-md sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]">
-                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10">
-                  <Target className="h-5 w-5 text-primary" />
+              <div className="w-full rounded-xl border border-white/10 bg-white/5 p-8 transition-colors hover:bg-white/10 sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]">
+                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-white/10">
+                  <Target className="h-5 w-5 text-white" />
                 </div>
                 <h3 className="mt-5 text-lg font-semibold">{t("usp5Title")}</h3>
-                <p className="mt-2 leading-relaxed text-muted-foreground">
+                <p className="mt-2 leading-relaxed text-white/60">
                   {t("usp5Desc")}
                 </p>
               </div>
