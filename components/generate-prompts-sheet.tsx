@@ -59,6 +59,7 @@ export function GeneratePromptsSheet({ open, onOpenChange, onImport }: Props) {
   const [selectedPhases, setSelectedPhases] = useState<Set<FunnelPhase>>(new Set());
   const [selectedSubs, setSelectedSubs] = useState<Set<string>>(new Set());
   const [keyword, setKeyword] = useState("");
+  const [brand, setBrand] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState<FanoutResult[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -123,6 +124,7 @@ export function GeneratePromptsSheet({ open, onOpenChange, onImport }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           keyword: keyword.trim(),
+          brand: brand.trim() || undefined,
           categories: Array.from(selectedSubs),
           locale,
         }),
@@ -188,6 +190,7 @@ export function GeneratePromptsSheet({ open, onOpenChange, onImport }: Props) {
     onImport(prompts, Array.from(selectedSubs));
     onOpenChange(false);
     setKeyword("");
+    setBrand("");
     setResults([]);
     setSelectedPhases(new Set());
     setSelectedSubs(new Set());
@@ -286,10 +289,10 @@ export function GeneratePromptsSheet({ open, onOpenChange, onImport }: Props) {
             )}
           </div>
 
-          {/* Keyword Input */}
-          <div className="space-y-2">
-            <Label htmlFor="keyword">{t("keywordLabel")}</Label>
-            <div className="flex gap-2">
+          {/* Keyword + Brand Input */}
+          <div className="space-y-3">
+            <div className="space-y-2">
+              <Label htmlFor="keyword">{t("keywordLabel")}</Label>
               <Input
                 id="keyword"
                 value={keyword}
@@ -303,19 +306,38 @@ export function GeneratePromptsSheet({ open, onOpenChange, onImport }: Props) {
                 }}
                 disabled={isLoading}
               />
-              <Button
-                onClick={handleGenerate}
-                disabled={isLoading || !canGenerate}
-                size="sm"
-                className="shrink-0"
-              >
-                {isLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  t("generate")
-                )}
-              </Button>
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="brand">{t("brandLabel")}</Label>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {t("brandHint")}
+              </p>
+              <Input
+                id="brand"
+                value={brand}
+                onChange={(e) => setBrand(e.target.value)}
+                placeholder={t("brandPlaceholder")}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleGenerate();
+                  }
+                }}
+                disabled={isLoading}
+              />
+            </div>
+            <Button
+              onClick={handleGenerate}
+              disabled={isLoading || !canGenerate}
+              size="sm"
+              className="w-full"
+            >
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                t("generate")
+              )}
+            </Button>
           </div>
 
           {error && <p className="text-sm text-destructive">{error}</p>}

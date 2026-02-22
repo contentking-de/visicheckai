@@ -17,6 +17,7 @@ export async function POST(request: Request) {
 
   const body = await request.json().catch(() => ({}));
   const keyword = body.keyword as string | undefined;
+  const brand = (body.brand as string | undefined)?.trim() || undefined;
   const categories = body.categories as string[] | undefined;
   const locale = (body.locale as string | undefined) ?? "en";
 
@@ -51,14 +52,21 @@ export async function POST(request: Request) {
   const currentYear = new Date().getFullYear();
   const languageInstruction = `IMPORTANT: All generated questions MUST be written in ${language}.`;
   const yearInstruction = `The current year is ${currentYear}. When generating questions that reference a year or time period, always use ${currentYear} or refer to the present. Never use past years like ${currentYear - 1}, ${currentYear - 2}, or ${currentYear - 3}.`;
+  const brandInstruction = brand
+    ? `When generating questions that refer to a specific company, brand, or provider, use "${brand}" as the brand name instead of generic placeholders like "Firma X" or "company X".`
+    : "";
 
   const systemPromptFaq = hasCategoryContext
-    ? `You are an SEO and AI search intent expert. Generate frequently asked questions about a given topic, specifically aligned with the user intent categories described below. The questions should be realistic queries that users would actually ask AI chatbots like ChatGPT, Claude, or Perplexity. Make sure each question clearly reflects the intent of its category. ${yearInstruction} ${languageInstruction} Return ONLY valid JSON, no markdown formatting.`
-    : `You are an SEO and AI search intent expert. Generate the most frequently asked questions about a given topic or keyword. These should be realistic questions that users would actually ask AI chatbots like ChatGPT, Claude, or Perplexity. ${yearInstruction} ${languageInstruction} Return ONLY valid JSON, no markdown formatting.`;
+    ? `You are an SEO and AI search intent expert. Generate frequently asked questions about a given topic, specifically aligned with the user intent categories described below. The questions should be realistic queries that users would actually ask AI chatbots like ChatGPT, Claude, or Perplexity. Make sure each question clearly reflects the intent of its category. ${yearInstruction} ${brandInstruction} ${languageInstruction} Return ONLY valid JSON, no markdown formatting.`
+    : `You are an SEO and AI search intent expert. Generate the most frequently asked questions about a given topic or keyword. These should be realistic questions that users would actually ask AI chatbots like ChatGPT, Claude, or Perplexity. ${yearInstruction} ${brandInstruction} ${languageInstruction} Return ONLY valid JSON, no markdown formatting.`;
+
+  const brandContext = brand
+    ? `\nThe brand/company in focus is "${brand}". For company-specific or brand-specific questions, use "${brand}" by name.\n`
+    : "";
 
   const userPromptFaq = hasCategoryContext
     ? `Generate 8 frequently asked questions in ${language} about: "${keyword.trim()}"
-
+${brandContext}
 Focus on these user intent categories:
 ${categoryBlock}
 
@@ -67,7 +75,7 @@ All questions must be in ${language}.
 
 Return as JSON: { "questions": ["question1", "question2", ...] }`
     : `Generate 8 frequently asked questions in ${language} about: "${keyword.trim()}"
-
+${brandContext}
 All questions must be in ${language}.
 
 Return as JSON: { "questions": ["question1", "question2", ...] }`;
@@ -109,7 +117,7 @@ Return as JSON: { "questions": ["question1", "question2", ...] }`;
     messages: [
       {
         role: "system",
-        content: `You are an AI search behavior expert. For each given question, generate query fanout — the related queries, reformulations, and follow-up questions that AI models internally consider when processing the original query. These represent the different angles and sub-queries a search or AI system would explore to provide a comprehensive answer. ${yearInstruction} ${languageInstruction} Return ONLY valid JSON, no markdown formatting.`,
+        content: `You are an AI search behavior expert. For each given question, generate query fanout — the related queries, reformulations, and follow-up questions that AI models internally consider when processing the original query. These represent the different angles and sub-queries a search or AI system would explore to provide a comprehensive answer. ${yearInstruction} ${brandInstruction} ${languageInstruction} Return ONLY valid JSON, no markdown formatting.`,
       },
       {
         role: "user",

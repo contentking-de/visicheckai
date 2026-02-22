@@ -11,6 +11,7 @@ import {
 } from "@/lib/schema";
 import { eq, and, type SQL } from "drizzle-orm";
 import { PHASE_SUBCATEGORIES, type FunnelPhase } from "@/lib/prompt-categories";
+import { extractUrlsFromText } from "@/lib/ai-providers";
 
 export async function GET(request: Request) {
   const session = await auth();
@@ -121,8 +122,8 @@ export async function GET(request: Request) {
     // Check if domain URL appears in response text
     const hasDomainInText = responseLower.includes(normalizedDomain);
 
-    // Check if domain URL appears in structured citations
-    const citations = r.citations ?? [];
+    const rawCitations = r.citations ?? [];
+    const citations = rawCitations.length > 0 ? rawCitations : extractUrlsFromText(r.response);
     let hasDomainInCitations = false;
     for (const url of citations) {
       const normalizedUrl = url

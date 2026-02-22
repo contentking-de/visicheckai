@@ -30,6 +30,7 @@ import { ExpandableCitations } from "@/components/expandable-citations";
 import { CompetitorOverview } from "@/components/competitor-overview";
 import { SourceUrls } from "@/components/source-urls";
 import { PROVIDER_LABELS, PROVIDER_ICONS } from "@/lib/providers";
+import { extractUrlsFromText } from "@/lib/ai-providers";
 import Image from "next/image";
 
 export default async function RunDetailPage({
@@ -83,7 +84,8 @@ export default async function RunDetailPage({
     Record<string, { prompt: string; response: string; mentions: number; citationCount: number; ownDomainCited: boolean; citations: string[] }[]>
   >((acc, r) => {
     if (!acc[r.provider]) acc[r.provider] = [];
-    const cits = (r.citations as string[] | null) ?? [];
+    const rawCits = (r.citations as string[] | null) ?? [];
+    const cits = rawCits.length > 0 ? rawCits : extractUrlsFromText(r.response);
     const ownDomainCited = cits.some((url) => {
       try {
         const host = new URL(url).hostname.replace(/^www\./, "").toLowerCase();
@@ -101,17 +103,25 @@ export default async function RunDetailPage({
     return acc;
   }, {});
 
-  const sourceResults = results.map((r) => ({
-    provider: r.provider as "chatgpt" | "claude" | "gemini" | "perplexity",
-    prompt: r.prompt,
-    citations: (r.citations as string[] | null) ?? null,
-  }));
+  const sourceResults = results.map((r) => {
+    const raw = (r.citations as string[] | null) ?? [];
+    const cits = raw.length > 0 ? raw : extractUrlsFromText(r.response);
+    return {
+      provider: r.provider as "chatgpt" | "claude" | "gemini" | "perplexity",
+      prompt: r.prompt,
+      citations: cits.length > 0 ? cits : null,
+    };
+  });
 
-  const citationResults = results.map((r) => ({
-    provider: r.provider,
-    response: r.response,
-    citations: (r.citations as string[] | null) ?? null,
-  }));
+  const citationResults = results.map((r) => {
+    const raw = (r.citations as string[] | null) ?? [];
+    const cits = raw.length > 0 ? raw : extractUrlsFromText(r.response);
+    return {
+      provider: r.provider,
+      response: r.response,
+      citations: cits.length > 0 ? cits : null,
+    };
+  });
 
   // Collect all unique domains from citations for favicon lookup
   const allCitedDomains = new Set<string>();

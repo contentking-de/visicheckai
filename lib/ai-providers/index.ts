@@ -96,6 +96,25 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
 }
 
 /**
+ * Extract URLs from response text as fallback when structured citations are empty.
+ * Handles formats like (https://example.com) and bare https://example.com
+ */
+export function extractUrlsFromText(text: string): string[] {
+  const urlPattern = /https?:\/\/[^\s)<>]+/g;
+  const matches = text.match(urlPattern) || [];
+  const seen = new Set<string>();
+  const unique: string[] = [];
+  for (const url of matches) {
+    const cleaned = url.replace(/[.,;:!?]+$/, "");
+    if (!seen.has(cleaned)) {
+      seen.add(cleaned);
+      unique.push(cleaned);
+    }
+  }
+  return unique;
+}
+
+/**
  * Resolve [N] citation references in text to actual URLs.
  */
 function resolveCitations(text: string, citations: string[]): string {
@@ -132,7 +151,11 @@ export async function runProvider(
   );
 
   let processedResponse = result.response;
-  const citations = result.citations ?? [];
+  let citations = result.citations ?? [];
+
+  if (citations.length === 0) {
+    citations = extractUrlsFromText(processedResponse);
+  }
 
   if (citations.length > 0) {
     processedResponse = resolveCitations(processedResponse, citations);
