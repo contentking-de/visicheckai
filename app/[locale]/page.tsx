@@ -19,14 +19,20 @@ import {
   Mail,
   Zap,
   Phone,
+  Calendar,
+  User,
 } from "lucide-react";
 import Image from "next/image";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { buildHreflangAlternates } from "@/lib/locale-href";
 import { AuthButtons } from "@/components/auth-buttons";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { MobileNav } from "@/components/mobile-nav";
 import { FaqSection } from "@/components/faq-section";
+import { db } from "@/lib/db";
+import { magazineArticles, magazineArticleTranslations, users } from "@/lib/schema";
+import { desc, eq, and } from "drizzle-orm";
+import { defaultLocale } from "@/i18n/config";
 
 export async function generateMetadata() {
   const t = await getTranslations("Metadata");
@@ -41,6 +47,48 @@ export async function generateMetadata() {
 
 export default async function LandingPage() {
   const t = await getTranslations("Landing");
+  const locale = await getLocale();
+
+  const baseArticles = await db
+    .select({
+      id: magazineArticles.id,
+      slug: magazineArticles.slug,
+      title: magazineArticles.title,
+      excerpt: magazineArticles.excerpt,
+      coverImage: magazineArticles.coverImage,
+      publishedAt: magazineArticles.publishedAt,
+      authorName: users.name,
+    })
+    .from(magazineArticles)
+    .leftJoin(users, eq(users.id, magazineArticles.authorId))
+    .where(and(eq(magazineArticles.published, true)))
+    .orderBy(desc(magazineArticles.publishedAt))
+    .limit(3);
+
+  let latestArticles = baseArticles;
+
+  if (locale !== defaultLocale) {
+    const articleIds = baseArticles.map((a) => a.id);
+    if (articleIds.length > 0) {
+      const translations = await db
+        .select({
+          articleId: magazineArticleTranslations.articleId,
+          slug: magazineArticleTranslations.slug,
+          title: magazineArticleTranslations.title,
+          excerpt: magazineArticleTranslations.excerpt,
+        })
+        .from(magazineArticleTranslations)
+        .where(eq(magazineArticleTranslations.locale, locale));
+
+      const translationMap = new Map(translations.map((tr) => [tr.articleId, tr]));
+
+      latestArticles = baseArticles.map((a) => {
+        const tr = translationMap.get(a.id);
+        if (!tr) return a;
+        return { ...a, slug: tr.slug, title: tr.title, excerpt: tr.excerpt };
+      });
+    }
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -538,6 +586,88 @@ export default async function LandingPage() {
             answer: t(`faq${i + 1}A`),
           }))}
         />
+
+        {/* Magazin – Neueste Artikel */}
+        {latestArticles.length > 0 && (
+          <section className="py-20 sm:py-24">
+            <div className="mx-auto max-w-6xl px-4">
+              <h2 className="text-center text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
+                {t("magazineSectionTitle")}
+              </h2>
+              <p className="mx-auto mt-4 mb-14 max-w-xl text-center text-muted-foreground">
+                {t("magazineSectionSubtitle")}
+              </p>
+              <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+                {latestArticles.map((article) => (
+                  <Link
+                    key={article.slug}
+                    href={`/magazin/${article.slug}`}
+                    className="group overflow-hidden rounded-xl border bg-card transition-shadow hover:shadow-lg"
+                  >
+                    {article.coverImage ? (
+                      <div className="aspect-[16/9] overflow-hidden">
+                        <img
+                          src={article.coverImage}
+                          alt={article.title}
+                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex aspect-[16/9] items-center justify-center bg-muted">
+                        <span className="text-4xl text-muted-foreground/30">
+                          ✍️
+                        </span>
+                      </div>
+                    )}
+                    <div className="p-5">
+                      <div className="mb-3 flex items-center gap-4 text-xs text-muted-foreground">
+                        {article.publishedAt && (
+                          <span className="flex items-center gap-1">
+                            <Calendar className="h-3 w-3" />
+                            {new Date(article.publishedAt).toLocaleDateString(
+                              locale,
+                              {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              }
+                            )}
+                          </span>
+                        )}
+                        {article.authorName && (
+                          <span className="flex items-center gap-1">
+                            <User className="h-3 w-3" />
+                            {article.authorName}
+                          </span>
+                        )}
+                      </div>
+                      <h3 className="text-lg font-semibold leading-snug group-hover:text-primary">
+                        {article.title}
+                      </h3>
+                      {article.excerpt && (
+                        <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">
+                          {article.excerpt}
+                        </p>
+                      )}
+                      <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-primary">
+                        {t("magazineReadMore")}
+                        <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+                      </span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+              <div className="mt-12 text-center">
+                <Button asChild variant="outline" size="lg" className="h-12 px-8 text-base">
+                  <Link href="/magazin">
+                    {t("magazineAllArticles")}
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </section>
+        )}
       </main>
 
       <footer className="mt-20 bg-black pt-16 pb-8 text-white">

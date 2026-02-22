@@ -129,7 +129,11 @@
     "footerMagazine": "Magazine",
     "footerDocumentation": "Documentation",
     "footerContact": "Contact",
-    "footerBackToHome": "Back to homepage"
+    "footerBackToHome": "Back to homepage",
+    "magazineSectionTitle": "Latest from the Magazine",
+    "magazineSectionSubtitle": "Expert articles and insights on AI visibility and AI search optimization.",
+    "magazineReadMore": "Read more",
+    "magazineAllArticles": "View all articles"
   },
   "About": {
     "metaTitle": "About us – visicheck.ai",
