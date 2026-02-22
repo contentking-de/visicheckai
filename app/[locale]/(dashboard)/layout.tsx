@@ -27,6 +27,7 @@ import { getLocalePrefix } from "@/lib/locale-href";
 import { OnboardingModal } from "@/components/onboarding-modal";
 import { ImpersonationBanner } from "@/components/impersonation-banner";
 import { DashboardMobileNav } from "@/components/dashboard-mobile-nav";
+import { Providers } from "@/components/providers";
 
 export default async function DashboardLayout({
   children,
@@ -119,6 +120,7 @@ export default async function DashboardLayout({
   ];
 
   return (
+    <Providers>
     <div className="flex min-h-screen overflow-x-hidden">
       <aside className="sticky top-0 hidden h-screen w-56 flex-col border-r bg-muted/30 md:flex">
         <div className="flex h-16 shrink-0 items-center border-b px-4">
@@ -233,5 +235,6 @@ export default async function DashboardLayout({
         </AccessGate>
       </div>
     </div>
+    </Providers>
   );
 }

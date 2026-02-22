@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
-import { Providers } from "@/components/providers";
 import { LazyCookieBanner } from "@/components/lazy-cookie-banner";
 import { routing } from "@/i18n/routing";
 import "../globals.css";
@@ -59,7 +58,7 @@ export default async function LocaleLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <NextIntlClientProvider messages={messages}>
-          <Providers>{children}</Providers>
+          {children}
           <LazyCookieBanner />
         </NextIntlClientProvider>
       </body>

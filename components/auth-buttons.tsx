@@ -1,29 +1,26 @@
-"use client";
-
-import { useSession } from "next-auth/react";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
-import { UserMenu } from "@/components/user-menu";
 import { LayoutDashboard } from "lucide-react";
 
 type AuthButtonsProps = {
   loginLabel: string;
   signUpLabel: string;
   dashboardLabel?: string;
+  user?: {
+    name?: string | null;
+    email?: string | null;
+    image?: string | null;
+    role?: string | null;
+  } | null;
 };
 
 export function AuthButtons({
   loginLabel,
   signUpLabel,
   dashboardLabel = "Dashboard",
+  user,
 }: AuthButtonsProps) {
-  const { data: session, status } = useSession();
-
-  if (status === "loading") {
-    return <div className="h-9 w-20" />;
-  }
-
-  if (session?.user) {
+  if (user) {
     return (
       <>
         <Button asChild variant="ghost" size="sm">
@@ -32,12 +29,6 @@ export function AuthButtons({
             {dashboardLabel}
           </Link>
         </Button>
-        <UserMenu
-          name={session.user.name}
-          email={session.user.email}
-          image={session.user.image}
-          role={(session.user as { role?: string }).role}
-        />
       </>
     );
   }

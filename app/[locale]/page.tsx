@@ -25,6 +25,7 @@ import {
 import Image from "next/image";
 import { getLocale, getTranslations } from "next-intl/server";
 import { buildHreflangAlternates } from "@/lib/locale-href";
+import { auth } from "@/lib/auth";
 import { AuthButtons } from "@/components/auth-buttons";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import dynamic from "next/dynamic";
@@ -53,8 +54,11 @@ export async function generateMetadata() {
 }
 
 export default async function LandingPage() {
-  const t = await getTranslations("Landing");
-  const locale = await getLocale();
+  const [t, locale, session] = await Promise.all([
+    getTranslations("Landing"),
+    getLocale(),
+    auth(),
+  ]);
 
   const baseArticles = await db
     .select({
@@ -113,9 +117,9 @@ export default async function LandingPage() {
               {t("navFaq")}
             </Link>
             <LanguageSwitcher />
-            <AuthButtons loginLabel={t("login")} signUpLabel={t("signUp")} dashboardLabel={t("dashboard")} />
+            <AuthButtons loginLabel={t("login")} signUpLabel={t("signUp")} dashboardLabel={t("dashboard")} user={session?.user} />
           </div>
-          <MobileNav loginLabel={t("login")} signUpLabel={t("signUp")} dashboardLabel={t("dashboard")} pricingLabel={t("navPricing")} faqLabel={t("navFaq")} />
+          <MobileNav loginLabel={t("login")} signUpLabel={t("signUp")} dashboardLabel={t("dashboard")} pricingLabel={t("navPricing")} faqLabel={t("navFaq")} isLoggedIn={!!session?.user} />
         </div>
       </header>
 
