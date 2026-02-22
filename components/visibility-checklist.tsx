@@ -37,13 +37,19 @@ type Props = {
   domains: Domain[];
   categories: ChecklistCategory[];
   totalItems: number;
+  currentUserId: string;
   teamMembers: TeamMember[];
 };
+
+const FILTER_ALL = "__all__";
+const FILTER_MINE = "__mine__";
+const FILTER_UNASSIGNED = "__unassigned__";
 
 export function VisibilityChecklist({
   domains,
   categories,
   totalItems,
+  currentUserId,
   teamMembers,
 }: Props) {
   const t = useTranslations("Checklist");
@@ -53,6 +59,7 @@ export function VisibilityChecklist({
   const [itemData, setItemData] = useState<Record<string, ItemData>>({});
   const [loading, setLoading] = useState(false);
   const [expandedNotes, setExpandedNotes] = useState<Set<string>>(new Set());
+  const [assigneeFilter, setAssigneeFilter] = useState<string>(FILTER_ALL);
   const [draftNotes, setDraftNotes] = useState<Record<string, string>>({});
   const [draftAssignees, setDraftAssignees] = useState<Record<string, string | null>>({});
   const [savingItems, setSavingItems] = useState<Set<string>>(new Set());
@@ -166,6 +173,33 @@ export function VisibilityChecklist({
   const getMember = (id: string | null) =>
     teamMembers.find((m) => m.userId === id);
 
+  const matchesFilter = (itemKey: string): boolean => {
+    if (assigneeFilter === FILTER_ALL) return true;
+    const data = getItem(itemKey);
+    if (assigneeFilter === FILTER_MINE) return data.assigneeId === currentUserId;
+    if (assigneeFilter === FILTER_UNASSIGNED) return !data.assigneeId;
+    return data.assigneeId === assigneeFilter;
+  };
+
+  const getFilteredCategoryItems = (cat: ChecklistCategory) =>
+    cat.items.filter((item) => matchesFilter(item.key));
+
+  const filteredTotal = categories.reduce(
+    (sum, cat) => sum + getFilteredCategoryItems(cat).length,
+    0
+  );
+  const filteredChecked = categories.reduce(
+    (sum, cat) =>
+      sum +
+      getFilteredCategoryItems(cat).filter((item) => getItem(item.key).checked)
+        .length,
+    0
+  );
+  const filteredPercent =
+    filteredTotal > 0 ? Math.round((filteredChecked / filteredTotal) * 100) : 0;
+
+  const isFiltered = assigneeFilter !== FILTER_ALL;
+
   if (domains.length === 0) {
     return (
       <Card>
@@ -179,28 +213,67 @@ export function VisibilityChecklist({
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <Select value={selectedDomainId} onValueChange={setSelectedDomainId}>
-          <SelectTrigger className="w-full sm:w-72">
-            <SelectValue placeholder={t("selectDomain")} />
-          </SelectTrigger>
-          <SelectContent>
-            {domains.map((d) => (
-              <SelectItem key={d.id} value={d.id}>
-                {d.name} ({d.domainUrl})
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <Select value={selectedDomainId} onValueChange={setSelectedDomainId}>
+            <SelectTrigger className="w-full sm:w-72">
+              <SelectValue placeholder={t("selectDomain")} />
+            </SelectTrigger>
+            <SelectContent>
+              {domains.map((d) => (
+                <SelectItem key={d.id} value={d.id}>
+                  {d.name} ({d.domainUrl})
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={assigneeFilter} onValueChange={setAssigneeFilter}>
+            <SelectTrigger className="w-full sm:w-56">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={FILTER_ALL}>{t("filterAll")}</SelectItem>
+              <SelectItem value={FILTER_MINE}>{t("filterMine")}</SelectItem>
+              <SelectItem value={FILTER_UNASSIGNED}>
+                {t("filterUnassigned")}
               </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+              {teamMembers
+                .filter((m) => m.userId !== currentUserId)
+                .map((m) => (
+                  <SelectItem key={m.userId} value={m.userId}>
+                    {m.name}
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
+
+          {isFiltered && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setAssigneeFilter(FILTER_ALL)}
+              className="h-8 text-xs"
+            >
+              <X className="mr-1 h-3 w-3" />
+              {t("clearFilter")}
+            </Button>
+          )}
+        </div>
 
         <div className="flex items-center gap-3">
           <div className="text-sm text-muted-foreground">
-            {checkedCount} / {totalItems} {t("completed")}
+            {isFiltered ? filteredChecked : checkedCount} /{" "}
+            {isFiltered ? filteredTotal : totalItems} {t("completed")}
           </div>
           <Badge
-            variant={progressPercent === 100 ? "default" : "secondary"}
+            variant={
+              (isFiltered ? filteredPercent : progressPercent) === 100
+                ? "default"
+                : "secondary"
+            }
             className="tabular-nums"
           >
-            {progressPercent}%
+            {isFiltered ? filteredPercent : progressPercent}%
           </Badge>
         </div>
       </div>
@@ -208,7 +281,9 @@ export function VisibilityChecklist({
       <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
         <div
           className="h-full rounded-full bg-primary transition-all duration-500"
-          style={{ width: `${progressPercent}%` }}
+          style={{
+            width: `${isFiltered ? filteredPercent : progressPercent}%`,
+          }}
         />
       </div>
 
@@ -219,13 +294,20 @@ export function VisibilityChecklist({
           </CardContent>
         </Card>
       ) : (
+        <>
         <Accordion
           type="multiple"
           defaultValue={[categories[0]?.id]}
           className="space-y-3"
         >
           {categories.map((cat) => {
-            const { done, total } = getCategoryProgress(cat);
+            const visibleItems = getFilteredCategoryItems(cat);
+            if (isFiltered && visibleItems.length === 0) return null;
+
+            const done = visibleItems.filter(
+              (item) => getItem(item.key).checked
+            ).length;
+            const total = visibleItems.length;
             const catPercent =
               total > 0 ? Math.round((done / total) * 100) : 0;
 
@@ -259,7 +341,7 @@ export function VisibilityChecklist({
                     />
                   </div>
                   <div className="space-y-1">
-                    {cat.items.map((item) => {
+                    {visibleItems.map((item) => {
                       const data = getItem(item.key);
                       const isExpanded = expandedNotes.has(item.key);
                       const assignee = getMember(data.assigneeId);
@@ -429,6 +511,14 @@ export function VisibilityChecklist({
             );
           })}
         </Accordion>
+        {isFiltered && filteredTotal === 0 && (
+          <Card>
+            <CardContent className="py-8 text-center text-muted-foreground">
+              {t("noFilterResults")}
+            </CardContent>
+          </Card>
+        )}
+        </>
       )}
     </div>
   );

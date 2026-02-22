@@ -47,6 +47,7 @@ export default async function ChecklistPage() {
         }))}
         categories={CHECKLIST_CATEGORIES}
         totalItems={getTotalItemCount()}
+        currentUserId={session.user.id}
         teamMembers={members.map((m) => ({
           userId: m.userId,
           name: m.name ?? m.email ?? "Unbekannt",
