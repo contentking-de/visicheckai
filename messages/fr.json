@@ -621,6 +621,7 @@
     "plan_professional": "Professional",
     "trialDays": "Encore {days, plural, one {# jour} other {# jours}}",
     "prompts": "Prompts",
+    "executedPrompts": "Prompts exécutés",
     "domains": "Domaines"
   },
   "Sentiment": {

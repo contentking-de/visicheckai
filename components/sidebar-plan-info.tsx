@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 import { Link } from "@/i18n/navigation";
-import { CreditCard, Zap, Globe, MessageSquare } from "lucide-react";
+import { CreditCard, Zap, Globe, MessageSquare, Activity } from "lucide-react";
 
 export const PLAN_USAGE_REFRESH_EVENT = "plan-usage-refresh";
 
@@ -13,7 +13,7 @@ type PlanData = {
   role: string | null;
   isTrial: boolean;
   trialDaysLeft: number;
-  usage: { used: number; limit: number } | null;
+  usage: { used: number; limit: number; executed: number } | null;
   domainCount: number;
 };
 
@@ -61,6 +61,7 @@ export function SidebarPlanInfo() {
 
   const used = data.usage?.used ?? 0;
   const limit = data.usage?.limit ?? 0;
+  const executed = data.usage?.executed ?? 0;
   const pct = limit > 0 ? Math.min(100, Math.round((used / limit) * 100)) : 0;
   const isLow = limit > 0 && pct >= 80;
 
@@ -122,6 +123,14 @@ export function SidebarPlanInfo() {
             </div>
           </>
         ) : null}
+
+        <div className="flex items-center justify-between text-[11px]">
+          <span className="flex items-center gap-1 text-zinc-400">
+            <Activity className="h-3 w-3" />
+            {t("executedPrompts")}
+          </span>
+          <span className="font-medium text-white">{executed}</span>
+        </div>
       </div>
     </Link>
   );

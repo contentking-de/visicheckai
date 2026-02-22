@@ -621,6 +621,7 @@
     "plan_professional": "Professional",
     "trialDays": "Noch {days, plural, one {# Tag} other {# Tage}}",
     "prompts": "Prompts",
+    "executedPrompts": "Prompt-Runs",
     "domains": "Domains"
   },
   "Sentiment": {

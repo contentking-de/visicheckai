@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { getAccessStatus } from "@/lib/access";
-import { getPromptUsage } from "@/lib/usage";
+import { getPromptUsage, countExecutedPrompts } from "@/lib/usage";
 import { db } from "@/lib/db";
 import { subscriptions, domains } from "@/lib/schema";
 import { eq, desc, count } from "drizzle-orm";
@@ -34,6 +34,13 @@ export async function GET() {
     isSuperAdmin ? false : access.isTrial
   );
 
+  const executed = await countExecutedPrompts(
+    session.user.teamId,
+    session.user.id,
+    usage.periodStart,
+    usage.periodEnd,
+  );
+
   const [domainCount] = await db
     .select({ value: count() })
     .from(domains)
@@ -61,6 +68,7 @@ export async function GET() {
       remaining: usage.remaining,
       periodStart: usage.periodStart,
       periodEnd: usage.periodEnd,
+      executed,
     },
     domainCount: domainCount?.value ?? 0,
   });

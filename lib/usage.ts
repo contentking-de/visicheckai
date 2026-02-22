@@ -1,8 +1,9 @@
 import { db } from "@/lib/db";
 import {
+  trackingConfigs,
   trackingResults,
   trackingRuns,
-  trackingConfigs,
+  promptSets,
   subscriptions,
 } from "@/lib/schema";
 import { eq, and, gte, lte, desc, sql } from "drizzle-orm";
@@ -17,17 +18,40 @@ export type PromptUsageInfo = {
 };
 
 /**
- * Counts the number of unique prompts executed within a date range
+ * Counts the total number of configured prompts across all tracking configs
  * for a given team (or user if no team).
  *
- * Each prompt text per run counts as 1, regardless of how many providers
- * processed it (each prompt generates one result per provider).
+ * Sums up the prompt array lengths in each prompt set linked to a tracking config.
  */
-async function countPromptsInPeriod(
+async function countConfiguredPrompts(
+  teamId: string | null | undefined,
+  userId: string,
+): Promise<number> {
+  const ownerFilter = teamId
+    ? eq(trackingConfigs.teamId, teamId)
+    : eq(trackingConfigs.userId, userId);
+
+  const [result] = await db
+    .select({
+      total: sql<number>`coalesce(sum(jsonb_array_length(${promptSets.prompts})), 0)`,
+    })
+    .from(trackingConfigs)
+    .innerJoin(promptSets, eq(trackingConfigs.promptSetId, promptSets.id))
+    .where(ownerFilter);
+
+  return Number(result?.total ?? 0);
+}
+
+/**
+ * Counts the number of unique prompts actually executed within a date range.
+ * Each prompt text per run counts as 1, regardless of how many providers
+ * processed it.
+ */
+export async function countExecutedPrompts(
   teamId: string | null | undefined,
   userId: string,
   periodStart: Date,
-  periodEnd: Date
+  periodEnd: Date,
 ): Promise<number> {
   const ownerFilter = teamId
     ? eq(trackingConfigs.teamId, teamId)
@@ -44,7 +68,7 @@ async function countPromptsInPeriod(
       and(
         ownerFilter,
         gte(trackingResults.createdAt, periodStart),
-        lte(trackingResults.createdAt, periodEnd)
+        lte(trackingResults.createdAt, periodEnd),
       )
     );
 
@@ -90,7 +114,7 @@ export async function getPromptUsage(
     periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
   }
 
-  const used = await countPromptsInPeriod(teamId, userId, periodStart, periodEnd);
+  const used = await countConfiguredPrompts(teamId, userId);
 
   return {
     used,
