@@ -226,6 +226,7 @@
     "visibility": "Visibilité",
     "analytics": "Analytics",
     "admin": "Admin",
+    "adminUsers": "Utilisateurs & équipes",
     "magazine": "Magazine",
     "billing": "Facturation",
     "sectionData": "Données",
@@ -530,6 +531,23 @@
     "outputTokens": "Tokens de sortie",
     "cost": "Coût",
     "total": "Total"
+  },
+  "AdminUsers": {
+    "title": "Utilisateurs & équipes",
+    "description": "Aperçu de toutes les équipes et de leurs membres sur la plateforme.",
+    "loadError": "Impossible de charger les données.",
+    "totalTeams": "{count, plural, one {# équipe} other {# équipes}}",
+    "totalUsers": "{count, plural, one {# utilisateur} other {# utilisateurs}}",
+    "team": "Équipe",
+    "plan": "Plan",
+    "members": "Membres",
+    "domains": "Domaines",
+    "created": "Créé",
+    "noPlan": "Aucun plan",
+    "unnamed": "Sans nom",
+    "promptSets": "Ensembles de prompts",
+    "noDomains": "Aucun domaine créé",
+    "noPromptSets": "Aucun ensemble de prompts créé"
   },
   "LanguageSwitcher": {
     "de": "Deutsch",

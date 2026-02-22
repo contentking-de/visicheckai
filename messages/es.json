@@ -226,6 +226,7 @@
     "visibility": "Visibilidad",
     "analytics": "Analytics",
     "admin": "Admin",
+    "adminUsers": "Usuarios y equipos",
     "magazine": "Revista",
     "billing": "Facturación",
     "sectionData": "Datos",
@@ -530,6 +531,23 @@
     "outputTokens": "Tokens de salida",
     "cost": "Coste",
     "total": "Total"
+  },
+  "AdminUsers": {
+    "title": "Usuarios y equipos",
+    "description": "Resumen de todos los equipos y sus miembros en la plataforma.",
+    "loadError": "No se pudieron cargar los datos.",
+    "totalTeams": "{count, plural, one {# equipo} other {# equipos}}",
+    "totalUsers": "{count, plural, one {# usuario} other {# usuarios}}",
+    "team": "Equipo",
+    "plan": "Plan",
+    "members": "Miembros",
+    "domains": "Dominios",
+    "created": "Creado",
+    "noPlan": "Sin plan",
+    "unnamed": "Sin nombre",
+    "promptSets": "Conjuntos de prompts",
+    "noDomains": "Sin dominios creados",
+    "noPromptSets": "Sin conjuntos de prompts creados"
   },
   "LanguageSwitcher": {
     "de": "Deutsch",

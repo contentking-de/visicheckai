@@ -17,6 +17,7 @@ import {
   Heart,
   PieChart,
   Eye,
+  Users,
 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { isSuperAdmin } from "@/lib/rbac";
@@ -63,6 +64,11 @@ export default async function DashboardLayout({
       href: "/dashboard/admin",
       label: t("admin"),
       icon: ShieldCheck,
+    });
+    adminItems.push({
+      href: "/dashboard/admin/users",
+      label: t("adminUsers"),
+      icon: Users,
     });
     adminItems.push({
       href: "/dashboard/admin/magazin",

@@ -226,6 +226,7 @@
     "visibility": "Sichtbarkeit",
     "analytics": "Analytics",
     "admin": "Admin",
+    "adminUsers": "Nutzer & Teams",
     "magazine": "Magazin",
     "billing": "Abrechnung",
     "sectionData": "Daten",
@@ -530,6 +531,23 @@
     "outputTokens": "Output-Tokens",
     "cost": "Kosten",
     "total": "Gesamt"
+  },
+  "AdminUsers": {
+    "title": "Nutzer & Teams",
+    "description": "Übersicht aller Teams und deren Mitglieder auf der Plattform.",
+    "loadError": "Daten konnten nicht geladen werden.",
+    "totalTeams": "{count, plural, one {# Team} other {# Teams}}",
+    "totalUsers": "{count, plural, one {# Nutzer} other {# Nutzer}}",
+    "team": "Team",
+    "plan": "Plan",
+    "members": "Mitglieder",
+    "domains": "Domains",
+    "created": "Erstellt",
+    "noPlan": "Kein Plan",
+    "unnamed": "Ohne Name",
+    "promptSets": "Prompt-Sets",
+    "noDomains": "Keine Domains angelegt",
+    "noPromptSets": "Keine Prompt-Sets angelegt"
   },
   "LanguageSwitcher": {
     "de": "Deutsch",
