@@ -547,7 +547,12 @@
     "unnamed": "Unnamed",
     "promptSets": "Prompt Sets",
     "noDomains": "No domains created",
-    "noPromptSets": "No prompt sets created"
+    "noPromptSets": "No prompt sets created",
+    "impersonate": "View as team"
+  },
+  "Impersonation": {
+    "banner": "Viewing dashboard as team: {team}",
+    "stop": "Stop"
   },
   "LanguageSwitcher": {
     "de": "Deutsch",

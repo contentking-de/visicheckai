@@ -547,7 +547,12 @@
     "unnamed": "Ohne Name",
     "promptSets": "Prompt-Sets",
     "noDomains": "Keine Domains angelegt",
-    "noPromptSets": "Keine Prompt-Sets angelegt"
+    "noPromptSets": "Keine Prompt-Sets angelegt",
+    "impersonate": "Ansicht wechseln"
+  },
+  "Impersonation": {
+    "banner": "Du siehst das Dashboard als Team: {team}",
+    "stop": "Beenden"
   },
   "LanguageSwitcher": {
     "de": "Deutsch",

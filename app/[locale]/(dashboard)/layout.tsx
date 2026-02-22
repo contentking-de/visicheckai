@@ -25,6 +25,7 @@ import type { UserRole } from "@/lib/schema";
 import { redirect } from "next/navigation";
 import { getLocalePrefix } from "@/lib/locale-href";
 import { OnboardingModal } from "@/components/onboarding-modal";
+import { ImpersonationBanner } from "@/components/impersonation-banner";
 
 export default async function DashboardLayout({
   children,
@@ -155,6 +156,9 @@ export default async function DashboardLayout({
         </div>
       </aside>
       <div className="flex flex-1 flex-col">
+        {session.user.impersonating && session.user.impersonatingTeamName && (
+          <ImpersonationBanner teamName={session.user.impersonatingTeamName} />
+        )}
         <header className="flex h-16 items-center justify-end gap-3 border-b px-6">
           <OnboardingModal />
           <span className="text-sm text-muted-foreground">

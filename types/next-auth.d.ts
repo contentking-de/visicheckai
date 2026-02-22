@@ -9,6 +9,8 @@ declare module "next-auth" {
       image?: string | null;
       teamId?: string | null;
       role?: UserRole | null;
+      impersonating?: boolean;
+      impersonatingTeamName?: string | null;
     };
   }
 

@@ -547,7 +547,12 @@
     "unnamed": "Sin nombre",
     "promptSets": "Conjuntos de prompts",
     "noDomains": "Sin dominios creados",
-    "noPromptSets": "Sin conjuntos de prompts creados"
+    "noPromptSets": "Sin conjuntos de prompts creados",
+    "impersonate": "Ver como equipo"
+  },
+  "Impersonation": {
+    "banner": "Viendo el panel como equipo: {team}",
+    "stop": "Detener"
   },
   "LanguageSwitcher": {
     "de": "Deutsch",

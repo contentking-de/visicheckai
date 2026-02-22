@@ -6,6 +6,8 @@ import { db } from "@/lib/db";
 import { users, accounts, sessions, verificationTokens } from "@/lib/schema";
 import { eq } from "drizzle-orm";
 import { getTeamForUser, createTeamForUser } from "@/lib/rbac";
+import { cookies } from "next/headers";
+import { teams } from "@/lib/schema";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: DrizzleAdapter(db, {
@@ -68,6 +70,27 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (teamCtx) {
           session.user.teamId = teamCtx.teamId;
           session.user.role = teamCtx.role;
+
+          if (teamCtx.role === "super_admin") {
+            try {
+              const cookieStore = await cookies();
+              const impersonateTeamId = cookieStore.get("impersonate_team_id")?.value;
+              if (impersonateTeamId && impersonateTeamId !== teamCtx.teamId) {
+                const [team] = await db
+                  .select({ name: teams.name })
+                  .from(teams)
+                  .where(eq(teams.id, impersonateTeamId))
+                  .limit(1);
+                if (team) {
+                  session.user.teamId = impersonateTeamId;
+                  session.user.impersonating = true;
+                  session.user.impersonatingTeamName = team.name;
+                }
+              }
+            } catch {
+              // cookies() not available (e.g. during build)
+            }
+          }
         }
       }
       return session;

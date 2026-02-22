@@ -547,7 +547,12 @@
     "unnamed": "Sans nom",
     "promptSets": "Ensembles de prompts",
     "noDomains": "Aucun domaine créé",
-    "noPromptSets": "Aucun ensemble de prompts créé"
+    "noPromptSets": "Aucun ensemble de prompts créé",
+    "impersonate": "Voir en tant qu'équipe"
+  },
+  "Impersonation": {
+    "banner": "Vous voyez le tableau de bord de l'équipe : {team}",
+    "stop": "Arrêter"
   },
   "LanguageSwitcher": {
     "de": "Deutsch",

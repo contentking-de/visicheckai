@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
+import { Button } from "@/components/ui/button";
 import {
   ChevronDown,
   ChevronRight,
@@ -13,6 +15,7 @@ import {
   Loader2,
   FileText,
   MessageSquare,
+  Eye,
 } from "lucide-react";
 
 type Member = {
@@ -49,6 +52,7 @@ type Team = {
 
 export function AdminUsersTable() {
   const t = useTranslations("AdminUsers");
+  const router = useRouter();
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -85,6 +89,16 @@ export function AdminUsersTable() {
     return (
       <p className="py-10 text-center text-muted-foreground">{t("loadError")}</p>
     );
+  }
+
+  async function impersonate(teamId: string) {
+    await fetch("/api/admin/impersonate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ teamId }),
+    });
+    router.push("/dashboard");
+    router.refresh();
   }
 
   function roleIcon(role: string) {
@@ -140,6 +154,7 @@ export function AdminUsersTable() {
                   team={team}
                   isOpen={isOpen}
                   onToggle={() => toggle(team.id)}
+                  onImpersonate={() => impersonate(team.id)}
                   roleIcon={roleIcon}
                   planBadge={planBadge}
                   t={t}
@@ -157,6 +172,7 @@ function TeamRow({
   team,
   isOpen,
   onToggle,
+  onImpersonate,
   roleIcon,
   planBadge,
   t,
@@ -164,6 +180,7 @@ function TeamRow({
   team: Team;
   isOpen: boolean;
   onToggle: () => void;
+  onImpersonate: () => void;
   roleIcon: (role: string) => React.ReactNode;
   planBadge: (sub: { plan: string; status: string } | null) => React.ReactNode;
   t: ReturnType<typeof useTranslations>;
@@ -192,14 +209,31 @@ function TeamRow({
             {team.domainCount}
           </span>
         </td>
-        <td className="px-4 py-3 text-right text-muted-foreground">
-          {team.createdAt
-            ? new Date(team.createdAt).toLocaleDateString("de-DE", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-              })
-            : "–"}
+        <td className="px-4 py-3 text-right">
+          <div className="flex items-center justify-end gap-3">
+            <span className="text-muted-foreground">
+              {team.createdAt
+                ? new Date(team.createdAt).toLocaleDateString("de-DE", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                  })
+                : "–"}
+            </span>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-7 gap-1 px-2 text-xs"
+              onClick={(e) => {
+                e.stopPropagation();
+                onImpersonate();
+              }}
+              title={t("impersonate")}
+            >
+              <Eye className="h-3.5 w-3.5" />
+              {t("impersonate")}
+            </Button>
+          </div>
         </td>
       </tr>
       {isOpen && (
