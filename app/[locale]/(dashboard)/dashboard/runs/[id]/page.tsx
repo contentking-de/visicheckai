@@ -14,24 +14,13 @@ import { getFaviconMap, fetchFaviconsForDomains } from "@/lib/favicon";
 import { notFound } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
 import { getTranslations, getLocale } from "next-intl/server";
-import { ExpandableResponse } from "@/components/expandable-response";
-import { ExpandableCitations } from "@/components/expandable-citations";
 import { CompetitorOverview } from "@/components/competitor-overview";
 import { SourceUrls } from "@/components/source-urls";
-import { PROVIDER_LABELS, PROVIDER_ICONS } from "@/lib/providers";
+import { ProviderResultsCard } from "@/components/provider-results-card";
 import { extractUrlsFromText } from "@/lib/ai-providers";
-import Image from "next/image";
 
 export default async function RunDetailPage({
   params,
@@ -150,8 +139,6 @@ export default async function RunDetailPage({
     await fetchFaviconsForDomains(domainArray);
   });
 
-  const providerLabels = PROVIDER_LABELS;
-
   return (
     <div className="space-y-8">
       <div>
@@ -225,48 +212,23 @@ export default async function RunDetailPage({
       />
 
       {Object.entries(byProvider).map(([provider, items]) => (
-        <Card key={provider}>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              {PROVIDER_ICONS[provider] && (
-                <Image src={PROVIDER_ICONS[provider]} alt="" width={20} height={20} className="h-5 w-5" />
-              )}
-              {providerLabels[provider] ?? provider}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{t("prompt")}</TableHead>
-                  <TableHead>{t("mentions")}</TableHead>
-                  <TableHead>{t("citations")}</TableHead>
-                  <TableHead>{t("responseExcerpt")}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {items.map((item, i) => (
-                  <TableRow key={i}>
-                    <TableCell className="max-w-[200px] truncate">
-                      {item.prompt}
-                    </TableCell>
-                    <TableCell>{item.mentions}</TableCell>
-                    <TableCell>
-                      <ExpandableCitations
-                        citations={item.citations}
-                        ownDomainCited={item.ownDomainCited}
-                        count={item.citationCount}
-                      />
-                    </TableCell>
-                    <TableCell className="max-w-[400px]">
-                      <ExpandableResponse text={item.response} />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+        <ProviderResultsCard
+          key={provider}
+          provider={provider}
+          items={items}
+          translations={{
+            prompt: t("prompt"),
+            mentions: t("mentions"),
+            citations: t("citations"),
+            responseExcerpt: t("responseExcerpt"),
+            filterAll: t("filterAll"),
+            filterWithMention: t("filterWithMention"),
+            filterWithoutMention: t("filterWithoutMention"),
+            filterWithSource: t("filterWithSource"),
+            filterWithoutSource: t("filterWithoutSource"),
+            noMatchingResults: t("noMatchingResults"),
+          }}
+        />
       ))}
 
       {results.length === 0 && (

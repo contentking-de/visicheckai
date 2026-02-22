@@ -420,6 +420,12 @@
     "mentions": "Erwähnungen",
     "citations": "Quellen",
     "responseExcerpt": "Antwort (Auszug)",
+    "filterAll": "Alle",
+    "filterWithMention": "Mit Erwähnung",
+    "filterWithoutMention": "Ohne Erwähnung",
+    "filterWithSource": "Mit Quelle",
+    "filterWithoutSource": "Ohne Quelle",
+    "noMatchingResults": "Keine Ergebnisse für die gewählten Filter.",
     "noResults": "Noch keine Ergebnisse. Der Run läuft möglicherweise noch."
   },
   "SourceUrls": {

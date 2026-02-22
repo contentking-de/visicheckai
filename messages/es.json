@@ -420,6 +420,12 @@
     "mentions": "Menciones",
     "citations": "Fuentes",
     "responseExcerpt": "Respuesta (extracto)",
+    "filterAll": "Todos",
+    "filterWithMention": "Con mención",
+    "filterWithoutMention": "Sin mención",
+    "filterWithSource": "Con fuente",
+    "filterWithoutSource": "Sin fuente",
+    "noMatchingResults": "Ningún resultado coincide con los filtros seleccionados.",
     "noResults": "Aún no hay resultados. La ejecución puede estar todavía en curso."
   },
   "SourceUrls": {
