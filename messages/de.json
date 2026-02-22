@@ -197,7 +197,7 @@
   },
   "Onboarding": {
     "title": "Erste Schritte",
-    "subtitle": "In drei einfachen Schritten starten Sie Ihr AI-Sichtbarkeits-Tracking.",
+    "subtitle": "In vier einfachen Schritten starten Sie Ihr AI-Sichtbarkeits-Tracking.",
     "stepLabel": "Schritt {current} von {total}",
     "domainsTitle": "Domain & Marke anlegen",
     "domainsDesc": "Legen Sie zunächst Ihre Domain an und geben Sie den Markennamen ein, nach dem die KI-Modelle suchen sollen. So weiß visicheck.ai, welche Website und welche Marke überwacht werden soll.",
@@ -205,6 +205,8 @@
     "promptsDesc": "Erstellen Sie ein Prompt-Set mit den Fragen, die an die KI-Modelle gestellt werden. Sie können Prompts manuell eingeben oder automatisch generieren lassen – passend zu Ihrer Branche und Ihren Keywords.",
     "configTitle": "Run-Konfiguration einrichten",
     "configDesc": "Verknüpfen Sie Ihre Domain mit einem Prompt-Set und wählen Sie das Intervall (täglich, wöchentlich, monatlich). Anschließend laufen Ihre Sichtbarkeits-Checks automatisch.",
+    "teamTitle": "Team-Mitglieder einladen",
+    "teamDesc": "Arbeiten Sie gemeinsam an Ihrer AI-Sichtbarkeit: Laden Sie Kolleg:innen in Ihr Team ein. Den Einladungslink finden Sie jederzeit über das Benutzermenü oben rechts unter 'Team'.",
     "back": "Zurück",
     "next": "Weiter",
     "goToStep": "Jetzt anlegen",

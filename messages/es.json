@@ -197,7 +197,7 @@
   },
   "Onboarding": {
     "title": "Primeros pasos",
-    "subtitle": "Inicie su seguimiento de visibilidad IA en tres sencillos pasos.",
+    "subtitle": "Inicie su seguimiento de visibilidad IA en cuatro sencillos pasos.",
     "stepLabel": "Paso {current} de {total}",
     "domainsTitle": "Añadir dominio y marca",
     "domainsDesc": "Primero, añada su dominio e introduzca el nombre de marca que los modelos de IA deben buscar. Así visicheck.ai sabrá qué sitio web y marca supervisar.",
@@ -205,6 +205,8 @@
     "promptsDesc": "Cree un conjunto de prompts con las preguntas que se harán a los modelos de IA. Puede introducir los prompts manualmente o generarlos automáticamente, adaptados a su sector y palabras clave.",
     "configTitle": "Configurar ejecución",
     "configDesc": "Vincule su dominio con un conjunto de prompts y elija el intervalo (diario, semanal, mensual). Sus verificaciones de visibilidad se ejecutarán automáticamente.",
+    "teamTitle": "Invitar miembros del equipo",
+    "teamDesc": "Colabore en su visibilidad IA: invite a sus colegas al equipo. El enlace de invitación lo encontrará en cualquier momento a través del menú de usuario arriba a la derecha en «Team».",
     "back": "Atrás",
     "next": "Siguiente",
     "goToStep": "Ir ahora",

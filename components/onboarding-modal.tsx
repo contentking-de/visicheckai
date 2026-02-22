@@ -16,6 +16,7 @@ import {
   Globe,
   FileText,
   Settings,
+  Users,
   ArrowRight,
   ArrowLeft,
   Check,
@@ -36,6 +37,11 @@ const STEPS = [
     key: "config" as const,
     icon: Settings,
     href: "/dashboard/configs/new",
+  },
+  {
+    key: "team" as const,
+    icon: Users,
+    href: "/dashboard/team",
   },
 ];
 

@@ -197,7 +197,7 @@
   },
   "Onboarding": {
     "title": "Getting Started",
-    "subtitle": "Start your AI visibility tracking in three simple steps.",
+    "subtitle": "Start your AI visibility tracking in four simple steps.",
     "stepLabel": "Step {current} of {total}",
     "domainsTitle": "Add Domain & Brand",
     "domainsDesc": "First, add your domain and enter the brand name that the AI models should look for. This tells visicheck.ai which website and brand to monitor.",
@@ -205,6 +205,8 @@
     "promptsDesc": "Create a prompt set with the questions to ask AI models. You can enter prompts manually or have them generated automatically – tailored to your industry and keywords.",
     "configTitle": "Set Up Run Configuration",
     "configDesc": "Link your domain with a prompt set and choose the interval (daily, weekly, monthly). Your visibility checks will then run automatically.",
+    "teamTitle": "Invite Team Members",
+    "teamDesc": "Collaborate on your AI visibility: invite colleagues to your team. You can find the invitation link anytime via the user menu in the top right under 'Team'.",
     "back": "Back",
     "next": "Next",
     "goToStep": "Go there now",
