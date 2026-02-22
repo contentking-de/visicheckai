@@ -579,7 +579,10 @@
     "readMore": "Lire la suite",
     "backToMagazine": "Retour au magazine",
     "articleNotFound": "Article introuvable",
-    "articleTitleSuffix": "Magazine – visicheck.ai"
+    "articleTitleSuffix": "Magazine – visicheck.ai",
+    "moreArticles": "Plus d'articles du magazine",
+    "authorBoxHeading": "Auteur de cet article",
+    "authorBio": "Nicolas Sacotte est un expert en marketing en ligne avec plus de 25 ans d'expérience professionnelle, qui se concentre avec son équipe sur le marketing de contenu, la construction de marque et surtout la visibilité de marque dans tous les systèmes et moteurs de recherche disponibles. Avec son équipe, Nicolas accompagne des entreprises de taille moyenne et de grands groupes internationaux, les aidant à faire avancer stratégiquement le développement de leur marque. Il est impliqué dans l'AI Search Visibility depuis ses débuts et partage son expertise approfondie dans notre magazine."
   },
   "Trial": {
     "bannerText": "Période d'essai : {days, plural, one {# jour} other {# jours}} restant(s).",

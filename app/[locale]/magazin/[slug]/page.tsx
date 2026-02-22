@@ -5,13 +5,13 @@ import { redirect } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import { db } from "@/lib/db";
 import { magazineArticles, magazineArticleTranslations, users } from "@/lib/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, desc, ne } from "drizzle-orm";
 import { defaultLocale, type Locale } from "@/i18n/config";
 import { buildHreflangAlternates } from "@/lib/locale-href";
 import { AuthButtons } from "@/components/auth-buttons";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { MobileNav } from "@/components/mobile-nav";
-import { ArrowLeft, Calendar, User } from "lucide-react";
+import { ArrowLeft, ArrowRight, Calendar, User } from "lucide-react";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -184,6 +184,45 @@ export default async function ArticlePage({ params }: Props) {
     redirect(`${prefix}/magazin/${row.correctSlug}`);
   }
 
+  const recentBase = await db
+    .select({
+      id: magazineArticles.id,
+      slug: magazineArticles.slug,
+      title: magazineArticles.title,
+      excerpt: magazineArticles.excerpt,
+      coverImage: magazineArticles.coverImage,
+      publishedAt: magazineArticles.publishedAt,
+      authorName: users.name,
+    })
+    .from(magazineArticles)
+    .leftJoin(users, eq(users.id, magazineArticles.authorId))
+    .where(and(eq(magazineArticles.published, true), ne(magazineArticles.id, row.id)))
+    .orderBy(desc(magazineArticles.publishedAt))
+    .limit(3);
+
+  let recentArticles = recentBase;
+  if (locale !== defaultLocale) {
+    const trIds = recentBase.map((a) => a.id);
+    if (trIds.length > 0) {
+      const translations = await db
+        .select({
+          articleId: magazineArticleTranslations.articleId,
+          slug: magazineArticleTranslations.slug,
+          title: magazineArticleTranslations.title,
+          excerpt: magazineArticleTranslations.excerpt,
+        })
+        .from(magazineArticleTranslations)
+        .where(eq(magazineArticleTranslations.locale, locale));
+
+      const trMap = new Map(translations.map((t) => [t.articleId, t]));
+      recentArticles = recentBase.map((a) => {
+        const tr = trMap.get(a.id);
+        if (!tr) return a;
+        return { ...a, slug: tr.slug, title: tr.title, excerpt: tr.excerpt };
+      });
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-sm">
@@ -243,10 +282,13 @@ export default async function ArticlePage({ params }: Props) {
               </span>
             )}
             {row.authorName && (
-              <span className="flex items-center gap-1.5">
+              <a
+                href="#autor"
+                className="flex items-center gap-1.5 transition-colors hover:text-foreground"
+              >
                 <User className="h-4 w-4" />
                 {row.authorName}
-              </span>
+              </a>
             )}
           </div>
 
@@ -286,6 +328,93 @@ export default async function ArticlePage({ params }: Props) {
             className="prose prose-lg mt-10 max-w-none prose-headings:font-semibold prose-headings:tracking-tight prose-a:text-primary prose-img:rounded-lg"
             dangerouslySetInnerHTML={{ __html: row.content }}
           />
+
+          <div
+            id="autor"
+            className="mt-24 scroll-mt-24 rounded-2xl border bg-muted/40 p-6 md:p-8"
+          >
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+              {t("authorBoxHeading")}
+            </h3>
+            <div className="mt-4 flex flex-col items-start gap-5 sm:flex-row sm:items-center">
+              <img
+                src="/nicolas-sacotte.jpg"
+                alt="Nicolas Sacotte"
+                width={80}
+                height={80}
+                className="h-20 w-20 rounded-full object-cover shrink-0"
+              />
+              <div>
+                <p className="text-xl font-bold tracking-tight">Nicolas Sacotte</p>
+                <p className="mt-2 text-base leading-relaxed text-muted-foreground md:text-lg">
+                  {t("authorBio")}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {recentArticles.length > 0 && (
+            <div className="mt-20">
+              <h2 className="text-2xl font-bold tracking-tight">
+                {t("moreArticles")}
+              </h2>
+              <div className="mt-8 grid gap-8 md:grid-cols-3">
+                {recentArticles.map((article) => (
+                  <Link
+                    key={article.slug}
+                    href={`/magazin/${article.slug}`}
+                    className="group overflow-hidden rounded-xl border bg-card transition-shadow hover:shadow-lg"
+                  >
+                    {article.coverImage ? (
+                      <div className="aspect-[16/9] overflow-hidden">
+                        <img
+                          src={article.coverImage}
+                          alt={article.title}
+                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex aspect-[16/9] items-center justify-center bg-muted">
+                        <span className="text-4xl text-muted-foreground/30">✍️</span>
+                      </div>
+                    )}
+                    <div className="p-5">
+                      <div className="mb-3 flex items-center gap-4 text-xs text-muted-foreground">
+                        {article.publishedAt && (
+                          <span className="flex items-center gap-1">
+                            <Calendar className="h-3 w-3" />
+                            {new Date(article.publishedAt).toLocaleDateString(locale, {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            })}
+                          </span>
+                        )}
+                        {article.authorName && (
+                          <span className="flex items-center gap-1">
+                            <User className="h-3 w-3" />
+                            {article.authorName}
+                          </span>
+                        )}
+                      </div>
+                      <h3 className="text-lg font-semibold leading-snug group-hover:text-primary">
+                        {article.title}
+                      </h3>
+                      {article.excerpt && (
+                        <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">
+                          {article.excerpt}
+                        </p>
+                      )}
+                      <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-primary">
+                        {t("readMore")}
+                        <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+                      </span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </article>
 
