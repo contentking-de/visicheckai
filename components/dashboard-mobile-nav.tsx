@@ -28,6 +28,7 @@ import {
   ShieldCheck,
   Users,
   Newspaper,
+  ClipboardCheck,
 } from "lucide-react";
 
 type NavItem = {
@@ -58,6 +59,7 @@ const ICONS: Record<string, LucideIcon> = {
   ShieldCheck,
   Users,
   Newspaper,
+  ClipboardCheck,
 };
 
 export function DashboardMobileNav({

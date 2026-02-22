@@ -18,6 +18,7 @@ import {
   PieChart,
   Eye,
   Users,
+  ClipboardCheck,
 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { isSuperAdmin } from "@/lib/rbac";
@@ -53,6 +54,10 @@ export default async function DashboardLayout({
     { href: "/dashboard/runs", label: t("runs"), icon: BarChart3, iconName: "BarChart3" },
     { href: "/dashboard/sentiment", label: t("sentiment"), icon: Heart, iconName: "Heart" },
     { href: "/dashboard/analytics", label: t("analytics"), icon: PieChart, iconName: "PieChart" },
+  ];
+
+  const todoItems = [
+    { href: "/dashboard/checklist", label: t("checklist"), icon: ClipboardCheck, iconName: "ClipboardCheck" },
   ];
 
   const settingsItems = [
@@ -92,6 +97,14 @@ export default async function DashboardLayout({
     {
       title: t("sectionData"),
       items: dataItems.map((item) => ({
+        href: item.href,
+        label: item.label,
+        iconName: item.iconName,
+      })),
+    },
+    {
+      title: t("sectionTodo"),
+      items: todoItems.map((item) => ({
         href: item.href,
         label: item.label,
         iconName: item.iconName,
@@ -149,6 +162,21 @@ export default async function DashboardLayout({
               {t("sectionData")}
             </p>
             {dataItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium hover:bg-muted"
+              >
+                <item.icon className="h-4 w-4" />
+                {item.label}
+              </Link>
+            ))}
+          </div>
+          <div className="mt-6 space-y-1">
+            <p className="px-3 pt-2 pb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              {t("sectionTodo")}
+            </p>
+            {todoItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}

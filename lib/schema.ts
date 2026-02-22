@@ -311,6 +311,33 @@ export const subscriptions = pgTable(
 
 export type Sentiment = "positive" | "neutral" | "negative";
 
+// ── Visibility Checklist ────────────────────────────────────────────────────
+
+export const visibilityChecklist = pgTable(
+  "visibility_checklist",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    domainId: uuid("domain_id")
+      .notNull()
+      .references(() => domains.id, { onDelete: "cascade" }),
+    teamId: uuid("team_id")
+      .references(() => teams.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    itemKey: text("item_key").notNull(),
+    checked: boolean("checked").notNull().default(false),
+    checkedAt: timestamp("checked_at", { mode: "date" }),
+    checkedBy: text("checked_by")
+      .references(() => users.id, { onDelete: "set null" }),
+  },
+  (table) => [
+    index("checklist_domain").on(table.domainId),
+    index("checklist_team").on(table.teamId),
+    uniqueIndex("checklist_domain_item").on(table.domainId, table.itemKey),
+  ]
+);
+
 export const trackingResults = pgTable("tracking_results", {
   id: uuid("id").defaultRandom().primaryKey(),
   runId: uuid("run_id")
