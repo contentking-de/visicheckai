@@ -330,6 +330,9 @@ export const visibilityChecklist = pgTable(
     checkedAt: timestamp("checked_at", { mode: "date" }),
     checkedBy: text("checked_by")
       .references(() => users.id, { onDelete: "set null" }),
+    notes: text("notes"),
+    assigneeId: text("assignee_id")
+      .references(() => users.id, { onDelete: "set null" }),
   },
   (table) => [
     index("checklist_domain").on(table.domainId),

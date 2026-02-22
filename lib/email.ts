@@ -70,6 +70,75 @@ export async function sendTeamInvitationEmail({
   }
 }
 
+// ── Checklist Assignment Email ────────────────────────────────────────────
+
+export async function sendChecklistAssignmentEmail({
+  to,
+  assignerName,
+  itemLabel,
+  domainName,
+}: {
+  to: string;
+  assignerName: string;
+  itemLabel: string;
+  domainName: string;
+}) {
+  const checklistUrl = `${baseUrl}/dashboard/checklist`;
+
+  const subject = `${assignerName} hat Ihnen eine Aufgabe zugewiesen`;
+
+  const html = `
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 16px;">
+      <div style="text-align: center; margin-bottom: 32px;">
+        <h1 style="font-size: 20px; font-weight: 700; color: #111;">visicheck.ai</h1>
+      </div>
+      
+      <div style="background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+        <p style="font-size: 16px; font-weight: 600; color: #0c4a6e; margin: 0 0 8px 0;">
+          Neue Aufgabe zugewiesen
+        </p>
+        <p style="font-size: 14px; color: #555; margin: 0 0 12px 0;">
+          <strong>${assignerName}</strong> hat Ihnen folgende Aufgabe in der Visibility Checkliste zugewiesen:
+        </p>
+        <div style="background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; padding: 12px 16px; margin-top: 8px;">
+          <p style="font-size: 14px; font-weight: 600; color: #111; margin: 0 0 4px 0;">
+            ${itemLabel}
+          </p>
+          <p style="font-size: 13px; color: #777; margin: 0;">
+            Domain: ${domainName}
+          </p>
+        </div>
+      </div>
+      
+      <div style="text-align: center; margin-bottom: 32px;">
+        <a href="${checklistUrl}" style="display: inline-block; background: #111; color: #fff; text-decoration: none; padding: 12px 28px; border-radius: 6px; font-size: 14px; font-weight: 500;">
+          Checkliste öffnen
+        </a>
+      </div>
+      
+      <hr style="border: none; border-top: 1px solid #e5e5e5; margin: 24px 0;" />
+      
+      <p style="font-size: 12px; color: #999; text-align: center;">
+        Diese E-Mail wurde automatisch von visicheck.ai gesendet.
+      </p>
+    </div>
+  `;
+
+  try {
+    await resend.emails.send({
+      from: fromAddress,
+      to,
+      subject,
+      html,
+    });
+    console.log(`[Email] Checklist-Assignment an ${to} gesendet`);
+  } catch (err) {
+    console.error(`[Email] Fehler beim Senden des Assignments an ${to}:`, err);
+  }
+}
+
+// ── Run Completed Email ──────────────────────────────────────────────────
+
 export async function sendRunCompletedEmail({
   to,
   runId,
