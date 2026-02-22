@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import {
   Accordion,
@@ -21,7 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ChevronDown, MessageSquare, UserPlus, X } from "lucide-react";
+import { Check, ChevronDown, Loader2, MessageSquare, UserPlus, X } from "lucide-react";
 import type { ChecklistCategory } from "@/lib/checklist-data";
 
 type Domain = { id: string; name: string; domainUrl: string };
@@ -53,7 +53,10 @@ export function VisibilityChecklist({
   const [itemData, setItemData] = useState<Record<string, ItemData>>({});
   const [loading, setLoading] = useState(false);
   const [expandedNotes, setExpandedNotes] = useState<Set<string>>(new Set());
-  const debounceTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+  const [draftNotes, setDraftNotes] = useState<Record<string, string>>({});
+  const [draftAssignees, setDraftAssignees] = useState<Record<string, string | null>>({});
+  const [savingItems, setSavingItems] = useState<Set<string>>(new Set());
+  const [savedItems, setSavedItems] = useState<Set<string>>(new Set());
 
   const fetchChecklist = useCallback(async (domainId: string) => {
     if (!domainId) return;
@@ -103,25 +106,40 @@ export function VisibilityChecklist({
     await saveItem(itemKey, { checked });
   };
 
-  const updateNotes = (itemKey: string, notes: string) => {
-    setItemData((prev) => ({
-      ...prev,
-      [itemKey]: { ...prev[itemKey], checked: prev[itemKey]?.checked ?? false, notes, assigneeId: prev[itemKey]?.assigneeId ?? null },
-    }));
-    if (debounceTimers.current[itemKey]) {
-      clearTimeout(debounceTimers.current[itemKey]);
-    }
-    debounceTimers.current[itemKey] = setTimeout(() => {
-      saveItem(itemKey, { notes });
-    }, 800);
+  const setDraftNote = (itemKey: string, notes: string) => {
+    setDraftNotes((prev) => ({ ...prev, [itemKey]: notes }));
+    setSavedItems((prev) => { const n = new Set(prev); n.delete(itemKey); return n; });
   };
 
-  const updateAssignee = async (itemKey: string, assigneeId: string | null) => {
+  const setDraftAssignee = (itemKey: string, assigneeId: string | null) => {
+    setDraftAssignees((prev) => ({ ...prev, [itemKey]: assigneeId }));
+    setSavedItems((prev) => { const n = new Set(prev); n.delete(itemKey); return n; });
+  };
+
+  const saveDetails = async (itemKey: string) => {
+    const data = getItem(itemKey);
+    const notes = draftNotes[itemKey] ?? data.notes ?? "";
+    const assigneeId = itemKey in draftAssignees ? draftAssignees[itemKey] : data.assigneeId;
+
+    setSavingItems((prev) => new Set(prev).add(itemKey));
+    await saveItem(itemKey, { notes, assigneeId });
+
     setItemData((prev) => ({
       ...prev,
-      [itemKey]: { ...prev[itemKey], checked: prev[itemKey]?.checked ?? false, notes: prev[itemKey]?.notes ?? null, assigneeId },
+      [itemKey]: { ...prev[itemKey], checked: prev[itemKey]?.checked ?? false, notes, assigneeId: assigneeId ?? null },
     }));
-    await saveItem(itemKey, { assigneeId });
+    setDraftNotes((prev) => { const n = { ...prev }; delete n[itemKey]; return n; });
+    setDraftAssignees((prev) => { const n = { ...prev }; delete n[itemKey]; return n; });
+    setSavingItems((prev) => { const n = new Set(prev); n.delete(itemKey); return n; });
+    setSavedItems((prev) => new Set(prev).add(itemKey));
+    setTimeout(() => setSavedItems((prev) => { const n = new Set(prev); n.delete(itemKey); return n; }), 2000);
+  };
+
+  const hasDraftChanges = (itemKey: string): boolean => {
+    const data = getItem(itemKey);
+    const notesChanged = itemKey in draftNotes && draftNotes[itemKey] !== (data.notes ?? "");
+    const assigneeChanged = itemKey in draftAssignees && draftAssignees[itemKey] !== data.assigneeId;
+    return notesChanged || assigneeChanged;
   };
 
   const toggleNotes = (itemKey: string) => {
@@ -313,9 +331,13 @@ export function VisibilityChecklist({
                                   {t("assignee")}:
                                 </span>
                                 <Select
-                                  value={data.assigneeId ?? "__none__"}
+                                  value={
+                                    (item.key in draftAssignees
+                                      ? draftAssignees[item.key]
+                                      : data.assigneeId) ?? "__none__"
+                                  }
                                   onValueChange={(val) =>
-                                    updateAssignee(
+                                    setDraftAssignee(
                                       item.key,
                                       val === "__none__" ? null : val
                                     )
@@ -340,13 +362,15 @@ export function VisibilityChecklist({
                                     ))}
                                   </SelectContent>
                                 </Select>
-                                {data.assigneeId && (
+                                {(item.key in draftAssignees
+                                  ? draftAssignees[item.key]
+                                  : data.assigneeId) && (
                                   <Button
                                     variant="ghost"
                                     size="icon"
                                     className="h-6 w-6"
                                     onClick={() =>
-                                      updateAssignee(item.key, null)
+                                      setDraftAssignee(item.key, null)
                                     }
                                   >
                                     <X className="h-3 w-3" />
@@ -355,15 +379,44 @@ export function VisibilityChecklist({
                               </div>
 
                               {/* Notes textarea */}
-                              <div>
-                                <Textarea
-                                  placeholder={t("notesPlaceholder")}
-                                  value={data.notes ?? ""}
-                                  onChange={(e) =>
-                                    updateNotes(item.key, e.target.value)
+                              <Textarea
+                                placeholder={t("notesPlaceholder")}
+                                value={
+                                  item.key in draftNotes
+                                    ? draftNotes[item.key]
+                                    : data.notes ?? ""
+                                }
+                                onChange={(e) =>
+                                  setDraftNote(item.key, e.target.value)
+                                }
+                                className="min-h-20 text-sm"
+                              />
+
+                              {/* Save button */}
+                              <div className="flex items-center justify-end gap-2">
+                                {savedItems.has(item.key) && (
+                                  <span className="flex items-center gap-1 text-xs text-green-600">
+                                    <Check className="h-3 w-3" />
+                                    {t("saved")}
+                                  </span>
+                                )}
+                                <Button
+                                  size="sm"
+                                  onClick={() => saveDetails(item.key)}
+                                  disabled={
+                                    savingItems.has(item.key) ||
+                                    !hasDraftChanges(item.key)
                                   }
-                                  className="min-h-20 text-sm"
-                                />
+                                >
+                                  {savingItems.has(item.key) ? (
+                                    <>
+                                      <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                                      {t("saving")}
+                                    </>
+                                  ) : (
+                                    t("saveDetails")
+                                  )}
+                                </Button>
                               </div>
                             </div>
                           )}
