@@ -27,8 +27,15 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { buildHreflangAlternates } from "@/lib/locale-href";
 import { AuthButtons } from "@/components/auth-buttons";
 import { LanguageSwitcher } from "@/components/language-switcher";
-import { MobileNav } from "@/components/mobile-nav";
-import { FaqSection } from "@/components/faq-section";
+import dynamic from "next/dynamic";
+
+const MobileNav = dynamic(() =>
+  import("@/components/mobile-nav").then((mod) => mod.MobileNav)
+);
+
+const FaqSection = dynamic(() =>
+  import("@/components/faq-section").then((mod) => mod.FaqSection)
+);
 import { db } from "@/lib/db";
 import { magazineArticles, magazineArticleTranslations, users } from "@/lib/schema";
 import { desc, eq, and } from "drizzle-orm";

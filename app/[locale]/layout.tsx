@@ -4,7 +4,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { Providers } from "@/components/providers";
-import { CookieBanner } from "@/components/cookie-banner";
+import { LazyCookieBanner } from "@/components/lazy-cookie-banner";
 import { routing } from "@/i18n/routing";
 import "../globals.css";
 
@@ -60,7 +60,7 @@ export default async function LocaleLayout({
       >
         <NextIntlClientProvider messages={messages}>
           <Providers>{children}</Providers>
-          <CookieBanner />
+          <LazyCookieBanner />
         </NextIntlClientProvider>
       </body>
     </html>
