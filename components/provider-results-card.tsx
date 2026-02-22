@@ -155,36 +155,38 @@ export function ProviderResultsCard({
                 {filtered.length} / {items.length}
               </p>
             )}
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{t.prompt}</TableHead>
-                  <TableHead>{t.mentions}</TableHead>
-                  <TableHead>{t.citations}</TableHead>
-                  <TableHead>{t.responseExcerpt}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filtered.map((item, i) => (
-                  <TableRow key={i}>
-                    <TableCell className="max-w-[200px] truncate">
-                      {item.prompt}
-                    </TableCell>
-                    <TableCell>{item.mentions}</TableCell>
-                    <TableCell>
-                      <ExpandableCitations
-                        citations={item.citations}
-                        ownDomainCited={item.ownDomainCited}
-                        count={item.citationCount}
-                      />
-                    </TableCell>
-                    <TableCell className="max-w-[400px]">
-                      <ExpandableResponse text={item.response} />
-                    </TableCell>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t.prompt}</TableHead>
+                    <TableHead>{t.mentions}</TableHead>
+                    <TableHead>{t.citations}</TableHead>
+                    <TableHead>{t.responseExcerpt}</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {filtered.map((item, i) => (
+                    <TableRow key={i}>
+                      <TableCell className="max-w-[200px] truncate">
+                        {item.prompt}
+                      </TableCell>
+                      <TableCell>{item.mentions}</TableCell>
+                      <TableCell>
+                        <ExpandableCitations
+                          citations={item.citations}
+                          ownDomainCited={item.ownDomainCited}
+                          count={item.citationCount}
+                        />
+                      </TableCell>
+                      <TableCell className="max-w-[400px]">
+                        <ExpandableResponse text={item.response} />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </>
         )}
       </CardContent>

@@ -264,7 +264,7 @@ export function AnalyticsCharts({
   return (
     <div className="space-y-8">
       {/* KPI Row */}
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">
@@ -315,7 +315,7 @@ export function AnalyticsCharts({
 
       {/* Charts Row: Source mentions + Brand-only by Provider */}
       <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
+        <Card className="overflow-hidden">
           <CardHeader>
             <CardTitle className="text-base">
               {t("sourcesByProvider")}
@@ -323,7 +323,7 @@ export function AnalyticsCharts({
             <CardDescription>{t("sourcesByProviderDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
-            <ChartContainer config={providerPieConfig} className="mx-auto h-[280px] w-full">
+            <ChartContainer config={providerPieConfig} className="mx-auto aspect-square h-auto w-full max-h-[280px]">
               <PieChart>
                 <ChartTooltip content={<ChartTooltipContent nameKey="provider" />} />
                 <Pie
@@ -332,8 +332,8 @@ export function AnalyticsCharts({
                   nameKey="provider"
                   cx="50%"
                   cy="50%"
-                  innerRadius={55}
-                  outerRadius={90}
+                  innerRadius={50}
+                  outerRadius={80}
                   paddingAngle={3}
                 />
                 <ChartLegend content={<ChartLegendContent nameKey="provider" />} />
@@ -342,7 +342,7 @@ export function AnalyticsCharts({
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="overflow-hidden">
           <CardHeader>
             <CardTitle className="text-base">
               {t("brandOnlyByProvider")}
@@ -350,7 +350,7 @@ export function AnalyticsCharts({
             <CardDescription>{t("brandOnlyByProviderDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
-            <ChartContainer config={providerPieConfig} className="mx-auto h-[280px] w-full">
+            <ChartContainer config={providerPieConfig} className="mx-auto aspect-square h-auto w-full max-h-[280px]">
               <PieChart>
                 <ChartTooltip content={<ChartTooltipContent nameKey="provider" />} />
                 <Pie
@@ -359,8 +359,8 @@ export function AnalyticsCharts({
                   nameKey="provider"
                   cx="50%"
                   cy="50%"
-                  innerRadius={55}
-                  outerRadius={90}
+                  innerRadius={50}
+                  outerRadius={80}
                   paddingAngle={3}
                 />
                 <ChartLegend content={<ChartLegendContent nameKey="provider" />} />

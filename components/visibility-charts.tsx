@@ -8,7 +8,6 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  ResponsiveContainer,
 } from "recharts";
 import {
   ChartContainer,
@@ -190,91 +189,89 @@ export function VisibilityCharts({
       </div>
 
       {/* Main Visibility Timeline Chart */}
-      <Card>
+      <Card className="overflow-hidden">
         <CardHeader>
           <CardTitle className="text-base">{t("chartTitle")}</CardTitle>
           <CardDescription>{t("chartDescription")}</CardDescription>
         </CardHeader>
         <CardContent>
-          <ChartContainer config={chartConfig} className="h-[400px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={timeline} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis
-                  dataKey="date"
-                  tickFormatter={formatDate}
-                  tick={{ fontSize: 12 }}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <YAxis
-                  domain={[0, 100]}
-                  tick={{ fontSize: 12 }}
-                  tickLine={false}
-                  axisLine={false}
-                  width={40}
-                />
-                <ChartTooltip
-                  content={
-                    <ChartTooltipContent
-                      labelFormatter={(label) =>
-                        new Date(label).toLocaleDateString("de-DE", {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric",
-                        })
-                      }
-                    />
-                  }
-                />
-                <ChartLegend content={<ChartLegendContent />} />
-                <Line
-                  type="monotone"
-                  dataKey="avg"
-                  stroke="var(--color-avg)"
-                  strokeWidth={3}
-                  dot={{ r: 4 }}
-                  activeDot={{ r: 6 }}
-                  connectNulls
-                />
-                <Line
-                  type="monotone"
-                  dataKey="chatgpt"
-                  stroke="var(--color-chatgpt)"
-                  strokeWidth={1.5}
-                  dot={{ r: 2 }}
-                  strokeDasharray="4 4"
-                  connectNulls
-                />
-                <Line
-                  type="monotone"
-                  dataKey="claude"
-                  stroke="var(--color-claude)"
-                  strokeWidth={1.5}
-                  dot={{ r: 2 }}
-                  strokeDasharray="4 4"
-                  connectNulls
-                />
-                <Line
-                  type="monotone"
-                  dataKey="gemini"
-                  stroke="var(--color-gemini)"
-                  strokeWidth={1.5}
-                  dot={{ r: 2 }}
-                  strokeDasharray="4 4"
-                  connectNulls
-                />
-                <Line
-                  type="monotone"
-                  dataKey="perplexity"
-                  stroke="var(--color-perplexity)"
-                  strokeWidth={1.5}
-                  dot={{ r: 2 }}
-                  strokeDasharray="4 4"
-                  connectNulls
-                />
-              </LineChart>
-            </ResponsiveContainer>
+          <ChartContainer config={chartConfig} className="aspect-auto h-[300px] w-full sm:h-[400px]">
+            <LineChart data={timeline} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+              <XAxis
+                dataKey="date"
+                tickFormatter={formatDate}
+                tick={{ fontSize: 11 }}
+                tickLine={false}
+                axisLine={false}
+              />
+              <YAxis
+                domain={[0, 100]}
+                tick={{ fontSize: 11 }}
+                tickLine={false}
+                axisLine={false}
+                width={35}
+              />
+              <ChartTooltip
+                content={
+                  <ChartTooltipContent
+                    labelFormatter={(label) =>
+                      new Date(label).toLocaleDateString("de-DE", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                      })
+                    }
+                  />
+                }
+              />
+              <ChartLegend content={<ChartLegendContent />} />
+              <Line
+                type="monotone"
+                dataKey="avg"
+                stroke="var(--color-avg)"
+                strokeWidth={3}
+                dot={{ r: 3 }}
+                activeDot={{ r: 5 }}
+                connectNulls
+              />
+              <Line
+                type="monotone"
+                dataKey="chatgpt"
+                stroke="var(--color-chatgpt)"
+                strokeWidth={1.5}
+                dot={false}
+                strokeDasharray="4 4"
+                connectNulls
+              />
+              <Line
+                type="monotone"
+                dataKey="claude"
+                stroke="var(--color-claude)"
+                strokeWidth={1.5}
+                dot={false}
+                strokeDasharray="4 4"
+                connectNulls
+              />
+              <Line
+                type="monotone"
+                dataKey="gemini"
+                stroke="var(--color-gemini)"
+                strokeWidth={1.5}
+                dot={false}
+                strokeDasharray="4 4"
+                connectNulls
+              />
+              <Line
+                type="monotone"
+                dataKey="perplexity"
+                stroke="var(--color-perplexity)"
+                strokeWidth={1.5}
+                dot={false}
+                strokeDasharray="4 4"
+                connectNulls
+              />
+            </LineChart>
           </ChartContainer>
         </CardContent>
       </Card>

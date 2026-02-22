@@ -105,7 +105,7 @@ export function SentimentFilter({
         value={currentDomain}
         onValueChange={(v) => updateFilter("domain", v)}
       >
-        <SelectTrigger className="w-[220px]">
+        <SelectTrigger className="w-full sm:w-[220px]">
           <SelectValue placeholder={t("filterByDomain")} />
         </SelectTrigger>
         <SelectContent>
@@ -121,7 +121,7 @@ export function SentimentFilter({
         value={currentCategory}
         onValueChange={(v) => updateFilter("category", v)}
       >
-        <SelectTrigger className="w-[200px]">
+        <SelectTrigger className="w-full sm:w-[200px]">
           <SelectValue placeholder={t("filterByCategory")} />
         </SelectTrigger>
         <SelectContent>
@@ -137,7 +137,7 @@ export function SentimentFilter({
         value={currentRun}
         onValueChange={(v) => updateFilter("runId", v)}
       >
-        <SelectTrigger className="w-[300px]">
+        <SelectTrigger className="w-full sm:w-[300px]">
           <SelectValue placeholder={t("filterByRun")} />
         </SelectTrigger>
         <SelectContent>

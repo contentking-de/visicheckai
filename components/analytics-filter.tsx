@@ -97,7 +97,7 @@ export function AnalyticsFilter({
         value={currentDomain}
         onValueChange={(v) => updateFilter("domain", v)}
       >
-        <SelectTrigger className="w-[220px]">
+        <SelectTrigger className="w-full sm:w-[220px]">
           <SelectValue placeholder={t("filterByDomain")} />
         </SelectTrigger>
         <SelectContent>
@@ -113,7 +113,7 @@ export function AnalyticsFilter({
         value={currentCategory}
         onValueChange={(v) => updateFilter("category", v)}
       >
-        <SelectTrigger className="w-[200px]">
+        <SelectTrigger className="w-full sm:w-[200px]">
           <SelectValue placeholder={t("filterByCategory")} />
         </SelectTrigger>
         <SelectContent>
@@ -129,7 +129,7 @@ export function AnalyticsFilter({
         value={currentPromptSet}
         onValueChange={(v) => updateFilter("promptSet", v)}
       >
-        <SelectTrigger className="w-[260px]">
+        <SelectTrigger className="w-full sm:w-[260px]">
           <SelectValue placeholder={t("filterByPromptSet")} />
         </SelectTrigger>
         <SelectContent>

@@ -82,7 +82,7 @@ export function RunsFilter({
         value={currentDomain}
         onValueChange={(v) => updateFilter("domain", v)}
       >
-        <SelectTrigger className="w-[200px]">
+        <SelectTrigger className="w-full sm:w-[200px]">
           <SelectValue placeholder={t("filterByDomain")} />
         </SelectTrigger>
         <SelectContent>
@@ -98,7 +98,7 @@ export function RunsFilter({
         value={currentCategory}
         onValueChange={(v) => updateFilter("category", v)}
       >
-        <SelectTrigger className="w-[200px]">
+        <SelectTrigger className="w-full sm:w-[200px]">
           <SelectValue placeholder={t("filterByCategory")} />
         </SelectTrigger>
         <SelectContent>
@@ -114,7 +114,7 @@ export function RunsFilter({
         value={currentPromptSet}
         onValueChange={(v) => updateFilter("promptSet", v)}
       >
-        <SelectTrigger className="w-[200px]">
+        <SelectTrigger className="w-full sm:w-[200px]">
           <SelectValue placeholder={t("filterByPromptSet")} />
         </SelectTrigger>
         <SelectContent>

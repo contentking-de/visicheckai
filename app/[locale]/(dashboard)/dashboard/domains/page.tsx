@@ -30,7 +30,7 @@ export default async function DomainsPage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">{t("title")}</h1>
           <p className="text-muted-foreground">
@@ -45,7 +45,7 @@ export default async function DomainsPage() {
         </Button>
       </div>
 
-      <div className="rounded-md border">
+      <div className="overflow-x-auto rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>

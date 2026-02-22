@@ -170,7 +170,7 @@ export function SentimentCharts({
   return (
     <div className="space-y-8">
       {/* KPI Row */}
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">
@@ -243,44 +243,42 @@ export function SentimentCharts({
 
       {/* Row: Pie chart + Provider comparison */}
       <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
+        <Card className="overflow-hidden">
           <CardHeader>
             <CardTitle className="text-base">{t("distribution")}</CardTitle>
             <CardDescription>{t("distributionDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
-            <ChartContainer config={sentimentConfig} className="mx-auto h-[280px] w-full">
+            <ChartContainer config={sentimentConfig} className="mx-auto aspect-square h-auto w-full max-h-[280px]">
               <PieChart>
                 <ChartTooltip content={<ChartTooltipContent nameKey="sentiment" />} />
                 <Pie
                   data={pieData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={60}
-                  outerRadius={100}
+                  innerRadius={50}
+                  outerRadius={80}
                   paddingAngle={3}
                   dataKey="value"
                   nameKey="sentiment"
-                  label={({ name, percent }: { name: string; percent: number }) =>
-                    `${sentimentConfig[name as keyof typeof sentimentConfig]?.label ?? name} ${((percent ?? 0) * 100).toFixed(0)}%`
-                  }
                 />
+                <ChartLegend content={<ChartLegendContent nameKey="sentiment" />} />
               </PieChart>
             </ChartContainer>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="overflow-hidden">
           <CardHeader>
             <CardTitle className="text-base">{t("byProvider")}</CardTitle>
             <CardDescription>{t("byProviderDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
-            <ChartContainer config={sentimentConfig} className="h-[280px] w-full">
+            <ChartContainer config={sentimentConfig} className="aspect-auto h-[280px] w-full">
               <BarChart data={providerData} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis type="number" />
-                <YAxis type="category" dataKey="provider" width={80} />
+                <YAxis type="category" dataKey="provider" width={70} tick={{ fontSize: 12 }} />
                 <ChartTooltip content={<ChartTooltipContent />} />
                 <ChartLegend content={<ChartLegendContent />} />
                 <Bar dataKey="positive" stackId="a" fill="var(--color-positive)" />
@@ -294,13 +292,13 @@ export function SentimentCharts({
 
       {/* Sentiment over time */}
       {data.overTime.length > 1 && (
-        <Card>
+        <Card className="overflow-hidden">
           <CardHeader>
             <CardTitle className="text-base">{t("overTime")}</CardTitle>
             <CardDescription>{t("overTimeDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
-            <ChartContainer config={sentimentConfig} className="h-[320px] w-full">
+            <ChartContainer config={sentimentConfig} className="aspect-auto h-[280px] w-full sm:h-[320px]">
               <AreaChart data={data.overTime}>
                 <defs>
                   <linearGradient id={`${id}-pos`} x1="0" y1="0" x2="0" y2="1">

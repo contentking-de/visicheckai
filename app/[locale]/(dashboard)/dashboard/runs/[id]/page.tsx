@@ -142,7 +142,7 @@ export default async function RunDetailPage({
   return (
     <div className="space-y-8">
       <div>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <h1 className="text-2xl font-bold">{t("title")}</h1>
           <Button asChild variant="ghost" size="sm">
             <Link

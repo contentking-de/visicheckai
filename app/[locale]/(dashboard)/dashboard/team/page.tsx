@@ -222,8 +222,8 @@ export default function TeamPage() {
             </p>
           </div>
 
-          <form onSubmit={handleInvite} className="flex items-end gap-3">
-            <div className="flex-1 space-y-2">
+          <form onSubmit={handleInvite} className="flex flex-wrap items-end gap-3">
+            <div className="min-w-[200px] flex-1 space-y-2">
               <Label htmlFor="invite-email">{t("emailLabel")}</Label>
               <Input
                 id="invite-email"
@@ -284,7 +284,7 @@ export default function TeamPage() {
       {/* Members Table */}
       <div>
         <h2 className="text-lg font-semibold mb-3">{t("members")}</h2>
-        <div className="rounded-md border">
+        <div className="overflow-x-auto rounded-md border">
           <Table>
             <TableHeader>
               <TableRow>
@@ -372,7 +372,7 @@ export default function TeamPage() {
             <Clock className="h-4 w-4" />
             {t("pendingInvites")}
           </h2>
-          <div className="rounded-md border">
+          <div className="overflow-x-auto rounded-md border">
             <Table>
               <TableHeader>
                 <TableRow>

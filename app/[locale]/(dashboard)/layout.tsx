@@ -26,6 +26,7 @@ import { redirect } from "next/navigation";
 import { getLocalePrefix } from "@/lib/locale-href";
 import { OnboardingModal } from "@/components/onboarding-modal";
 import { ImpersonationBanner } from "@/components/impersonation-banner";
+import { DashboardMobileNav } from "@/components/dashboard-mobile-nav";
 
 export default async function DashboardLayout({
   children,
@@ -48,15 +49,15 @@ export default async function DashboardLayout({
   const t = await getTranslations("Nav");
 
   const dataItems = [
-    { href: "/dashboard/runs", label: t("runs"), icon: BarChart3 },
-    { href: "/dashboard/sentiment", label: t("sentiment"), icon: Heart },
-    { href: "/dashboard/analytics", label: t("analytics"), icon: PieChart },
+    { href: "/dashboard/runs", label: t("runs"), icon: BarChart3, iconName: "BarChart3" },
+    { href: "/dashboard/sentiment", label: t("sentiment"), icon: Heart, iconName: "Heart" },
+    { href: "/dashboard/analytics", label: t("analytics"), icon: PieChart, iconName: "PieChart" },
   ];
 
   const settingsItems = [
-    { href: "/dashboard/domains", label: t("domains"), icon: Globe },
-    { href: "/dashboard/prompt-sets", label: t("promptSets"), icon: FileText },
-    { href: "/dashboard/configs", label: t("configs"), icon: Settings },
+    { href: "/dashboard/domains", label: t("domains"), icon: Globe, iconName: "Globe" },
+    { href: "/dashboard/prompt-sets", label: t("promptSets"), icon: FileText, iconName: "FileText" },
+    { href: "/dashboard/configs", label: t("configs"), icon: Settings, iconName: "Settings" },
   ];
 
   const adminItems: typeof dataItems = [];
@@ -65,22 +66,61 @@ export default async function DashboardLayout({
       href: "/dashboard/admin",
       label: t("admin"),
       icon: ShieldCheck,
+      iconName: "ShieldCheck",
     });
     adminItems.push({
       href: "/dashboard/admin/users",
       label: t("adminUsers"),
       icon: Users,
+      iconName: "Users",
     });
     adminItems.push({
       href: "/dashboard/admin/magazin",
       label: t("magazine"),
       icon: Newspaper,
+      iconName: "Newspaper",
     });
   }
 
+  const mobileMainItems = [
+    { href: "/dashboard", label: t("dashboard"), iconName: "LayoutDashboard" },
+    { href: "/dashboard/visibility", label: t("visibility"), iconName: "Eye" },
+  ];
+
+  const mobileSections = [
+    {
+      title: t("sectionData"),
+      items: dataItems.map((item) => ({
+        href: item.href,
+        label: item.label,
+        iconName: item.iconName,
+      })),
+    },
+    {
+      title: t("sectionSettings"),
+      items: settingsItems.map((item) => ({
+        href: item.href,
+        label: item.label,
+        iconName: item.iconName,
+      })),
+    },
+    ...(adminItems.length > 0
+      ? [
+          {
+            title: t("sectionAdmin"),
+            items: adminItems.map((item) => ({
+              href: item.href,
+              label: item.label,
+              iconName: item.iconName,
+            })),
+          },
+        ]
+      : []),
+  ];
+
   return (
-    <div className="flex min-h-screen">
-      <aside className="sticky top-0 flex h-screen w-56 flex-col border-r bg-muted/30">
+    <div className="flex min-h-screen overflow-x-hidden">
+      <aside className="sticky top-0 hidden h-screen w-56 flex-col border-r bg-muted/30 md:flex">
         <div className="flex h-16 shrink-0 items-center border-b px-4">
           <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
             <Image src="/favicon.webp" alt="" width={20} height={20} className="h-5 w-5" />
@@ -155,25 +195,38 @@ export default async function DashboardLayout({
           <LanguageSwitcher />
         </div>
       </aside>
-      <div className="flex flex-1 flex-col">
+      <div className="flex min-w-0 flex-1 flex-col">
         {session.user.impersonating && session.user.impersonatingTeamName && (
           <ImpersonationBanner teamName={session.user.impersonatingTeamName} />
         )}
-        <header className="flex h-16 items-center justify-end gap-3 border-b px-6">
-          <OnboardingModal />
-          <span className="text-sm text-muted-foreground">
-            {t("welcome", { name: session.user.name ?? "" })}
-          </span>
-          <UserMenu
-            name={session.user.name}
-            email={session.user.email}
-            image={session.user.image}
-            role={session.user.role}
+        <header className="flex h-14 items-center gap-3 border-b px-4 md:h-16 md:justify-end md:px-6">
+          <DashboardMobileNav
+            mainItems={mobileMainItems}
+            sections={mobileSections}
           />
+          <Link
+            href="/dashboard"
+            className="flex items-center gap-2 font-semibold md:hidden"
+          >
+            <Image src="/favicon.webp" alt="" width={20} height={20} className="h-5 w-5" />
+            <span className="text-sm">visicheck.ai</span>
+          </Link>
+          <div className="ml-auto flex items-center gap-3">
+            <OnboardingModal />
+            <span className="hidden text-sm text-muted-foreground sm:inline">
+              {t("welcome", { name: session.user.name ?? "" })}
+            </span>
+            <UserMenu
+              name={session.user.name}
+              email={session.user.email}
+              image={session.user.image}
+              role={session.user.role}
+            />
+          </div>
         </header>
         <AccessGate access={access}>
-          <main className="flex-1 overflow-auto">
-            <div className="container mx-auto max-w-6xl px-4 py-8 has-[.full-bleed]:max-w-none">
+          <main className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto">
+            <div className="mx-auto max-w-6xl px-4 py-4 md:py-8 has-[.full-bleed]:max-w-none">
               {children}
             </div>
           </main>

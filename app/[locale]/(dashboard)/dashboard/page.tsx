@@ -174,22 +174,22 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold">{t("title")}</h1>
           <p className="text-muted-foreground">
             {t("welcome")}
           </p>
         </div>
-        <div className="flex shrink-0 gap-3">
-          <Button asChild>
-            <Link href="/dashboard/domains/new" className="flex items-center gap-2">
+        <div className="flex shrink-0 gap-2 sm:gap-3">
+          <Button asChild size="sm" className="flex-1 sm:flex-initial">
+            <Link href="/dashboard/domains/new" className="flex items-center justify-center gap-2">
               <Plus className="h-4 w-4" />
               {t("addDomain")}
             </Link>
           </Button>
-          <Button asChild variant="outline">
-            <Link href="/dashboard/prompt-sets/new" className="flex items-center gap-2">
+          <Button asChild variant="outline" size="sm" className="flex-1 sm:flex-initial">
+            <Link href="/dashboard/prompt-sets/new" className="flex items-center justify-center gap-2">
               <Plus className="h-4 w-4" />
               {t("createPromptSet")}
             </Link>
@@ -273,7 +273,7 @@ export default async function DashboardPage() {
                     </p>
                   ) : (
                     <>
-                      <div className="grid grid-cols-4 gap-3">
+                      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                         <div className="space-y-1">
                           <p className="text-xs text-muted-foreground">
                             {t("totalRuns")}
@@ -363,54 +363,56 @@ export default async function DashboardPage() {
               {tRuns("andStartRun")}
             </p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Domain</TableHead>
-                  <TableHead>Prompt-Set</TableHead>
-                  <TableHead>{tRuns("status")}</TableHead>
-                  <TableHead>{tRuns("startedAt")}</TableHead>
-                  <TableHead />
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {recentRuns.map(({ run, domain, promptSet }) => (
-                  <TableRow key={run.id}>
-                    <TableCell className="font-medium">
-                      {domain.name}
-                    </TableCell>
-                    <TableCell>{promptSet.name}</TableCell>
-                    <TableCell>
-                      <span
-                        className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
-                          run.status === "completed"
-                            ? "bg-green-100 text-green-800"
-                            : run.status === "failed"
-                              ? "bg-red-100 text-red-800"
-                              : run.status === "running"
-                                ? "bg-blue-100 text-blue-800"
-                                : "bg-gray-100 text-gray-800"
-                        }`}
-                      >
-                        {run.status}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {run.startedAt
-                        ? new Date(run.startedAt).toLocaleString(locale)
-                        : "-"}
-                    </TableCell>
-                    <TableCell>
-                      <Button asChild variant="ghost" size="sm">
-                        <Link href={`/dashboard/runs/${run.id}`}>
-                          {tc("details")}
-                        </Link>
-                      </Button>
-                    </TableCell>
+            <div className="-mx-4 overflow-x-auto sm:mx-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Domain</TableHead>
+                    <TableHead>Prompt-Set</TableHead>
+                    <TableHead>{tRuns("status")}</TableHead>
+                    <TableHead className="hidden sm:table-cell">{tRuns("startedAt")}</TableHead>
+                    <TableHead />
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {recentRuns.map(({ run, domain, promptSet }) => (
+                    <TableRow key={run.id}>
+                      <TableCell className="font-medium">
+                        {domain.name}
+                      </TableCell>
+                      <TableCell>{promptSet.name}</TableCell>
+                      <TableCell>
+                        <span
+                          className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
+                            run.status === "completed"
+                              ? "bg-green-100 text-green-800"
+                              : run.status === "failed"
+                                ? "bg-red-100 text-red-800"
+                                : run.status === "running"
+                                  ? "bg-blue-100 text-blue-800"
+                                  : "bg-gray-100 text-gray-800"
+                          }`}
+                        >
+                          {run.status}
+                        </span>
+                      </TableCell>
+                      <TableCell className="hidden text-muted-foreground sm:table-cell">
+                        {run.startedAt
+                          ? new Date(run.startedAt).toLocaleString(locale)
+                          : "-"}
+                      </TableCell>
+                      <TableCell>
+                        <Button asChild variant="ghost" size="sm">
+                          <Link href={`/dashboard/runs/${run.id}`}>
+                            {tc("details")}
+                          </Link>
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </CardContent>
       </Card>
