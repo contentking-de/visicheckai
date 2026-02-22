@@ -24,7 +24,7 @@ export function LanguageSwitcher() {
 
   return (
     <Select value={locale} onValueChange={handleChange}>
-      <SelectTrigger className="w-[140px] gap-2">
+      <SelectTrigger className="w-[140px] gap-2" aria-label={t("label")}>
         <Globe className="h-4 w-4 shrink-0" />
         <SelectValue />
       </SelectTrigger>

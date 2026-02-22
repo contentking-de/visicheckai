@@ -564,6 +564,7 @@
     "stop": "Detener"
   },
   "LanguageSwitcher": {
+    "label": "Seleccionar idioma",
     "de": "Deutsch",
     "en": "English",
     "fr": "Français",
