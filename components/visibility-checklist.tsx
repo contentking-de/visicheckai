@@ -21,6 +21,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Slider } from "@/components/ui/slider";
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import { Check, ChevronDown, Loader2, MessageSquare, UserPlus, X } from "lucide-react";
 import type { ChecklistCategory } from "@/lib/checklist-data";
 
@@ -64,15 +66,24 @@ export function VisibilityChecklist({
   const [draftAssignees, setDraftAssignees] = useState<Record<string, string | null>>({});
   const [savingItems, setSavingItems] = useState<Set<string>>(new Set());
   const [savedItems, setSavedItems] = useState<Set<string>>(new Set());
+  const [maturityRatings, setMaturityRatings] = useState<Record<string, number>>({});
+  const [savingRatings, setSavingRatings] = useState<Set<string>>(new Set());
 
   const fetchChecklist = useCallback(async (domainId: string) => {
     if (!domainId) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/checklist?domainId=${domainId}`);
-      if (res.ok) {
-        const data = await res.json();
+      const [checklistRes, ratingsRes] = await Promise.all([
+        fetch(`/api/checklist?domainId=${domainId}`),
+        fetch(`/api/maturity-ratings?domainId=${domainId}`),
+      ]);
+      if (checklistRes.ok) {
+        const data = await checklistRes.json();
         setItemData(data.items ?? {});
+      }
+      if (ratingsRes.ok) {
+        const data = await ratingsRes.json();
+        setMaturityRatings(data.ratings ?? {});
       }
     } finally {
       setLoading(false);
@@ -102,6 +113,30 @@ export function VisibilityChecklist({
       }
     } catch (err) {
       console.error("[Checklist] Network error:", err);
+    }
+  };
+
+  const updateMaturityLocal = (itemKey: string, rating: number) => {
+    setMaturityRatings((prev) => ({ ...prev, [itemKey]: rating }));
+  };
+
+  const saveMaturityRating = async (itemKey: string, rating: number) => {
+    setMaturityRatings((prev) => ({ ...prev, [itemKey]: rating }));
+    setSavingRatings((prev) => new Set(prev).add(itemKey));
+    try {
+      await fetch("/api/maturity-ratings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ domainId: selectedDomainId, itemKey, rating }),
+      });
+    } catch (err) {
+      console.error("[MaturityRating] Network error:", err);
+    } finally {
+      setSavingRatings((prev) => {
+        const n = new Set(prev);
+        n.delete(itemKey);
+        return n;
+      });
     }
   };
 
@@ -172,6 +207,30 @@ export function VisibilityChecklist({
 
   const getMember = (id: string | null) =>
     teamMembers.find((m) => m.userId === id);
+
+  const getMaturityLabel = (rating: number): string => {
+    if (rating <= 1) return t("maturity_1");
+    if (rating <= 3) return t("maturity_3");
+    if (rating <= 5) return t("maturity_5");
+    if (rating <= 8) return t("maturity_8");
+    return t("maturity_10");
+  };
+
+  const getMaturityColor = (rating: number): string => {
+    if (rating <= 1) return "text-red-600";
+    if (rating <= 3) return "text-orange-500";
+    if (rating <= 5) return "text-amber-500";
+    if (rating <= 8) return "text-lime-600";
+    return "text-green-600";
+  };
+
+  const getSliderColor = (rating: number): string => {
+    if (rating <= 1) return "[&_[data-slot=slider-range]]:bg-red-500 [&_[data-slot=slider-thumb]]:border-red-500";
+    if (rating <= 3) return "[&_[data-slot=slider-range]]:bg-orange-400 [&_[data-slot=slider-thumb]]:border-orange-400";
+    if (rating <= 5) return "[&_[data-slot=slider-range]]:bg-amber-400 [&_[data-slot=slider-thumb]]:border-amber-400";
+    if (rating <= 8) return "[&_[data-slot=slider-range]]:bg-lime-500 [&_[data-slot=slider-thumb]]:border-lime-500";
+    return "[&_[data-slot=slider-range]]:bg-green-500 [&_[data-slot=slider-thumb]]:border-green-500";
+  };
 
   const matchesFilter = (itemKey: string): boolean => {
     if (assigneeFilter === FILTER_ALL) return true;
@@ -401,6 +460,43 @@ export function VisibilityChecklist({
                                 }`}
                               />
                             </button>
+                          </div>
+
+                          {/* Maturity rating slider */}
+                          <div className="flex items-center gap-2 px-2 pb-2 pl-9">
+                            <TooltipProvider delayDuration={200}>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <span className={`min-w-[1.5rem] text-center text-xs font-semibold tabular-nums ${maturityRatings[item.key] ? getMaturityColor(maturityRatings[item.key]) : "text-muted-foreground"}`}>
+                                    {maturityRatings[item.key] ?? "–"}
+                                  </span>
+                                </TooltipTrigger>
+                                <TooltipContent side="left">
+                                  <p className="text-xs">
+                                    {t("maturityLabel")}:{" "}
+                                    {maturityRatings[item.key]
+                                      ? getMaturityLabel(maturityRatings[item.key])
+                                      : t("maturityNotRated")}
+                                  </p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                            <Slider
+                              min={1}
+                              max={10}
+                              step={1}
+                              value={[maturityRatings[item.key] ?? 1]}
+                              onValueChange={([val]) =>
+                                updateMaturityLocal(item.key, val)
+                              }
+                              onValueCommit={([val]) =>
+                                saveMaturityRating(item.key, val)
+                              }
+                              className={`w-28 sm:w-36 ${maturityRatings[item.key] ? getSliderColor(maturityRatings[item.key]) : ""}`}
+                            />
+                            {savingRatings.has(item.key) && (
+                              <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+                            )}
                           </div>
 
                           {/* Expanded details */}

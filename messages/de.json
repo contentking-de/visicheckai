@@ -233,7 +233,8 @@
     "sectionSettings": "Einstellungen",
     "sectionAdmin": "Administration",
     "sectionTodo": "ToDo",
-    "checklist": "Visibility Checkliste"
+    "checklist": "Visibility Checkliste",
+    "maturity": "Visibility Reifegrad"
   },
   "Dashboard": {
     "title": "Dashboard",
@@ -837,6 +838,13 @@
     "filterUnassigned": "Nicht zugewiesen",
     "clearFilter": "Filter zurücksetzen",
     "noFilterResults": "Keine Checklist-Punkte für diesen Filter gefunden.",
+    "maturityLabel": "Reifegrad",
+    "maturityNotRated": "Noch nicht bewertet",
+    "maturity_1": "Unausgereift",
+    "maturity_3": "Sehr wenig ausgereift",
+    "maturity_5": "Wenig ausgereift",
+    "maturity_8": "Ausgereift",
+    "maturity_10": "Völlig ausgereift",
     "cat_tech": "Technische & strukturelle Basis (AI-Readiness)",
     "cat_tech_desc": "Crawlability, Indexierung und strukturierte Daten – die technische Grundlage für KI-Systeme.",
     "cat_entity": "Entity-SEO",
@@ -965,5 +973,25 @@
     "trust_certificates": "Zertifikate dargestellt",
     "trust_press_area": "Pressebereich vorhanden",
     "trust_imprint": "Impressum & Transparenz gegeben"
+  },
+  "Maturity": {
+    "title": "Visibility Reifegrad",
+    "description": "Bewerten Sie den Reifegrad Ihrer Visibility-Maßnahmen und visualisieren Sie den Fortschritt als Sunburst-Chart.",
+    "selectDomain": "Domain auswählen",
+    "loading": "Reifegrad-Daten werden geladen…",
+    "noDomains": "Legen Sie zuerst eine Domain an.",
+    "rated": "bewertet",
+    "avgLabel": "Durchschnitt",
+    "categoryAvg": "Kategorie-Durchschnitt",
+    "itemRating": "Reifegrad-Bewertung",
+    "hoverHint": "Segment berühren",
+    "hoverHintDesc": "Fahren Sie mit der Maus über ein Segment, um Details zum Reifegrad zu sehen.",
+    "legend": "Legende",
+    "level_1": "Unausgereift",
+    "level_3": "Sehr wenig ausgereift",
+    "level_5": "Wenig ausgereift",
+    "level_8": "Ausgereift",
+    "level_10": "Völlig ausgereift",
+    "notRated": "Nicht bewertet"
   }
 }

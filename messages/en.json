@@ -233,7 +233,8 @@
     "sectionSettings": "Settings",
     "sectionAdmin": "Administration",
     "sectionTodo": "ToDo",
-    "checklist": "Visibility Checklist"
+    "checklist": "Visibility Checklist",
+    "maturity": "Visibility Maturity"
   },
   "Dashboard": {
     "title": "Dashboard",
@@ -837,6 +838,13 @@
     "filterUnassigned": "Unassigned",
     "clearFilter": "Clear filter",
     "noFilterResults": "No checklist items found for this filter.",
+    "maturityLabel": "Maturity level",
+    "maturityNotRated": "Not yet rated",
+    "maturity_1": "Immature",
+    "maturity_3": "Very little maturity",
+    "maturity_5": "Low maturity",
+    "maturity_8": "Mature",
+    "maturity_10": "Fully mature",
     "cat_tech": "Technical & Structural Foundation (AI-Readiness)",
     "cat_tech_desc": "Crawlability, indexing, and structured data – the technical foundation for AI systems.",
     "cat_entity": "Entity SEO",
@@ -965,5 +973,25 @@
     "trust_certificates": "Certificates displayed",
     "trust_press_area": "Press area available",
     "trust_imprint": "Imprint & transparency given"
+  },
+  "Maturity": {
+    "title": "Visibility Maturity",
+    "description": "Rate the maturity level of your visibility measures and visualize progress as a Sunburst chart.",
+    "selectDomain": "Select domain",
+    "loading": "Loading maturity data…",
+    "noDomains": "Create a domain first.",
+    "rated": "rated",
+    "avgLabel": "Average",
+    "categoryAvg": "Category average",
+    "itemRating": "Maturity rating",
+    "hoverHint": "Hover a segment",
+    "hoverHintDesc": "Hover over a segment to see maturity details.",
+    "legend": "Legend",
+    "level_1": "Immature",
+    "level_3": "Very little maturity",
+    "level_5": "Low maturity",
+    "level_8": "Mature",
+    "level_10": "Fully mature",
+    "notRated": "Not rated"
   }
 }

@@ -341,6 +341,31 @@ export const visibilityChecklist = pgTable(
   ]
 );
 
+// ── Maturity Ratings ────────────────────────────────────────────────────────
+
+export const maturityRatings = pgTable(
+  "maturity_ratings",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    domainId: uuid("domain_id")
+      .notNull()
+      .references(() => domains.id, { onDelete: "cascade" }),
+    teamId: uuid("team_id")
+      .references(() => teams.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    itemKey: text("item_key").notNull(),
+    rating: integer("rating").notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow(),
+  },
+  (table) => [
+    index("maturity_domain").on(table.domainId),
+    index("maturity_team").on(table.teamId),
+    uniqueIndex("maturity_domain_item").on(table.domainId, table.itemKey),
+  ]
+);
+
 export const trackingResults = pgTable("tracking_results", {
   id: uuid("id").defaultRandom().primaryKey(),
   runId: uuid("run_id")

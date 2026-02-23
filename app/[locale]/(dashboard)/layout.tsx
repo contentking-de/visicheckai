@@ -19,6 +19,7 @@ import {
   Eye,
   Users,
   ClipboardCheck,
+  Gauge,
 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { isSuperAdmin } from "@/lib/rbac";
@@ -58,6 +59,7 @@ export default async function DashboardLayout({
 
   const todoItems = [
     { href: "/dashboard/checklist", label: t("checklist"), icon: ClipboardCheck, iconName: "ClipboardCheck" },
+    { href: "/dashboard/maturity", label: t("maturity"), icon: Gauge, iconName: "Gauge" },
   ];
 
   const settingsItems = [

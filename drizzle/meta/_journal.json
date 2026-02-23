@@ -85,6 +85,13 @@
       "when": 1771794793435,
       "tag": "0011_organic_mathemanic",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1771796119335,
+      "tag": "0012_add_maturity_ratings",
+      "breakpoints": true
     }
   ]
 }
