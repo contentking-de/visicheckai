@@ -40,7 +40,7 @@
     "resend": "^6.9.2",
     "stripe": "^20.3.1",
     "tailwind-merge": "^3.4.1",
-    "undici": "^7.22.0"
+    "undici": "^7.24.1"
   },
   "overrides": {
     "@esbuild-kit/core-utils": {
